@@ -19,6 +19,10 @@ const herdSummary = {
 
 /* =====================================================
    CATTLE DATA
+   DATA DASAR / PLACEHOLDER
+
+   HR + TEMP + RECORDED_AT AKAN DITIMPA
+   DENGAN DATA REAL DARI DATABASE.
 ===================================================== */
 
 const cattle = [
@@ -44,7 +48,7 @@ const cattle = [
 
     battery: 82,
 
-    device: 'DEV-C001',
+    device: 'C001',
 
     deviceStatus: 'Online',
 
@@ -52,7 +56,9 @@ const cattle = [
 
     stand: 42,
 
-    lie: 30
+    lie: 30,
+
+    recordedAt: null
   },
 
 
@@ -77,7 +83,7 @@ const cattle = [
 
     battery: 68,
 
-    device: 'DEV-C002',
+    device: 'C002',
 
     deviceStatus: 'Online',
 
@@ -85,7 +91,9 @@ const cattle = [
 
     stand: 42,
 
-    lie: 30
+    lie: 30,
+
+    recordedAt: null
   },
 
 
@@ -110,7 +118,7 @@ const cattle = [
 
     battery: 75,
 
-    device: 'DEV-C003',
+    device: 'C003',
 
     deviceStatus: 'Online',
 
@@ -118,7 +126,9 @@ const cattle = [
 
     stand: 35,
 
-    lie: 44
+    lie: 44,
+
+    recordedAt: null
   },
 
 
@@ -143,7 +153,7 @@ const cattle = [
 
     battery: 55,
 
-    device: 'DEV-C004',
+    device: 'C004',
 
     deviceStatus: 'Online',
 
@@ -151,7 +161,9 @@ const cattle = [
 
     stand: 31,
 
-    lie: 27
+    lie: 27,
+
+    recordedAt: null
   },
 
 
@@ -176,7 +188,7 @@ const cattle = [
 
     battery: 42,
 
-    device: 'DEV-C005',
+    device: 'C005',
 
     deviceStatus: 'Warning',
 
@@ -184,7 +196,9 @@ const cattle = [
 
     stand: 25,
 
-    lie: 58
+    lie: 58,
+
+    recordedAt: null
   },
 
 
@@ -209,7 +223,7 @@ const cattle = [
 
     battery: 88,
 
-    device: 'DEV-C006',
+    device: 'C006',
 
     deviceStatus: 'Online',
 
@@ -217,7 +231,9 @@ const cattle = [
 
     stand: 39,
 
-    lie: 25
+    lie: 25,
+
+    recordedAt: null
   },
 
 
@@ -242,7 +258,7 @@ const cattle = [
 
     battery: 79,
 
-    device: 'DEV-C007',
+    device: 'C007',
 
     deviceStatus: 'Online',
 
@@ -250,7 +266,9 @@ const cattle = [
 
     stand: 51,
 
-    lie: 25
+    lie: 25,
+
+    recordedAt: null
   },
 
 
@@ -275,7 +293,7 @@ const cattle = [
 
     battery: 66,
 
-    device: 'DEV-C008',
+    device: 'C008',
 
     deviceStatus: 'Online',
 
@@ -283,10 +301,32 @@ const cattle = [
 
     stand: 28,
 
-    lie: 56
+    lie: 56,
+
+    recordedAt: null
   }
 
 ];
+
+
+/* =====================================================
+   REAL-TIME DATABASE STATE
+===================================================== */
+
+let selectedCowId = 'C001';
+
+/*
+  Menyimpan histori data kesehatan berdasarkan device_id.
+
+  Contoh:
+
+  healthHistory.C001 = [
+    { heart_rate: 80, ... },
+    { heart_rate: 78, ... }
+  ]
+*/
+
+let healthHistory = {};
 
 
 /* =====================================================
@@ -369,8 +409,6 @@ const alertData = [
 
 /* =====================================================
    DEVICE DATA
-
-   RSSI SUDAH DIHAPUS
 ===================================================== */
 
 const deviceData = [
@@ -537,6 +575,459 @@ function formatTime(
 
     }
   );
+
+}
+
+
+/* =====================================================
+   DATABASE TIME FORMAT
+===================================================== */
+
+function formatDatabaseTime(value) {
+
+  if (!value) {
+
+    return formatTime();
+
+  }
+
+
+  /*
+    MySQL:
+
+    2026-08-31 14:40:10
+
+    Browser lebih mudah membaca:
+
+    2026-08-31T14:40:10
+  */
+
+  const parsed =
+    new Date(
+      String(value)
+        .replace(
+          ' ',
+          'T'
+        )
+    );
+
+
+  if (
+    Number.isNaN(
+      parsed.getTime()
+    )
+  ) {
+
+    return value;
+
+  }
+
+
+  return parsed.toLocaleString(
+    'id-ID',
+    {
+
+      day:
+        '2-digit',
+
+      month:
+        '2-digit',
+
+      year:
+        'numeric',
+
+      hour:
+        '2-digit',
+
+      minute:
+        '2-digit',
+
+      second:
+        '2-digit'
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   HEALTH STATUS FROM REAL SENSOR DATA
+===================================================== */
+
+function updateHealthStatus(cow) {
+
+  /*
+    Threshold mengikuti pengaturan dashboard jika tersedia.
+  */
+
+  const hrInput =
+    document.querySelector(
+      '#settingHr'
+    );
+
+
+  const tempInput =
+    document.querySelector(
+      '#settingTemp'
+    );
+
+
+  const hrWarning =
+    hrInput
+
+      ? Number(
+          hrInput.value
+        )
+
+      : 95;
+
+
+  const tempWarning =
+    tempInput
+
+      ? Number(
+          tempInput.value
+        )
+
+      : 39.5;
+
+
+  /*
+    Critical sementara menggunakan batas lebih tinggi
+    dari Warning.
+
+    Nanti dapat dikalibrasi lagi.
+  */
+
+  if (
+    cow.hr >= 110 ||
+    cow.temp >= 40.0
+  ) {
+
+    cow.status =
+      'Critical';
+
+  }
+
+  else if (
+    cow.hr >= hrWarning ||
+    cow.temp >= tempWarning
+  ) {
+
+    cow.status =
+      'Warning';
+
+  }
+
+  else {
+
+    cow.status =
+      'Normal';
+
+  }
+
+}
+
+
+/* =====================================================
+   LOAD DATA HEALTH DARI API / MYSQL
+===================================================== */
+
+async function loadHealthData() {
+
+  try {
+
+    /*
+      Karena API berada pada folder/server yang sama,
+      tidak perlu menulis IP VPS.
+    */
+
+    const response =
+      await fetch(
+        'api-test.php?t=' +
+        Date.now(),
+        {
+
+          cache:
+            'no-store'
+
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      result.status !== 'success'
+      ||
+      !Array.isArray(
+        result.data
+      )
+    ) {
+
+      console.error(
+        'Format API tidak sesuai:',
+        result
+      );
+
+      return;
+
+    }
+
+
+    const rows =
+      result.data;
+
+
+    /* =================================================
+       RESET HISTORI
+    ================================================= */
+
+    healthHistory = {};
+
+
+    /* =================================================
+       KELOMPOKKAN HISTORI BERDASARKAN DEVICE
+    ================================================= */
+
+    rows.forEach(
+      row => {
+
+        const deviceId =
+          String(
+            row.device_id
+          ).trim();
+
+
+        if (
+          !healthHistory[
+            deviceId
+          ]
+        ) {
+
+          healthHistory[
+            deviceId
+          ] = [];
+
+        }
+
+
+        healthHistory[
+          deviceId
+        ].push(
+          row
+        );
+
+      }
+    );
+
+
+    /* =================================================
+       AMBIL DATA TERBARU MASING-MASING DEVICE
+
+       API:
+       ORDER BY id DESC
+
+       Artinya data pertama adalah terbaru.
+    ================================================= */
+
+    const latestByDevice =
+      new Map();
+
+
+    rows.forEach(
+      row => {
+
+        const deviceId =
+          String(
+            row.device_id
+          ).trim();
+
+
+        if (
+          !latestByDevice.has(
+            deviceId
+          )
+        ) {
+
+          latestByDevice.set(
+            deviceId,
+            row
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =================================================
+       UPDATE DATA CATTLE DENGAN DATABASE REAL
+    ================================================= */
+
+    latestByDevice.forEach(
+      (
+        row,
+        deviceId
+      ) => {
+
+
+        const cow =
+          cattle.find(
+            item =>
+              item.id ===
+              deviceId
+          );
+
+
+        /*
+          Jika device belum ada pada prototype dashboard,
+          jangan membuat error.
+        */
+
+        if (
+          !cow
+        ) {
+
+          console.warn(
+            'Device belum terdaftar di dashboard:',
+            deviceId
+          );
+
+          return;
+
+        }
+
+
+        const heartRate =
+          Number(
+            row.heart_rate
+          );
+
+
+        const bodyTemperature =
+          Number(
+            row.body_temperature
+          );
+
+
+        /*
+          HEART RATE REAL
+        */
+
+        if (
+          Number.isFinite(
+            heartRate
+          )
+        ) {
+
+          cow.hr =
+            heartRate;
+
+        }
+
+
+        /*
+          BODY TEMPERATURE REAL
+        */
+
+        if (
+          row.body_temperature !== null
+          &&
+          row.body_temperature !== ''
+          &&
+          Number.isFinite(
+            bodyTemperature
+          )
+        ) {
+
+          cow.temp =
+            bodyTemperature;
+
+        }
+
+
+        /*
+          TIMESTAMP REAL
+        */
+
+        cow.recordedAt =
+          row.recorded_at;
+
+
+        /*
+          Device yang mengirim data dianggap online.
+        */
+
+        cow.deviceStatus =
+          'Online';
+
+
+        /*
+          Hitung status berdasarkan HR & suhu real.
+        */
+
+        updateHealthStatus(
+          cow
+        );
+
+      }
+    );
+
+
+    /* =================================================
+       RENDER ULANG TABEL
+    ================================================= */
+
+    renderCattle();
+
+
+    /* =================================================
+       REFRESH DETAIL DEVICE YANG SEDANG DIPILIH
+    ================================================= */
+
+    if (
+      selectedCowId
+    ) {
+
+      selectCow(
+        selectedCowId
+      );
+
+    }
+
+
+    console.log(
+      'Smart Cattle update berhasil:',
+      rows
+    );
+
+
+  }
+  catch (
+    error
+  ) {
+
+    console.error(
+      'Gagal mengambil data Smart Cattle:',
+      error
+    );
+
+  }
 
 }
 
@@ -809,7 +1300,9 @@ function renderCattle() {
                 }"
               >
 
-                ${cow.temp.toFixed(1)}°
+                ${Number(
+                  cow.temp
+                ).toFixed(1)}°
 
               </td>
 
@@ -862,6 +1355,13 @@ function renderCattle() {
 
 function selectCow(id) {
 
+  /*
+    Simpan ID yang sedang dipilih.
+  */
+
+  selectedCowId =
+    id;
+
 
   const cow =
 
@@ -878,7 +1378,9 @@ function selectCow(id) {
   }
 
 
-  /* SELECTED TABLE ROW */
+  /* ===================================================
+     SELECTED TABLE ROW
+  ==================================================== */
 
   document
     .querySelectorAll(
@@ -894,8 +1396,19 @@ function selectCow(id) {
     );
 
 
+  /*
+    Gunakan timestamp database jika tersedia.
+  */
+
   const now =
-    formatTime();
+
+    cow.recordedAt
+
+      ? formatDatabaseTime(
+          cow.recordedAt
+        )
+
+      : formatTime();
 
 
   /* ===================================================
@@ -968,7 +1481,9 @@ function selectCow(id) {
       '#dTemp'
     )
     .textContent =
-      `${cow.temp.toFixed(1)} °C`;
+      `${Number(
+        cow.temp
+      ).toFixed(1)} °C`;
 
 
   document
@@ -1177,74 +1692,158 @@ function selectCow(id) {
 
   /* ===================================================
      HEART RATE GRAPH
+     DATA REAL DARI DATABASE
   ==================================================== */
 
-  let points = [];
+  const history =
+    healthHistory[id] || [];
 
 
-  for (
-    let i = 0;
-    i < 16;
-    i++
-  ) {
+  /*
+    API mengirim terbaru → lama.
 
+    Grafik membutuhkan:
+    lama → terbaru.
+  */
 
-    const x =
-      i * 40;
+  let heartRateHistory =
 
-
-    const value =
-
-      Math.max(
-
-        45,
-
-        Math.min(
-
-          120,
-
-          cow.hr
-
-          +
-
-          Math.sin(
-            i * 1.7
-          ) * 10
-
-          +
-
-          (
-            (i % 3) - 1
-          ) * 4
-
-        )
-
+    [...history]
+      .reverse()
+      .map(
+        row =>
+          Number(
+            row.heart_rate
+          )
+      )
+      .filter(
+        value =>
+          Number.isFinite(
+            value
+          )
       );
 
 
-    const y =
+  /*
+    Jika baru ada satu data,
+    buat dua titik agar garis terlihat.
+  */
 
-      190
+  if (
+    heartRateHistory.length === 1
+  ) {
 
-      -
+    heartRateHistory = [
 
-      (
-        (value - 40)
-        /
-        80
-      )
+      heartRateHistory[0],
 
-      *
-      150;
+      heartRateHistory[0]
 
-
-    points.push(
-
-      `${x},${y.toFixed(1)}`
-
-    );
+    ];
 
   }
+
+
+  /*
+    Jika belum ada histori database,
+    tampilkan garis datar berdasarkan
+    nilai saat ini.
+  */
+
+  if (
+    heartRateHistory.length === 0
+  ) {
+
+    heartRateHistory = [
+
+      Number(
+        cow.hr
+      ),
+
+      Number(
+        cow.hr
+      )
+
+    ];
+
+  }
+
+
+  const points =
+
+    heartRateHistory.map(
+      (
+        value,
+        index
+      ) => {
+
+
+        const denominator =
+
+          Math.max(
+            1,
+            heartRateHistory.length - 1
+          );
+
+
+        const x =
+
+          (
+            index /
+            denominator
+          )
+
+          * 600;
+
+
+        /*
+          Grafik SVG menggunakan
+          kisaran 40 - 120 bpm.
+        */
+
+        const safeValue =
+
+          Math.max(
+
+            40,
+
+            Math.min(
+
+              120,
+
+              value
+
+            )
+
+          );
+
+
+        const y =
+
+          190
+
+          -
+
+          (
+            (
+              safeValue - 40
+            )
+            /
+            80
+          )
+
+          *
+          150;
+
+
+        return (
+
+          `${x.toFixed(1)},${y.toFixed(1)}`
+
+        );
+
+      }
+    );
 
 
   document
@@ -1272,8 +1871,6 @@ function selectCow(id) {
 
 /* =====================================================
    RENDER DEVICES
-
-   RSSI COLUMN SUDAH DIHAPUS
 ===================================================== */
 
 function renderDevices() {
@@ -1583,6 +2180,36 @@ document
       );
 
 
+      /*
+        Terapkan kembali status setelah
+        threshold berubah.
+      */
+
+      cattle.forEach(
+        cow => {
+
+          updateHealthStatus(
+            cow
+          );
+
+        }
+      );
+
+
+      renderCattle();
+
+
+      if (
+        selectedCowId
+      ) {
+
+        selectCow(
+          selectedCowId
+        );
+
+      }
+
+
       showToast(
         'Pengaturan berhasil disimpan.'
       );
@@ -1869,6 +2496,30 @@ renderDevices();
 loadSettings();
 
 
+/* =====================================================
+   DEFAULT DEVICE
+===================================================== */
+
 selectCow(
-  'C002'
+  'C001'
+);
+
+
+/* =====================================================
+   LOAD DATABASE PERTAMA KALI
+===================================================== */
+
+loadHealthData();
+
+
+/* =====================================================
+   REFRESH DATA REAL-TIME SETIAP 5 DETIK
+===================================================== */
+
+setInterval(
+
+  loadHealthData,
+
+  5000
+
 );
