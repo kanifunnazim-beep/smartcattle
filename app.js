@@ -19,290 +19,159 @@ const herdSummary = {
 
 /* =====================================================
    CATTLE DATA
-   DATA DASAR / PLACEHOLDER
-
-   HR + TEMP + RECORDED_AT AKAN DITIMPA
-   DENGAN DATA REAL DARI DATABASE.
 ===================================================== */
 
 const cattle = [
 
   {
     id: 'C001',
-
     hr: 72,
-
     temp: 38.4,
-
     activity: 'Berjalan',
-
     actPct: 28,
-
     rum: 'Normal',
-
     rumPct: 78,
-
     rumMinutes: 468,
-
     status: 'Normal',
-
     battery: 82,
-
     device: 'C001',
-
     deviceStatus: 'Online',
-
     walk: 28,
-
     stand: 42,
-
     lie: 30,
-
     recordedAt: null
   },
-
 
   {
     id: 'C002',
-
     hr: 105,
-
     temp: 39.6,
-
     activity: 'Berdiri',
-
     actPct: 42,
-
     rum: 'Normal',
-
     rumPct: 75,
-
     rumMinutes: 455,
-
     status: 'Warning',
-
     battery: 68,
-
     device: 'C002',
-
     deviceStatus: 'Online',
-
     walk: 28,
-
     stand: 42,
-
     lie: 30,
-
     recordedAt: null
   },
-
 
   {
     id: 'C003',
-
     hr: 64,
-
     temp: 38.2,
-
     activity: 'Berbaring',
-
     actPct: 30,
-
     rum: 'Normal',
-
     rumPct: 80,
-
     rumMinutes: 482,
-
     status: 'Normal',
-
     battery: 75,
-
     device: 'C003',
-
     deviceStatus: 'Online',
-
     walk: 21,
-
     stand: 35,
-
     lie: 44,
-
     recordedAt: null
   },
-
 
   {
     id: 'C004',
-
     hr: 90,
-
     temp: 39.0,
-
     activity: 'Berjalan',
-
     actPct: 55,
-
     rum: 'Rendah',
-
     rumPct: 48,
-
     rumMinutes: 285,
-
     status: 'Warning',
-
     battery: 55,
-
     device: 'C004',
-
     deviceStatus: 'Online',
-
     walk: 42,
-
     stand: 31,
-
     lie: 27,
-
     recordedAt: null
   },
-
 
   {
     id: 'C005',
-
     hr: 112,
-
     temp: 40.1,
-
     activity: 'Berbaring',
-
     actPct: 42,
-
     rum: 'Rendah',
-
     rumPct: 39,
-
     rumMinutes: 238,
-
     status: 'Critical',
-
     battery: 42,
-
     device: 'C005',
-
     deviceStatus: 'Warning',
-
     walk: 17,
-
     stand: 25,
-
     lie: 58,
-
     recordedAt: null
   },
-
 
   {
     id: 'C006',
-
     hr: 67,
-
     temp: 38.3,
-
     activity: 'Berjalan',
-
     actPct: 62,
-
     rum: 'Normal',
-
     rumPct: 77,
-
     rumMinutes: 460,
-
     status: 'Normal',
-
     battery: 88,
-
     device: 'C006',
-
     deviceStatus: 'Online',
-
     walk: 36,
-
     stand: 39,
-
     lie: 25,
-
     recordedAt: null
   },
-
 
   {
     id: 'C007',
-
     hr: 76,
-
     temp: 38.5,
-
     activity: 'Berdiri',
-
     actPct: 47,
-
     rum: 'Normal',
-
     rumPct: 73,
-
     rumMinutes: 438,
-
     status: 'Normal',
-
     battery: 79,
-
     device: 'C007',
-
     deviceStatus: 'Online',
-
     walk: 24,
-
     stand: 51,
-
     lie: 25,
-
     recordedAt: null
   },
 
-
   {
     id: 'C008',
-
     hr: 96,
-
     temp: 39.1,
-
     activity: 'Berbaring',
-
     actPct: 24,
-
     rum: 'Rendah',
-
     rumPct: 45,
-
     rumMinutes: 271,
-
     status: 'Warning',
-
     battery: 66,
-
     device: 'C008',
-
     deviceStatus: 'Online',
-
     walk: 16,
-
     stand: 28,
-
     lie: 56,
-
     recordedAt: null
   }
 
@@ -310,21 +179,10 @@ const cattle = [
 
 
 /* =====================================================
-   REAL-TIME DATABASE STATE
+   REAL-TIME STATE
 ===================================================== */
 
 let selectedCowId = 'C001';
-
-/*
-  Menyimpan histori data kesehatan berdasarkan device_id.
-
-  Contoh:
-
-  healthHistory.C001 = [
-    { heart_rate: 80, ... },
-    { heart_rate: 78, ... }
-  ]
-*/
 
 let healthHistory = {};
 
@@ -337,70 +195,41 @@ const alertData = [
 
   {
     tone: 'red',
-
     title: 'C002 - Heart Rate Tinggi',
-
-    desc:
-      'HR 105 bpm berada di atas threshold monitoring.',
-
+    desc: 'HR 105 bpm berada di atas threshold monitoring.',
     time: '10:25',
-
     cowId: 'C002'
   },
 
-
   {
     tone: 'orange',
-
     title: 'C004 - Ruminasi Menurun',
-
-    desc:
-      'Ruminasi 285 menit/hari, lebih rendah dari baseline.',
-
+    desc: 'Ruminasi 285 menit/hari, lebih rendah dari baseline.',
     time: '10:23',
-
     cowId: 'C004'
   },
 
-
   {
     tone: 'orange',
-
     title: 'C008 - Aktivitas Rendah',
-
-    desc:
-      'Aktivitas menurun dibanding pola normal harian.',
-
+    desc: 'Aktivitas menurun dibanding pola normal harian.',
     time: '10:20',
-
     cowId: 'C008'
   },
 
-
   {
     tone: 'blue',
-
     title: 'C005 - Status Perangkat Perlu Diperiksa',
-
-    desc:
-      'Perangkat wearable mendeteksi kondisi yang perlu dipantau.',
-
+    desc: 'Perangkat wearable mendeteksi kondisi yang perlu dipantau.',
     time: '10:15',
-
     cowId: 'C005'
   },
 
-
   {
     tone: 'red',
-
-    title: 'Kandang B - NH₃ Meningkat',
-
-    desc:
-      'Konsentrasi amonia mendekati threshold warning.',
-
+    title: 'Kandang - Kondisi Gas Perlu Dipantau',
+    desc: 'Konsentrasi gas kandang perlu dipantau.',
     time: '09:58',
-
     cowId: null
   }
 
@@ -415,82 +244,72 @@ const deviceData = [
 
   [
     'Wearable C001',
-
     'ESP32 Wearable',
-
     '82%',
-
     '3 detik',
-
     'Online'
   ],
-
 
   [
     'Wearable C002',
-
     'ESP32 Wearable',
-
     '68%',
-
     '5 detik',
-
     'Online'
   ],
-
 
   [
     'Wearable C005',
-
     'ESP32 Wearable',
-
     '42%',
-
     '8 detik',
-
     'Warning'
   ],
 
-
   [
     'Sensor Kandang A',
-
     'ESP32 Environment',
-
     'AC',
-
     '2 detik',
-
     'Online'
   ],
-
 
   [
     'Camera 04',
-
     'IP Camera',
-
     'PoE',
-
     '10 detik',
-
     'Online'
   ],
 
-
   [
     'Wearable C011',
-
     'ESP32 Wearable',
-
     '10%',
-
     '18 menit',
-
     'Offline'
   ]
 
 ];
+
+
+/* =====================================================
+   HELPER SET TEXT
+===================================================== */
+
+function setText(selector, value) {
+
+  const element =
+    document.querySelector(selector);
+
+  if (element) {
+
+    element.textContent =
+      value;
+
+  }
+
+}
 
 
 /* =====================================================
@@ -508,7 +327,6 @@ function statusClass(status) {
 
   }
 
-
   if (
     status === 'Warning'
   ) {
@@ -516,7 +334,6 @@ function statusClass(status) {
     return 'warning';
 
   }
-
 
   return 'critical';
 
@@ -537,7 +354,6 @@ function cowStatusBadgeClass(status) {
 
   }
 
-
   if (
     status === 'Warning'
   ) {
@@ -545,7 +361,6 @@ function cowStatusBadgeClass(status) {
     return 'status-warning';
 
   }
-
 
   return 'status-critical';
 
@@ -563,16 +378,9 @@ function formatTime(
   return date.toLocaleTimeString(
     'id-ID',
     {
-
-      hour:
-        '2-digit',
-
-      minute:
-        '2-digit',
-
-      second:
-        '2-digit'
-
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     }
   );
 
@@ -591,16 +399,6 @@ function formatDatabaseTime(value) {
 
   }
 
-
-  /*
-    MySQL:
-
-    2026-08-31 14:40:10
-
-    Browser lebih mudah membaca:
-
-    2026-08-31T14:40:10
-  */
 
   const parsed =
     new Date(
@@ -626,25 +424,12 @@ function formatDatabaseTime(value) {
   return parsed.toLocaleString(
     'id-ID',
     {
-
-      day:
-        '2-digit',
-
-      month:
-        '2-digit',
-
-      year:
-        'numeric',
-
-      hour:
-        '2-digit',
-
-      minute:
-        '2-digit',
-
-      second:
-        '2-digit'
-
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     }
   );
 
@@ -652,20 +437,15 @@ function formatDatabaseTime(value) {
 
 
 /* =====================================================
-   HEALTH STATUS FROM REAL SENSOR DATA
+   HEALTH STATUS
 ===================================================== */
 
 function updateHealthStatus(cow) {
-
-  /*
-    Threshold mengikuti pengaturan dashboard jika tersedia.
-  */
 
   const hrInput =
     document.querySelector(
       '#settingHr'
     );
-
 
   const tempInput =
     document.querySelector(
@@ -675,30 +455,15 @@ function updateHealthStatus(cow) {
 
   const hrWarning =
     hrInput
-
-      ? Number(
-          hrInput.value
-        )
-
+      ? Number(hrInput.value)
       : 95;
 
 
   const tempWarning =
     tempInput
-
-      ? Number(
-          tempInput.value
-        )
-
+      ? Number(tempInput.value)
       : 39.5;
 
-
-  /*
-    Critical sementara menggunakan batas lebih tinggi
-    dari Warning.
-
-    Nanti dapat dikalibrasi lagi.
-  */
 
   if (
     cow.hr >= 110 ||
@@ -731,34 +496,25 @@ function updateHealthStatus(cow) {
 
 
 /* =====================================================
-   LOAD DATA HEALTH DARI API / MYSQL
+   LOAD HEALTH DATA
+   API KESEHATAN TIDAK DIUBAH
 ===================================================== */
 
 async function loadHealthData() {
 
   try {
 
-    /*
-      Karena API berada pada folder/server yang sama,
-      tidak perlu menulis IP VPS.
-    */
-
     const response =
       await fetch(
         'api-test.php?t=' +
         Date.now(),
         {
-
-          cache:
-            'no-store'
-
+          cache: 'no-store'
         }
       );
 
 
-    if (
-      !response.ok
-    ) {
+    if (!response.ok) {
 
       throw new Error(
         `HTTP ${response.status}`
@@ -772,15 +528,12 @@ async function loadHealthData() {
 
 
     if (
-      result.status !== 'success'
-      ||
-      !Array.isArray(
-        result.data
-      )
+      result.status !== 'success' ||
+      !Array.isArray(result.data)
     ) {
 
       console.error(
-        'Format API tidak sesuai:',
+        'Format API kesehatan tidak sesuai:',
         result
       );
 
@@ -793,16 +546,8 @@ async function loadHealthData() {
       result.data;
 
 
-    /* =================================================
-       RESET HISTORI
-    ================================================= */
-
     healthHistory = {};
 
-
-    /* =================================================
-       KELOMPOKKAN HISTORI BERDASARKAN DEVICE
-    ================================================= */
 
     rows.forEach(
       row => {
@@ -836,15 +581,6 @@ async function loadHealthData() {
     );
 
 
-    /* =================================================
-       AMBIL DATA TERBARU MASING-MASING DEVICE
-
-       API:
-       ORDER BY id DESC
-
-       Artinya data pertama adalah terbaru.
-    ================================================= */
-
     const latestByDevice =
       new Map();
 
@@ -875,10 +611,6 @@ async function loadHealthData() {
     );
 
 
-    /* =================================================
-       UPDATE DATA CATTLE DENGAN DATABASE REAL
-    ================================================= */
-
     latestByDevice.forEach(
       (
         row,
@@ -894,17 +626,10 @@ async function loadHealthData() {
           );
 
 
-        /*
-          Jika device belum ada pada prototype dashboard,
-          jangan membuat error.
-        */
-
-        if (
-          !cow
-        ) {
+        if (!cow) {
 
           console.warn(
-            'Device belum terdaftar di dashboard:',
+            'Device belum terdaftar:',
             deviceId
           );
 
@@ -925,10 +650,6 @@ async function loadHealthData() {
           );
 
 
-        /*
-          HEART RATE REAL
-        */
-
         if (
           Number.isFinite(
             heartRate
@@ -941,15 +662,9 @@ async function loadHealthData() {
         }
 
 
-        /*
-          BODY TEMPERATURE REAL
-        */
-
         if (
-          row.body_temperature !== null
-          &&
-          row.body_temperature !== ''
-          &&
+          row.body_temperature !== null &&
+          row.body_temperature !== '' &&
           Number.isFinite(
             bodyTemperature
           )
@@ -961,25 +676,13 @@ async function loadHealthData() {
         }
 
 
-        /*
-          TIMESTAMP REAL
-        */
-
         cow.recordedAt =
           row.recorded_at;
 
 
-        /*
-          Device yang mengirim data dianggap online.
-        */
-
         cow.deviceStatus =
           'Online';
 
-
-        /*
-          Hitung status berdasarkan HR & suhu real.
-        */
 
         updateHealthStatus(
           cow
@@ -989,16 +692,8 @@ async function loadHealthData() {
     );
 
 
-    /* =================================================
-       RENDER ULANG TABEL
-    ================================================= */
-
     renderCattle();
 
-
-    /* =================================================
-       REFRESH DETAIL DEVICE YANG SEDANG DIPILIH
-    ================================================= */
 
     if (
       selectedCowId
@@ -1012,18 +707,171 @@ async function loadHealthData() {
 
 
     console.log(
-      'Smart Cattle update berhasil:',
+      'Health update berhasil:',
       rows
     );
 
-
   }
-  catch (
-    error
-  ) {
+
+  catch (error) {
 
     console.error(
-      'Gagal mengambil data Smart Cattle:',
+      'Gagal mengambil data kesehatan:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   LOAD ENVIRONMENT DATA
+   API BARU:
+   api-environment.php
+===================================================== */
+
+async function loadEnvironmentData() {
+
+  try {
+
+    const response =
+      await fetch(
+        'api-environment.php?t=' +
+        Date.now(),
+        {
+          cache: 'no-store'
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      result.status !== 'success' ||
+      !result.data
+    ) {
+
+      console.error(
+        'Format API lingkungan tidak sesuai:',
+        result
+      );
+
+      return;
+
+    }
+
+
+    const data =
+      result.data;
+
+
+    const temperature =
+      Number(
+        data.temperature
+      );
+
+
+    const humidity =
+      Number(
+        data.humidity
+      );
+
+
+    const ch4 =
+      Number(
+        data.ch4_ppm
+      );
+
+
+    if (
+      !Number.isFinite(
+        temperature
+      ) ||
+      !Number.isFinite(
+        humidity
+      ) ||
+      !Number.isFinite(
+        ch4
+      )
+    ) {
+
+      console.error(
+        'Data lingkungan bukan angka valid:',
+        data
+      );
+
+      return;
+
+    }
+
+
+    /* =================================================
+       DASHBOARD UTAMA
+    ================================================= */
+
+    setText(
+      '#overviewEnvTemp',
+      `${temperature.toFixed(1)} °C`
+    );
+
+
+    setText(
+      '#overviewEnvHumidity',
+      `${humidity.toFixed(1)} %RH`
+    );
+
+
+    setText(
+      '#overviewEnvCh4',
+      `${ch4.toFixed(1)} ppm`
+    );
+
+
+    /* =================================================
+       HALAMAN LINGKUNGAN
+    ================================================= */
+
+    setText(
+      '#envTemperature',
+      `${temperature.toFixed(1)} °C`
+    );
+
+
+    setText(
+      '#envHumidity',
+      `${humidity.toFixed(1)} %RH`
+    );
+
+
+    setText(
+      '#envCh4',
+      `${ch4.toFixed(1)} ppm`
+    );
+
+
+    console.log(
+      'Environment update berhasil:',
+      data
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      'Gagal mengambil data lingkungan:',
       error
     );
 
@@ -1038,46 +886,40 @@ async function loadHealthData() {
 
 function renderSummary() {
 
-  document
-    .querySelector('#kpiCritical')
-    .textContent =
-      herdSummary.critical;
+  setText(
+    '#kpiCritical',
+    herdSummary.critical
+  );
 
+  setText(
+    '#kpiWarning',
+    herdSummary.warning
+  );
 
-  document
-    .querySelector('#kpiWarning')
-    .textContent =
-      herdSummary.warning;
+  setText(
+    '#kpiOffline',
+    herdSummary.offline
+  );
 
+  setText(
+    '#kpiNormal',
+    herdSummary.normal
+  );
 
-  document
-    .querySelector('#kpiOffline')
-    .textContent =
-      herdSummary.offline;
+  setText(
+    '#kpiTotal',
+    herdSummary.total
+  );
 
+  setText(
+    '#navAlertCount',
+    alertData.length
+  );
 
-  document
-    .querySelector('#kpiNormal')
-    .textContent =
-      herdSummary.normal;
-
-
-  document
-    .querySelector('#kpiTotal')
-    .textContent =
-      herdSummary.total;
-
-
-  document
-    .querySelector('#navAlertCount')
-    .textContent =
-      alertData.length;
-
-
-  document
-    .querySelector('#notifCount')
-    .textContent =
-      alertData.length;
+  setText(
+    '#notifCount',
+    alertData.length
+  );
 
 }
 
@@ -1113,7 +955,6 @@ function alertTemplate(
 
       <i></i>
 
-
       <div>
 
         <b>
@@ -1127,7 +968,6 @@ function alertTemplate(
         ${actionButton}
 
       </div>
-
 
       <time>
         ${alert.time}
@@ -1146,9 +986,15 @@ function alertTemplate(
 
 function renderAlerts() {
 
-  document
-    .querySelector('#overviewAlerts')
-    .innerHTML =
+  const overviewAlerts =
+    document.querySelector(
+      '#overviewAlerts'
+    );
+
+
+  if (overviewAlerts) {
+
+    overviewAlerts.innerHTML =
 
       alertData
         .slice(0, 4)
@@ -1161,10 +1007,18 @@ function renderAlerts() {
         )
         .join('');
 
+  }
 
-  document
-    .querySelector('#allAlerts')
-    .innerHTML =
+
+  const allAlerts =
+    document.querySelector(
+      '#allAlerts'
+    );
+
+
+  if (allAlerts) {
+
+    allAlerts.innerHTML =
 
       alertData
         .map(
@@ -1175,6 +1029,8 @@ function renderAlerts() {
             )
         )
         .join('');
+
+  }
 
 
   document
@@ -1217,23 +1073,28 @@ function renderAlerts() {
 
 function renderCattle() {
 
-  const search =
+  const searchElement =
+    document.querySelector(
+      '#cowSearch'
+    );
 
-    document
-      .querySelector(
-        '#cowSearch'
-      )
-      .value
-      .toLowerCase();
+
+  const filterElement =
+    document.querySelector(
+      '#statusFilter'
+    );
+
+
+  const search =
+    searchElement
+      ? searchElement.value.toLowerCase()
+      : '';
 
 
   const filter =
-
-    document
-      .querySelector(
-        '#statusFilter'
-      )
-      .value;
+    filterElement
+      ? filterElement.value
+      : 'all';
 
 
   const list =
@@ -1248,88 +1109,72 @@ function renderCattle() {
         &&
 
         (
-          filter === 'all'
-
-          ||
-
+          filter === 'all' ||
           cow.status === filter
         )
     );
 
 
-  document
-    .querySelector(
+  const cowTable =
+    document.querySelector(
       '#cowTable'
-    )
-    .innerHTML =
-
-      list
-        .map(
-          cow => `
-
-            <tr data-id="${cow.id}">
+    );
 
 
-              <td>
+  if (!cowTable) {
 
-                <b>
-                  ${cow.id}
-                </b>
+    return;
 
-              </td>
+  }
 
 
-              <td
-                class="${
-                  cow.hr >= 100
-                    ? 'critical'
-                    : ''
-                }"
-              >
+  cowTable.innerHTML =
 
-                ${cow.hr}
+    list
+      .map(
+        cow => `
 
-              </td>
+          <tr data-id="${cow.id}">
 
+            <td>
+              <b>${cow.id}</b>
+            </td>
 
-              <td
-                class="${
-                  cow.temp >= 39.5
-                    ? 'critical'
-                    : ''
-                }"
-              >
+            <td
+              class="${
+                cow.hr >= 100
+                  ? 'critical'
+                  : ''
+              }"
+            >
+              ${cow.hr}
+            </td>
 
-                ${Number(
-                  cow.temp
-                ).toFixed(1)}°
+            <td
+              class="${
+                cow.temp >= 39.5
+                  ? 'critical'
+                  : ''
+              }"
+            >
+              ${Number(cow.temp).toFixed(1)}°
+            </td>
 
-              </td>
+            <td
+              class="${statusClass(cow.status)}"
+            >
+              <b>${cow.status}</b>
+            </td>
 
+            <td>
+              ${cow.battery}%
+            </td>
 
-              <td
-                class="${statusClass(cow.status)}"
-              >
+          </tr>
 
-                <b>
-                  ${cow.status}
-                </b>
-
-              </td>
-
-
-              <td>
-
-                ${cow.battery}%
-
-              </td>
-
-
-            </tr>
-
-          `
-        )
-        .join('');
+        `
+      )
+      .join('');
 
 
   document
@@ -1337,13 +1182,15 @@ function renderCattle() {
       '#cowTable tr'
     )
     .forEach(
-      row =>
+      row => {
 
         row.onclick =
           () =>
             selectCow(
               row.dataset.id
-            )
+            );
+
+      }
     );
 
 }
@@ -1355,16 +1202,11 @@ function renderCattle() {
 
 function selectCow(id) {
 
-  /*
-    Simpan ID yang sedang dipilih.
-  */
-
   selectedCowId =
     id;
 
 
   const cow =
-
     cattle.find(
       item =>
         item.id === id
@@ -1378,27 +1220,21 @@ function selectCow(id) {
   }
 
 
-  /* ===================================================
-     SELECTED TABLE ROW
-  ==================================================== */
-
   document
     .querySelectorAll(
       '#cowTable tr'
     )
     .forEach(
-      row =>
+      row => {
 
         row.classList.toggle(
           'selected',
           row.dataset.id === id
-        )
+        );
+
+      }
     );
 
-
-  /*
-    Gunakan timestamp database jika tersedia.
-  */
 
   const now =
 
@@ -1411,255 +1247,180 @@ function selectCow(id) {
       : formatTime();
 
 
-  /* ===================================================
-     DETAIL HEADER
-  ==================================================== */
-
-  document
-    .querySelector(
-      '#detailTitle'
-    )
-    .textContent =
-      `Sapi ${cow.id}`;
+  setText(
+    '#detailTitle',
+    `Sapi ${cow.id}`
+  );
 
 
-  document
-    .querySelector(
-      '#detailUpdate'
-    )
-    .textContent =
-      `Terakhir update: ${now}`;
+  setText(
+    '#detailUpdate',
+    `Terakhir update: ${now}`
+  );
 
 
   const badge =
-
-    document
-      .querySelector(
-        '#detailStatusBadge'
-      );
-
-
-  badge.textContent =
-    `Health: ${cow.status}`;
-
-
-  badge.className =
-    `cow-main-status ${cowStatusBadgeClass(cow.status)}`;
-
-
-  /* ===================================================
-     HEART RATE
-  ==================================================== */
-
-  document
-    .querySelector(
-      '#dHr'
-    )
-    .textContent =
-      `${cow.hr} bpm`;
-
-
-  document
-    .querySelector(
-      '#dHrState'
-    )
-    .textContent =
-
-      cow.hr >= 95
-
-        ? 'Di atas threshold'
-
-        : 'Normal';
-
-
-  /* ===================================================
-     TEMPERATURE
-  ==================================================== */
-
-  document
-    .querySelector(
-      '#dTemp'
-    )
-    .textContent =
-      `${Number(
-        cow.temp
-      ).toFixed(1)} °C`;
-
-
-  document
-    .querySelector(
-      '#dTempState'
-    )
-    .textContent =
-
-      cow.temp >= 39.5
-
-        ? 'Suhu tinggi'
-
-        : 'Normal';
-
-
-  /* ===================================================
-     ACTIVITY
-  ==================================================== */
-
-  document
-    .querySelector(
-      '#dAct'
-    )
-    .textContent =
-      cow.activity;
-
-
-  document
-    .querySelector(
-      '#dActPct'
-    )
-    .textContent =
-      `${cow.actPct}% activity score`;
-
-
-  /* ===================================================
-     RUMINATION
-  ==================================================== */
-
-  document
-    .querySelector(
-      '#dRum'
-    )
-    .textContent =
-      `${cow.rumMinutes} min`;
-
-
-  document
-    .querySelector(
-      '#dRumPct'
-    )
-    .textContent =
-      `${cow.rum} • ${cow.rumPct}% baseline`;
-
-
-  /* ===================================================
-     DEVICE STATUS
-  ==================================================== */
-
-  const deviceStatus =
-
-    document
-      .querySelector(
-        '#dDeviceStatus'
-      );
-
-
-  deviceStatus.textContent =
-    cow.deviceStatus;
-
-
-  deviceStatus.className =
-    statusClass(
-      cow.deviceStatus
+    document.querySelector(
+      '#detailStatusBadge'
     );
 
 
-  /* ===================================================
-     BATTERY
-  ==================================================== */
+  if (badge) {
 
-  document
-    .querySelector(
-      '#dBatt'
-    )
-    .textContent =
-      `${cow.battery}%`;
+    badge.textContent =
+      `Health: ${cow.status}`;
 
 
-  document
-    .querySelector(
-      '#dBattState'
-    )
-    .textContent =
+    badge.className =
+      `cow-main-status ${cowStatusBadgeClass(cow.status)}`;
 
-      cow.battery < 30
-
-        ? 'Baterai rendah'
-
-        : cow.battery < 60
-
-          ? 'Baterai sedang'
-
-          : 'Baterai normal';
+  }
 
 
-  /* ===================================================
-     LAST UPDATE
-  ==================================================== */
-
-  document
-    .querySelector(
-      '#dSeen'
-    )
-    .textContent =
-      now;
+  setText(
+    '#dHr',
+    `${cow.hr} bpm`
+  );
 
 
-  /* ===================================================
-     DEVICE INFO
-  ==================================================== */
+  setText(
+    '#dHrState',
 
-  document
-    .querySelector(
-      '#dDevice'
-    )
-    .textContent =
-      cow.device;
+    cow.hr >= 95
+
+      ? 'Di atas threshold'
+
+      : 'Normal'
+  );
 
 
-  document
-    .querySelector(
-      '#dDeviceInfoStatus'
-    )
-    .textContent =
+  setText(
+    '#dTemp',
+    `${Number(cow.temp).toFixed(1)} °C`
+  );
+
+
+  setText(
+    '#dTempState',
+
+    cow.temp >= 39.5
+
+      ? 'Suhu tinggi'
+
+      : 'Normal'
+  );
+
+
+  setText(
+    '#dAct',
+    cow.activity
+  );
+
+
+  setText(
+    '#dActPct',
+    `${cow.actPct}% activity score`
+  );
+
+
+  setText(
+    '#dRum',
+    `${cow.rumMinutes} min`
+  );
+
+
+  setText(
+    '#dRumPct',
+    `${cow.rum} • ${cow.rumPct}% baseline`
+  );
+
+
+  const deviceStatus =
+    document.querySelector(
+      '#dDeviceStatus'
+    );
+
+
+  if (deviceStatus) {
+
+    deviceStatus.textContent =
       cow.deviceStatus;
 
 
-  /* ===================================================
-     ACTIVITY LEGEND
-  ==================================================== */
+    deviceStatus.className =
+      statusClass(
+        cow.deviceStatus
+      );
 
-  document
-    .querySelector(
-      '#lWalk'
-    )
-    .textContent =
-      `${cow.walk}%`;
+  }
 
 
-  document
-    .querySelector(
-      '#lStand'
-    )
-    .textContent =
-      `${cow.stand}%`;
+  setText(
+    '#dBatt',
+    `${cow.battery}%`
+  );
 
 
-  document
-    .querySelector(
-      '#lLie'
-    )
-    .textContent =
-      `${cow.lie}%`;
+  setText(
+    '#dBattState',
+
+    cow.battery < 30
+
+      ? 'Baterai rendah'
+
+      : cow.battery < 60
+
+        ? 'Baterai sedang'
+
+        : 'Baterai normal'
+  );
 
 
-  /* ===================================================
-     DONUT
-  ==================================================== */
+  setText(
+    '#dSeen',
+    now
+  );
 
-  document
-    .querySelector(
+
+  setText(
+    '#dDevice',
+    cow.device
+  );
+
+
+  setText(
+    '#dDeviceInfoStatus',
+    cow.deviceStatus
+  );
+
+
+  setText(
+    '#lWalk',
+    `${cow.walk}%`
+  );
+
+
+  setText(
+    '#lStand',
+    `${cow.stand}%`
+  );
+
+
+  setText(
+    '#lLie',
+    `${cow.lie}%`
+  );
+
+
+  const donut =
+    document.querySelector(
       '#donut'
-    )
-    .style
-    .background =
+    );
+
+
+  if (donut) {
+
+    donut.style.background =
 
       `conic-gradient(
 
@@ -1677,34 +1438,22 @@ function selectCow(id) {
 
       )`;
 
+  }
 
-  /* ===================================================
-     CURRENT HR BADGE
-  ==================================================== */
 
-  document
-    .querySelector(
-      '#currentHrBadge'
-    )
-    .textContent =
-      `${cow.hr} bpm`;
+  setText(
+    '#currentHrBadge',
+    `${cow.hr} bpm`
+  );
 
 
   /* ===================================================
      HEART RATE GRAPH
-     DATA REAL DARI DATABASE
   ==================================================== */
 
   const history =
     healthHistory[id] || [];
 
-
-  /*
-    API mengirim terbaru → lama.
-
-    Grafik membutuhkan:
-    lama → terbaru.
-  */
 
   let heartRateHistory =
 
@@ -1724,11 +1473,6 @@ function selectCow(id) {
       );
 
 
-  /*
-    Jika baru ada satu data,
-    buat dua titik agar garis terlihat.
-  */
-
   if (
     heartRateHistory.length === 1
   ) {
@@ -1744,25 +1488,15 @@ function selectCow(id) {
   }
 
 
-  /*
-    Jika belum ada histori database,
-    tampilkan garis datar berdasarkan
-    nilai saat ini.
-  */
-
   if (
     heartRateHistory.length === 0
   ) {
 
     heartRateHistory = [
 
-      Number(
-        cow.hr
-      ),
+      Number(cow.hr),
 
-      Number(
-        cow.hr
-      )
+      Number(cow.hr)
 
     ];
 
@@ -1796,11 +1530,6 @@ function selectCow(id) {
           * 600;
 
 
-        /*
-          Grafik SVG menggunakan
-          kisaran 40 - 120 bpm.
-        */
-
         const safeValue =
 
           Math.max(
@@ -1808,11 +1537,8 @@ function selectCow(id) {
             40,
 
             Math.min(
-
               120,
-
               value
-
             )
 
           );
@@ -1837,34 +1563,33 @@ function selectCow(id) {
 
 
         return (
-
           `${x.toFixed(1)},${y.toFixed(1)}`
-
         );
 
       }
     );
 
 
-  document
-    .querySelector(
+  const detailLine =
+    document.querySelector(
       '#detailLine'
-    )
-    .setAttribute(
-
-      'points',
-
-      points.join(' ')
-
     );
 
 
-  document
-    .querySelector(
-      '#cattlePageUpdated'
-    )
-    .textContent =
-      `Update terakhir ${now}`;
+  if (detailLine) {
+
+    detailLine.setAttribute(
+      'points',
+      points.join(' ')
+    );
+
+  }
+
+
+  setText(
+    '#cattlePageUpdated',
+    `Update terakhir ${now}`
+  );
 
 }
 
@@ -1875,69 +1600,54 @@ function selectCow(id) {
 
 function renderDevices() {
 
-
-  document
-    .querySelector(
+  const table =
+    document.querySelector(
       '#deviceTable'
-    )
-    .innerHTML =
+    );
 
 
-      deviceData
-        .map(
+  if (!table) {
 
-          device => `
+    return;
 
-            <tr>
-
-
-              <td>
-
-                <b>
-                  ${device[0]}
-                </b>
-
-              </td>
+  }
 
 
-              <td>
+  table.innerHTML =
 
-                ${device[1]}
+    deviceData
+      .map(
+        device => `
 
-              </td>
+          <tr>
 
+            <td>
+              <b>${device[0]}</b>
+            </td>
 
-              <td>
+            <td>
+              ${device[1]}
+            </td>
 
-                ${device[2]}
+            <td>
+              ${device[2]}
+            </td>
 
-              </td>
+            <td>
+              ${device[3]}
+            </td>
 
+            <td
+              class="${statusClass(device[4])}"
+            >
+              <b>${device[4]}</b>
+            </td>
 
-              <td>
+          </tr>
 
-                ${device[3]}
-
-              </td>
-
-
-              <td
-                class="${statusClass(device[4])}"
-              >
-
-                <b>
-                  ${device[4]}
-                </b>
-
-              </td>
-
-
-            </tr>
-
-          `
-
-        )
-        .join('');
+        `
+      )
+      .join('');
 
 }
 
@@ -1948,13 +1658,10 @@ function renderDevices() {
 
 function showPage(name) {
 
-
   const target =
-
-    document
-      .querySelector(
-        `#page-${name}`
-      );
+    document.querySelector(
+      `#page-${name}`
+    );
 
 
   if (!target) {
@@ -1969,19 +1676,19 @@ function showPage(name) {
       '.page'
     )
     .forEach(
-      page =>
+      page => {
 
         page.classList.remove(
           'active'
-        )
+        );
+
+      }
     );
 
 
-  target
-    .classList
-    .add(
-      'active'
-    );
+  target.classList.add(
+    'active'
+  );
 
 
   document
@@ -1989,42 +1696,42 @@ function showPage(name) {
       '.nav'
     )
     .forEach(
-      nav =>
+      nav => {
 
         nav.classList.toggle(
-
           'active',
-
           nav.dataset.page === name
+        );
 
-        )
+      }
     );
 
 
   if (
-    window.innerWidth < 1150
+    window.innerWidth <
+    1150
   ) {
 
-
-    document
-      .querySelector(
+    const sidebar =
+      document.querySelector(
         '#sidebar'
-      )
-      .classList
-      .remove(
+      );
+
+
+    if (sidebar) {
+
+      sidebar.classList.remove(
         'open'
       );
+
+    }
 
   }
 
 
   window.scrollTo({
-
     top: 0,
-
-    behavior:
-      'smooth'
-
+    behavior: 'smooth'
   });
 
 }
@@ -2039,13 +1746,15 @@ document
     '.nav'
   )
   .forEach(
-    nav =>
+    nav => {
 
       nav.onclick =
         () =>
           showPage(
             nav.dataset.page
-          )
+          );
+
+    }
   );
 
 
@@ -2058,13 +1767,15 @@ document
     '[data-jump]'
   )
   .forEach(
-    button =>
+    button => {
 
       button.onclick =
         () =>
           showPage(
             button.dataset.jump
-          )
+          );
+
+    }
   );
 
 
@@ -2072,118 +1783,128 @@ document
    SEARCH
 ===================================================== */
 
-document
-  .querySelector(
+const cowSearch =
+  document.querySelector(
     '#cowSearch'
-  )
-  .oninput =
+  );
+
+
+if (cowSearch) {
+
+  cowSearch.oninput =
     renderCattle;
+
+}
 
 
 /* =====================================================
    FILTER
 ===================================================== */
 
-document
-  .querySelector(
+const statusFilter =
+  document.querySelector(
     '#statusFilter'
-  )
-  .onchange =
+  );
+
+
+if (statusFilter) {
+
+  statusFilter.onchange =
     renderCattle;
+
+}
 
 
 /* =====================================================
    MOBILE SIDEBAR
 ===================================================== */
 
-document
-  .querySelector(
+const menuBtn =
+  document.querySelector(
     '#menuBtn'
-  )
-  .onclick =
+  );
 
-    () =>
 
-      document
-        .querySelector(
+if (menuBtn) {
+
+  menuBtn.onclick =
+    () => {
+
+      const sidebar =
+        document.querySelector(
           '#sidebar'
-        )
-        .classList
-        .toggle(
+        );
+
+
+      if (sidebar) {
+
+        sidebar.classList.toggle(
           'open'
         );
+
+      }
+
+    };
+
+}
 
 
 /* =====================================================
    SETTINGS SAVE
 ===================================================== */
 
-document
-  .querySelector(
+const saveSettings =
+  document.querySelector(
     '#saveSettings'
-  )
-  .onclick =
+  );
 
+
+if (saveSettings) {
+
+  saveSettings.onclick =
     () => {
 
 
       const settings = {
 
-
         hr:
-
           document
             .querySelector(
               '#settingHr'
             )
-            .value,
-
+            ?.value,
 
         temp:
-
           document
             .querySelector(
               '#settingTemp'
             )
-            .value,
-
+            ?.value,
 
         nh3:
-
           document
             .querySelector(
               '#settingNh3'
             )
-            .value,
-
+            ?.value,
 
         interval:
-
           document
             .querySelector(
               '#settingInterval'
             )
-            .value
-
+            ?.value
 
       };
 
 
       localStorage.setItem(
-
         'smartcattle-settings',
-
         JSON.stringify(
           settings
         )
-
       );
 
-
-      /*
-        Terapkan kembali status setelah
-        threshold berubah.
-      */
 
       cattle.forEach(
         cow => {
@@ -2216,6 +1937,8 @@ document
 
     };
 
+}
+
 
 /* =====================================================
    LOAD SETTINGS
@@ -2223,9 +1946,7 @@ document
 
 function loadSettings() {
 
-
   const saved =
-
     localStorage.getItem(
       'smartcattle-settings'
     );
@@ -2240,9 +1961,7 @@ function loadSettings() {
 
   try {
 
-
     const settings =
-
       JSON.parse(
         saved
       );
@@ -2250,64 +1969,71 @@ function loadSettings() {
 
     if (settings.hr) {
 
-      document
-        .querySelector(
+      const element =
+        document.querySelector(
           '#settingHr'
-        )
-        .value =
+        );
+
+      if (element) {
+        element.value =
           settings.hr;
+      }
 
     }
 
 
     if (settings.temp) {
 
-      document
-        .querySelector(
+      const element =
+        document.querySelector(
           '#settingTemp'
-        )
-        .value =
+        );
+
+      if (element) {
+        element.value =
           settings.temp;
+      }
 
     }
 
 
     if (settings.nh3) {
 
-      document
-        .querySelector(
+      const element =
+        document.querySelector(
           '#settingNh3'
-        )
-        .value =
+        );
+
+      if (element) {
+        element.value =
           settings.nh3;
+      }
 
     }
 
 
     if (settings.interval) {
 
-      document
-        .querySelector(
+      const element =
+        document.querySelector(
           '#settingInterval'
-        )
-        .value =
+        );
+
+      if (element) {
+        element.value =
           settings.interval;
+      }
 
     }
 
-
   }
+
   catch (error) {
 
-
     console.error(
-
       'Gagal membaca pengaturan:',
-
       error
-
     );
-
 
   }
 
@@ -2323,16 +2049,16 @@ document
     '.report-btn'
   )
   .forEach(
-    button =>
+    button => {
 
       button.onclick =
         () =>
 
           showToast(
-
             'Prototype laporan: fungsi export akan dihubungkan ke backend.'
+          );
 
-          )
+    }
   );
 
 
@@ -2345,24 +2071,26 @@ let toastTimer;
 
 function showToast(message) {
 
-
   const toast =
+    document.querySelector(
+      '#toast'
+    );
 
-    document
-      .querySelector(
-        '#toast'
-      );
+
+  if (!toast) {
+
+    return;
+
+  }
 
 
   toast.textContent =
     message;
 
 
-  toast
-    .classList
-    .add(
-      'show'
-    );
+  toast.classList.add(
+    'show'
+  );
 
 
   clearTimeout(
@@ -2371,19 +2099,15 @@ function showToast(message) {
 
 
   toastTimer =
-
     setTimeout(
+      () => {
 
-      () =>
+        toast.classList.remove(
+          'show'
+        );
 
-        toast
-          .classList
-          .remove(
-            'show'
-          ),
-
+      },
       2600
-
     );
 
 }
@@ -2395,72 +2119,45 @@ function showToast(message) {
 
 function clock() {
 
-
   const now =
     new Date();
 
 
-  document
-    .querySelector(
-      '#clockText'
+  setText(
+    '#clockText',
+
+    now.toLocaleTimeString(
+      'id-ID',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }
     )
-    .textContent =
 
-      now.toLocaleTimeString(
-
-        'id-ID',
-
-        {
-
-          hour:
-            '2-digit',
-
-          minute:
-            '2-digit',
-
-          second:
-            '2-digit'
-
-        }
-
-      );
+  );
 
 
-  document
-    .querySelector(
-      '#dateText'
+  setText(
+    '#dateText',
+
+    now.toLocaleDateString(
+      'id-ID',
+      {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }
     )
-    .textContent =
 
-      now.toLocaleDateString(
-
-        'id-ID',
-
-        {
-
-          weekday:
-            'short',
-
-          day:
-            '2-digit',
-
-          month:
-            'short',
-
-          year:
-            'numeric'
-
-        }
-
-      );
+  );
 
 
-  document
-    .querySelector(
-      '#overviewUpdated'
-    )
-    .textContent =
-      formatTime(now);
+  setText(
+    '#overviewUpdated',
+    formatTime(now)
+  );
 
 }
 
@@ -2470,28 +2167,20 @@ function clock() {
 ===================================================== */
 
 setInterval(
-
   clock,
-
   1000
-
 );
 
 
 clock();
 
-
 renderSummary();
-
 
 renderAlerts();
 
-
 renderCattle();
 
-
 renderDevices();
-
 
 loadSettings();
 
@@ -2506,20 +2195,35 @@ selectCow(
 
 
 /* =====================================================
-   LOAD DATABASE PERTAMA KALI
+   LOAD PERTAMA KALI
 ===================================================== */
+
+/*
+  KESEHATAN
+*/
 
 loadHealthData();
 
 
+/*
+  LINGKUNGAN
+*/
+
+loadEnvironmentData();
+
+
 /* =====================================================
-   REFRESH DATA REAL-TIME SETIAP 5 DETIK
+   REFRESH REAL-TIME
+   5 DETIK
 ===================================================== */
 
 setInterval(
-
   loadHealthData,
-
   5000
+);
 
+
+setInterval(
+  loadEnvironmentData,
+  5000
 );
