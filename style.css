@@ -2826,3 +2826,17 @@ th{font-size:13px}.kpi b{font-size:32px}.detail b{font-size:25px}.alert b,.subpa
 @media(max-width:1150px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar{width:min(280px,85vw)}.nav{min-height:46px}}
 @media(max-width:650px){.topbar{height:80px;padding:0 8px;gap:0}.header-logos{margin-left:0}.logo-box-pln{width:170px;height:72px}.logo-pln{width:205px;height:205px;transform:none}.header-dropdown{top:86px;right:10px;width:min(390px,calc(100vw - 20px));max-height:calc(100dvh - 100px)}.profile-dropdown{width:min(310px,calc(100vw - 20px))}.kpis{gap:10px}.kpi{padding:12px;gap:8px;min-height:132px}.kpi i{width:30px;height:30px;font-size:18px}.kpi b{font-size:28px}.kpi span{font-size:13px}.kpi small{font-size:12px}.user{margin-left:0}.notif{margin-left:0}.notif em{right:0;top:0}.metrics>div{grid-template-columns:1fr auto}.toolbar input,.toolbar select{min-height:44px;font-size:16px}.dashboard-grid{grid-template-columns:1fr}.heading-with-status{gap:12px}.notification-item{font-size:14px}}
 @media(max-width:359px){.kpis{grid-template-columns:1fr}.logo-box-pln{width:132px}.logo-pln{width:164px;height:164px}.user{padding:4px}.content{padding:10px}}
+
+/* Optional visual polish: same layout, consistent line icons and quiet motion. */
+.ui-icon{width:20px;height:20px;display:inline-block;vertical-align:middle;flex-shrink:0;pointer-events:none}
+.brand-icon .ui-icon{width:28px;height:28px}.nav-symbol .ui-icon{width:19px;height:19px}.kpi i .ui-icon{width:25px;height:25px}.env>span .ui-icon{width:40px;height:40px}.report-icon .ui-icon{width:32px;height:32px}.user>strong .ui-icon{width:16px;height:16px}.nav[aria-disabled]>.ui-icon{width:14px;height:14px}.locked-admin .ui-icon,.access-note .ui-icon{width:16px;height:16px;margin-right:5px}
+.kpi{position:relative;transition:transform 160ms ease,box-shadow 160ms ease,border-color 160ms ease}.kpi:after{content:'↗';position:absolute;right:12px;top:10px;color:#8391a3;font-size:15px;opacity:.55}.kpi>div{padding-right:8px}
+@media(hover:hover){.kpi:hover{transform:translateY(-3px);border-color:#b9cce6;box-shadow:0 9px 24px #132c4b12}.notification-item:hover{background:#f1f6fc}.nav:hover{transform:translateX(2px)}}
+.kpi:active,.secondary-btn:active,.notif:active,.user:active{transform:scale(.98)}.nav,.secondary-btn,.notif,.user,.notification-item{transition:background-color 150ms ease,transform 150ms ease,box-shadow 150ms ease}
+.page.active{animation:page-reveal 180ms ease-out both}.header-dropdown:not([hidden]){animation:dropdown-reveal 160ms ease-out both;transform-origin:top right}.notif[aria-expanded=true],.user[aria-expanded=true]{background:#eaf2fd;box-shadow:0 0 0 2px #c6d9f4}.user[aria-expanded=true] .icon-chevron{transform:rotate(180deg)}.icon-chevron{transition:transform 160ms ease}
+.kpi-fan.fan-on .icon-fan{animation:fan-rotate 2.6s linear infinite}.kpi-fan:not(.fan-on) .icon-fan{animation:none}
+@keyframes page-reveal{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dropdown-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fan-rotate{to{transform:rotate(360deg)}}
+@media(max-width:650px){.kpi i .ui-icon{width:22px;height:22px}.kpi:after{font-size:12px;right:8px;top:8px}.kpi>div{padding-right:4px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
