@@ -1,2465 +1,1144 @@
 <!DOCTYPE html>
+
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>SmartCattle Monitoring</title>
-
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartCattle Monitoring</title>
+<link href="style.css" rel="stylesheet"/>
 </head>
-
 <body>
-
 <div class="app">
-
-  <!-- =====================================================
+<!-- =====================================================
        SIDEBAR
   ====================================================== -->
-
-  <aside class="sidebar" id="sidebar">
-
-    <div class="brand">
-
-      <div class="brand-icon">
+<aside class="sidebar" id="sidebar">
+<div class="brand">
+<div class="brand-icon">
         🐄
       </div>
-
-      <div>
-        <b>SmartCattle</b>
-        <small>Monitoring System</small>
-      </div>
-
-    </div>
-
-
-    <nav class="sidebar-nav">
-
-      <!-- OVERVIEW -->
-      <div class="nav-group">
-
-        <span class="nav-label">
+<div>
+<b>SmartCattle</b>
+<small>Monitoring System</small>
+</div>
+</div>
+<nav class="sidebar-nav">
+<!-- OVERVIEW -->
+<div class="nav-group">
+<span class="nav-label">
           OVERVIEW
         </span>
-
-        <button
-          class="nav active"
-          data-page="overview"
-        >
-          <span class="nav-symbol">⌂</span>
-          <span>Dashboard</span>
-        </button>
-
-      </div>
-
-
-      <!-- MONITORING -->
-      <div class="nav-group">
-
-        <span class="nav-label">
+<button class="nav active" data-page="overview">
+<span class="nav-symbol">⌂</span>
+<span>Dashboard</span>
+</button>
+</div>
+<!-- MONITORING -->
+<div class="nav-group">
+<span class="nav-label">
           MONITORING
         </span>
+<button class="nav" data-page="cattle">
+<span class="nav-symbol">🐄</span>
+<span>Monitoring Sapi</span>
+</button>
+<button class="nav" data-page="environment">
+<span class="nav-symbol">🌡</span>
+<span>Lingkungan Kandang</span>
+</button>
 
-        <button
-          class="nav"
-          data-page="cattle"
-        >
-          <span class="nav-symbol">🐄</span>
-          <span>Monitoring Sapi</span>
-        </button>
-
-        <button
-          class="nav"
-          data-page="environment"
-        >
-          <span class="nav-symbol">🌡</span>
-          <span>Lingkungan Kandang</span>
-        </button>
-
-        <button
-          class="nav"
-          data-page="cctv"
-        >
-          <span class="nav-symbol">▣</span>
-          <span>CCTV Monitoring</span>
-        </button>
-
-      </div>
-
-
-      <!-- SYSTEM -->
-      <div class="nav-group">
-
-        <span class="nav-label">
+</div>
+<!-- SYSTEM -->
+<div class="nav-group">
+<span class="nav-label">
           SYSTEM
         </span>
-
-        <button
-          class="nav"
-          data-page="alerts"
-        >
-          <span class="nav-symbol">△</span>
-          <span>Alert</span>
-
-          <span
-            class="nav-count"
-            id="navAlertCount"
-          >
-            5
-          </span>
-
-        </button>
-
-
-        <button
-          class="nav"
-          data-page="devices"
-        >
-          <span class="nav-symbol">⚙</span>
-          <span>Perangkat</span>
-        </button>
-
-      </div>
-
-
-      <!-- MANAGEMENT -->
-      <div class="nav-group">
-
-        <span class="nav-label">
+<button class="nav" data-page="alerts">
+<span class="nav-symbol">△</span>
+<span>Alert</span>
+<span class="nav-count" id="navAlertCount">4</span>
+</button>
+<button class="nav" data-page="devices">
+<span class="nav-symbol">⚙</span>
+<span>Perangkat</span>
+</button>
+</div>
+<!-- MANAGEMENT -->
+<div class="nav-group">
+<span class="nav-label">
           MANAGEMENT
         </span>
-
-        <button
-          class="nav"
-          data-page="reports"
-        >
-          <span class="nav-symbol">▤</span>
-          <span>Laporan</span>
-        </button>
-
-        <button
-          class="nav"
-          data-page="settings"
-        >
-          <span class="nav-symbol">⚙</span>
-          <span>Pengaturan</span>
-        </button>
-
-      </div>
-
-    </nav>
-
-
-    <!-- SIDEBAR BOTTOM -->
-    <div class="side-bottom">
-
-      <div class="connection-box">
-
-        <div class="connection-icon">
+<button class="nav" data-page="reports">
+<span class="nav-symbol">▤</span>
+<span>Laporan</span>
+</button>
+<button class="nav" data-page="settings">
+<span class="nav-symbol">⚙</span>
+<span>Pengaturan</span>
+</button>
+</div>
+</nav>
+<!-- SIDEBAR BOTTOM -->
+<div class="side-bottom">
+<div class="connection-box">
+<div class="connection-icon">
           ●
         </div>
-
-        <div>
-
-          <b>
+<div>
+<b>
             Server Lokal
           </b>
-
-          <small>
-            <i></i>
+<small>
+<i></i>
             Terhubung
           </small>
-
-        </div>
-
-      </div>
-
-
-      <p>
+</div>
+</div>
+<p>
         ©️ 2026 SmartCattle
-        <br>
+        <br/>
         Local-first Monitoring
       </p>
-
-    </div>
-
-  </aside>
-
-
-  <!-- =====================================================
+</div>
+</aside>
+<!-- =====================================================
        MAIN
   ====================================================== -->
-
-  <main class="main">
-
-
-    <!-- =====================================================
+<main class="main">
+<!-- =====================================================
          TOPBAR
     ====================================================== -->
-
-    <header class="topbar">
-
-      <button
-        id="menuBtn"
-        class="menu"
-        aria-label="Buka menu"
-      >
+<header class="topbar">
+<button aria-label="Buka menu" class="menu" id="menuBtn">
         ☰
       </button>
-
-
-      <!-- LOGO INSTANSI -->
-      <div class="header-logos">
-
-        <div class="logo-box logo-box-pln">
-
-          <img
-            src="Logo_PLN_ES.png"
-            alt="PLN Electricity Services"
-            class="header-logo logo-pln"
-          >
-
-        </div>
-
-
-        <div class="logo-box">
-
-          <img
-            src="Logo_Yatim_Mandiri.png"
-            alt="Yatim Mandiri"
-            class="header-logo logo-yatim"
-          >
-
-        </div>
-
-
-        <div class="logo-box">
-
-          <img
-            src="Logo_Polinema.png"
-            alt="Politeknik Negeri Malang"
-            class="header-logo logo-polinema"
-          >
-
-        </div>
-
-      </div>
-
-
-      <div class="grow"></div>
-
-
-      <!-- SYSTEM STATUS -->
-      <div class="system-mini-status">
-
-        <i></i>
-
-        <span>
+<!-- LOGO INSTANSI -->
+<div class="header-logos">
+<div class="logo-box logo-box-pln">
+<img alt="PLN Electricity Services" class="header-logo logo-pln" src="Logo_PLN_ES.png"/>
+</div>
+<div class="logo-box">
+<img alt="" class="" src=""/>
+</div>
+<div class="">
+<img alt="" class="" src=""/>
+</div>
+</div>
+<div class="grow"></div>
+<!-- SYSTEM STATUS -->
+<div class="system-mini-status">
+<i></i>
+<span>
           System Online
         </span>
-
-      </div>
-
-
-      <span
-        class="chip"
-        id="dateText"
-      >
+</div>
+<span class="chip" id="dateText">
         —
       </span>
-
-
-      <span
-        class="chip"
-        id="clockText"
-      >
+<span class="chip" id="clockText">
         —
       </span>
-
-
-      <button
-        class="notif"
-        aria-label="Notifikasi"
-      >
+<button aria-label="Notifikasi" class="notif">
 
         🔔
 
-        <em id="notifCount">
-          5
-        </em>
-
-      </button>
-
-
-      <div class="user">
-
-        <span>
+        <em id="notifCount">4</em>
+</button>
+<div class="user">
+<span>
           A
         </span>
-
-        <div class="user-text">
-
-          <b>
+<div class="user-text">
+<b>
             Admin
           </b>
-
-          <small>
+<small>
             Administrator
           </small>
-
-        </div>
-
-        <strong>
+</div>
+<strong>
           ⌄
         </strong>
-
-      </div>
-
-    </header>
-
-
-    <!-- =====================================================
+</div>
+</header>
+<!-- =====================================================
          CONTENT
     ====================================================== -->
-
-    <section class="content">
-
-
-      <!-- =====================================================
+<section class="content">
+<!-- =====================================================
            PAGE OVERVIEW
       ====================================================== -->
-
-      <div
-        class="page active"
-        id="page-overview"
-      >
-
-
-        <!-- PAGE HEADING -->
-        <div class="heading heading-with-status">
-
-          <div>
-
-            <h1>
+<div class="page active" id="page-overview">
+<!-- PAGE HEADING -->
+<div class="heading heading-with-status">
+<div>
+<h1>
               Smart Cattle Monitoring Dashboard
             </h1>
-
-            <p>
+<p>
               Ringkasan kondisi ternak dan kandang
             </p>
-
-          </div>
-
-
-          <div class="live-status-card">
-
-            <div>
-
-              <span class="live-dot"></span>
-
-              <b>
+</div>
+<div class="live-status-card">
+<div>
+<span class="live-dot"></span>
+<b>
                 LIVE MONITORING
               </b>
-
-            </div>
-
-
-            <small>
+</div>
+<small>
 
               Terakhir diperbarui:
 
               <span id="overviewUpdated">
                 —
               </span>
-
-            </small>
-
-          </div>
-
-        </div>
-
-
-        <!-- =====================================================
+</small>
+</div>
+</div>
+<!-- =====================================================
              KPI
         ====================================================== -->
-
-        <div class="kpis">
-
-
-          <!-- CRITICAL -->
-          <button
-            class="kpi kpi-danger"
-            data-jump="alerts"
-          >
-
-            <i class="red">
+<div class="kpis">
+<!-- CRITICAL -->
+<button class="kpi kpi-danger" data-jump="alerts">
+<i class="red">
               !
             </i>
-
-            <div>
-
-              <span>
+<div>
+<span>
                 Critical
               </span>
-
-              <b id="kpiCritical">
-                3
-              </b>
-
-              <small>
+<b id="kpiCritical">1</b>
+<small>
                 Perlu tindakan segera
               </small>
-
-            </div>
-
-          </button>
-
-
-          <!-- WARNING -->
-          <button
-            class="kpi kpi-warning"
-            data-jump="alerts"
-          >
-
-            <i class="amber">
+</div>
+</button>
+<!-- WARNING -->
+<button class="kpi kpi-warning" data-jump="alerts">
+<i class="amber">
               !
             </i>
-
-            <div>
-
-              <span>
+<div>
+<span>
                 Warning
               </span>
-
-              <b id="kpiWarning">
-                9
-              </b>
-
-              <small>
+<b id="kpiWarning">3</b>
+<small>
                 Perlu dipantau
               </small>
-
-            </div>
-
-          </button>
-
-
-          <!-- OFFLINE -->
-          <button
-            class="kpi"
-            data-jump="devices"
-          >
-
-            <i class="gray">
+</div>
+</button>
+<!-- OFFLINE -->
+<button class="kpi" data-jump="devices">
+<i class="gray">
               ⚙
             </i>
-
-            <div>
-
-              <span>
+<div>
+<span>
                 Perangkat Offline
               </span>
-
-              <b id="kpiOffline">
-                1
-              </b>
-
-              <small>
+<b id="kpiOffline">1</b>
+<small>
                 Periksa perangkat
               </small>
-
-            </div>
-
-          </button>
-
-
-          <!-- NORMAL -->
-          <button
-            class="kpi"
-            data-jump="cattle"
-          >
-
-            <i class="green">
+</div>
+</button>
+<!-- NORMAL -->
+<button class="kpi" data-jump="cattle">
+<i class="green">
               ✓
             </i>
-
-            <div>
-
-              <span>
+<div>
+<span>
                 Normal
               </span>
-
-              <b id="kpiNormal">
-                37
-              </b>
-
-              <small>
-                74% dari total
-              </small>
-
-            </div>
-
-          </button>
-
-
-          <!-- TOTAL -->
-          <button
-            class="kpi"
-            data-jump="cattle"
-          >
-
-            <i class="purple">
+<b id="kpiNormal">6</b>
+<small>60% dari total</small>
+</div>
+</button>
+<!-- TOTAL -->
+<button class="kpi" data-jump="cattle">
+<i class="purple">
               🐄
             </i>
-
-            <div>
-
-              <span>
+<div>
+<span>
                 Total Sapi
               </span>
-
-              <b id="kpiTotal">
-                50
-              </b>
-
-              <small>
+<b id="kpiTotal">10</b>
+<small>
                 Semua ternak terdaftar
               </small>
-
-            </div>
-
-          </button>
-
-        </div>
-
-
-        <!-- =====================================================
+</div>
+</button>
+</div>
+<!-- =====================================================
              DASHBOARD GRID
         ====================================================== -->
-
-        <div class="dashboard-grid">
-
-
-          <!-- ===================================================
+<div class="dashboard-grid">
+<!-- ===================================================
                ALERT
           ==================================================== -->
-
-          <article class="panel panel-alert-main">
-
-            <div class="panel-title">
-
-              <div>
-
-                <span class="title-icon red-soft">
+<article class="panel panel-alert-main">
+<div class="panel-title">
+<div>
+<span class="title-icon red-soft">
                   !
                 </span>
 
                 Alert Terbaru
 
               </div>
-
-
-              <button
-                class="text-btn"
-                data-jump="alerts"
-              >
+<button class="text-btn" data-jump="alerts">
                 Lihat Semua →
               </button>
-
-            </div>
-
-
-            <p class="panel-subtitle">
+</div>
+<p class="panel-subtitle">
               Kondisi yang membutuhkan perhatian operator
             </p>
-
-
-            <div
-              id="overviewAlerts"
-              class="alerts"
-            ></div>
-
-          </article>
-
-
-          <!-- ===================================================
+<div class="alerts" id="overviewAlerts"></div>
+</article>
+<!-- ===================================================
                KONDISI KANDANG
                DATA REAL DARI api-environment.php
           ==================================================== -->
-
-          <article class="panel">
-
-            <div class="panel-title">
-
-              <div>
-
-                <span class="title-icon blue-soft">
+<article class="panel">
+<div class="panel-title">
+<div>
+<span class="title-icon blue-soft">
                   ⌂
                 </span>
 
                 Kondisi Kandang
 
               </div>
-
-
-              <span class="pill ok">
+<span class="pill ok">
                 Live
               </span>
-
-            </div>
-
-
-            <div class="barn-status">
-
-              <span class="barn-status-icon">
+</div>
+<div class="barn-status">
+<span class="barn-status-icon">
                 ✓
               </span>
-
-              <div>
-
-                <small>
+<div>
+<small>
                   Status Keseluruhan
                 </small>
-
-                <b>
-                  Aman & Stabil
+<b>
+                  Aman &amp; Stabil
                 </b>
-
-              </div>
-
-            </div>
-
-
-            <div class="metrics">
-
-
-              <!-- TEMPERATURE REAL -->
-              <div>
-
-                <span>
+</div>
+</div>
+<div class="metrics">
+<!-- TEMPERATURE REAL -->
+<div>
+<span>
                   🌡 Suhu Kandang
                 </span>
-
-                <b id="overviewEnvTemp">
+<b id="overviewEnvTemp">
                   -- °C
                 </b>
-
-                <em class="pill ok">
+<em class="pill ok">
                   Nyaman
                 </em>
-
-              </div>
-
-
-              <!-- HUMIDITY REAL -->
-              <div>
-
-                <span>
+</div>
+<!-- HUMIDITY REAL -->
+<div>
+<span>
                   💧 Kelembapan
                 </span>
-
-                <b id="overviewEnvHumidity">
+<b id="overviewEnvHumidity">
                   -- %RH
                 </b>
-
-                <em class="pill ok">
+<em class="pill ok">
                   Normal
                 </em>
-
-              </div>
-
-
-              <!-- CH4 REAL -->
-              <div>
-
-                <span>
+</div>
+<!-- CH4 REAL -->
+<div>
+<span>
                   🔥 Metana (CH₄)
                 </span>
-
-                <b id="overviewEnvCh4">
+<b id="overviewEnvCh4">
                   -- ppm
                 </b>
-
-                <em class="pill ok">
+<em class="pill ok">
                   Monitoring
                 </em>
-
-              </div>
-
-            </div>
-
-
-            <button
-              class="secondary-btn full-btn"
-              data-jump="environment"
-            >
+</div>
+</div>
+<button class="secondary-btn full-btn" data-jump="environment">
               Lihat Detail Lingkungan
             </button>
-
-          </article>
-
-
-          <!-- ===================================================
+</article>
+<!-- ===================================================
                HEART RATE
           ==================================================== -->
-
-          <article class="panel panel-wide">
-
-            <div class="panel-title">
-
-              <div>
-
-                <span class="title-icon red-soft">
+<article class="panel panel-wide">
+<div class="panel-title">
+<div>
+<span class="title-icon red-soft">
                   ♡
                 </span>
 
                 Heart Rate Overview
 
               </div>
-
-
-              <select>
-
-                <option>
+<select>
+<option>
                   24 Jam Terakhir
                 </option>
-
-              </select>
-
-            </div>
-
-
-            <div class="split-metric">
-
-              <div>
-
-                <small>
+</select>
+</div>
+<div class="split-metric">
+<div>
+<small>
                   Rata-rata HR
                 </small>
-
-                <b>
+<b>
                   78
 
                   <span>
                     bpm
                   </span>
-
-                </b>
-
-              </div>
-
-
-              <div>
-
-                <small>
+</b>
+</div>
+<div>
+<small>
                   Rentang
                 </small>
-
-                <strong>
+<strong>
                   54 - 112 bpm
                 </strong>
-
-              </div>
-
-
-              <div>
-
-                <small>
+</div>
+<div>
+<small>
                   Sapi HR Tinggi
                 </small>
-
-                <strong class="critical-text">
+<strong class="critical-text">
                   3 sapi
                 </strong>
+</div>
+</div>
+<svg class="chart" preserveaspectratio="none" viewbox="0 0 420 150">
+<polyline points="0,92 25,78 50,84 75,72 100,90 125,77 150,85 175,69 200,87 225,75 250,82 275,74 300,88 325,73 350,83 375,68 420,80"></polyline>
+<line x1="0" x2="420" y1="120" y2="120"></line>
+<line x1="0" x2="420" y1="80" y2="80"></line>
+<line x1="0" x2="420" y1="40" y2="40"></line>
+</svg>
+<div class="labels">
+<span>10:00</span>
+<span>14:00</span>
+<span>18:00</span>
+<span>22:00</span>
+<span>02:00</span>
+<span>06:00</span>
+<span>10:00</span>
+</div>
+</article>
 
-              </div>
-
-            </div>
-
-
-            <svg
-              class="chart"
-              viewBox="0 0 420 150"
-              preserveAspectRatio="none"
-            >
-
-              <polyline
-                points="0,92 25,78 50,84 75,72 100,90 125,77 150,85 175,69 200,87 225,75 250,82 275,74 300,88 325,73 350,83 375,68 420,80"
-              />
-
-              <line
-                x1="0"
-                y1="120"
-                x2="420"
-                y2="120"
-              />
-
-              <line
-                x1="0"
-                y1="80"
-                x2="420"
-                y2="80"
-              />
-
-              <line
-                x1="0"
-                y1="40"
-                x2="420"
-                y2="40"
-              />
-
-            </svg>
-
-
-            <div class="labels">
-
-              <span>10:00</span>
-              <span>14:00</span>
-              <span>18:00</span>
-              <span>22:00</span>
-              <span>02:00</span>
-              <span>06:00</span>
-              <span>10:00</span>
-
-            </div>
-
-          </article>
-
-
-          <!-- ===================================================
-               ACTIVITY
-          ==================================================== -->
-
-          <article class="panel">
-
-            <div class="panel-title">
-
-              <div>
-
-                <span class="title-icon green-soft">
+<article class="panel">
+<div class="panel-title">
+<div>
+<span class="title-icon green-soft">
                   ◉
                 </span>
 
-                Aktivitas & Ruminasi
+                Ruminasi
 
               </div>
-
-            </div>
-
-
-            <div class="activity-status-main">
-
-              <div>
-
-                <small>
-                  Status Aktivitas
-                </small>
-
-                <b>
-                  Normal
-                </b>
-
-              </div>
+</div>
 
 
-              <span class="activity-score-mini">
-
-                82
-
-                <small>
-                  /100
-                </small>
-
-              </span>
-
-            </div>
-
-
-            <div class="activity-list">
-
-              <div>
-
-                <span>
-                  🚶 Berjalan
-                </span>
-
-                <b>
-                  28%
-                </b>
-
-              </div>
-
-
-              <div>
-
-                <span>
-                  🐄 Berdiri
-                </span>
-
-                <b>
-                  42%
-                </b>
-
-              </div>
-
-
-              <div>
-
-                <span>
-                  🛏 Berbaring
-                </span>
-
-                <b>
-                  30%
-                </b>
-
-              </div>
-
-            </div>
-
-
-            <div class="rumination-box">
-
-              <div>
-
-                <span>
+<div class="rumination-box">
+<div>
+<span>
                   🌿 Ruminasi
                 </span>
-
-                <strong>
+<strong>
                   455 menit/hari
                 </strong>
-
-              </div>
-
-
-              <em class="pill ok">
+</div>
+<em class="pill ok">
                 Normal
               </em>
-
-            </div>
-
-
-            <button
-              class="secondary-btn full-btn"
-              data-jump="cattle"
-            >
+</div>
+<button class="secondary-btn full-btn" data-jump="cattle">
               Lihat Monitoring Sapi
             </button>
-
-          </article>
-
-
-          <!-- ===================================================
-               CCTV
-          ==================================================== -->
-
-          <article class="panel">
-
-            <div class="panel-title">
-
-              <div>
-
-                <span class="title-icon purple-soft">
-                  ▣
-                </span>
-
-                CCTV Preview
-
-              </div>
+</article>
 
 
-              <button
-                class="text-btn"
-                data-jump="cctv"
-              >
-                Lihat Semua →
-              </button>
-
-            </div>
-
-
-            <div class="camera-summary">
-
-              <span class="live-dot"></span>
-
-              <b>
-                4 Kamera Online
-              </b>
-
-              <small>
-                / 4 total
-              </small>
-
-            </div>
-
-
-            <div class="cameras mini">
-
-              <div class="camera">
-
-                <div class="cam">
-
-                  <span>
-                    Kandang A
-                  </span>
-
-                  <b>
-                    LIVE
-                  </b>
-
-                </div>
-
-              </div>
-
-
-              <div class="camera">
-
-                <div class="cam">
-
-                  <span>
-                    Kandang B
-                  </span>
-
-                  <b>
-                    LIVE
-                  </b>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </article>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
+</div>
+</div>
+<!-- =====================================================
            PAGE MONITORING SAPI
       ====================================================== -->
-
-      <div
-        class="page"
-        id="page-cattle"
-      >
-
-        <div class="heading heading-with-status">
-
-          <div>
-
-            <h1>
+<div class="page" id="page-cattle">
+<div class="heading heading-with-status">
+<div>
+<h1>
               Monitoring Sapi
             </h1>
-
-            <p>
+<p>
               Pilih sapi pada daftar untuk melihat kondisi individual
             </p>
-
-          </div>
-
-
-          <div class="live-status-card">
-
-            <div>
-
-              <span class="live-dot"></span>
-
-              <b>
+</div>
+<div class="live-status-card">
+<div>
+<span class="live-dot"></span>
+<b>
                 DATA REAL-TIME
               </b>
-
-            </div>
-
-            <small id="cattlePageUpdated">
+</div>
+<small id="cattlePageUpdated">
               —
             </small>
-
-          </div>
-
-        </div>
-
-
-        <div class="cattle-layout">
-
-
-          <!-- DAFTAR SAPI -->
-          <article class="panel cattle-list-panel">
-
-            <div class="panel-title">
-
-              <div>
-
-                <span class="title-icon blue-soft">
+</div>
+</div>
+<div class="cattle-layout">
+<!-- DAFTAR SAPI -->
+<article class="panel cattle-list-panel">
+<div class="panel-title">
+<div>
+<span class="title-icon blue-soft">
                   🐄
                 </span>
 
                 Daftar Sapi
 
               </div>
-
-
-              <span class="pill ok">
+<span class="pill ok">
                 Real-time
               </span>
-
-            </div>
-
-
-            <div class="toolbar">
-
-              <input
-                id="cowSearch"
-                type="search"
-                placeholder="Cari ID sapi..."
-              >
-
-
-              <select id="statusFilter">
-
-                <option value="all">
+</div>
+<div class="toolbar">
+<input id="cowSearch" placeholder="Cari ID sapi..." type="search"/>
+<select id="statusFilter">
+<option value="all">
                   Semua Status
                 </option>
-
-                <option>
+<option>
                   Normal
                 </option>
-
-                <option>
+<option>
                   Warning
                 </option>
-
-                <option>
+<option>
                   Critical
                 </option>
-
-              </select>
-
-            </div>
-
-
-            <div class="table-wrap">
-
-              <table>
-
-                <thead>
-
-                  <tr>
-
-                    <th>
+</select>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>
                       ID
                     </th>
-
-                    <th>
+<th>
                       HR
                     </th>
-
-                    <th>
+<th>
                       Suhu
                     </th>
-
-                    <th>
+<th>
                       Status
                     </th>
-
-                    <th>
+<th>
                       Baterai
                     </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody id="cowTable"></tbody>
-
-              </table>
-
-            </div>
-
-          </article>
-
-
-          <!-- DETAIL SAPI -->
-          <article class="panel cattle-detail-panel">
-
-            <div class="cow-detail-header">
-
-              <div>
-
-                <span class="detail-eyebrow">
+</tr>
+</thead>
+<tbody id="cowTable"></tbody>
+</table>
+</div>
+</article>
+<!-- DETAIL SAPI -->
+<article class="panel cattle-detail-panel">
+<div class="cow-detail-header">
+<div>
+<span class="detail-eyebrow">
                   DETAIL TERNAK
                 </span>
-
-                <h2 id="detailTitle">
+<h2 id="detailTitle">
                   Detail Sapi
                 </h2>
-
-                <small id="detailUpdate">
+<small id="detailUpdate">
                   —
                 </small>
-
-              </div>
-
-
-              <div class="cow-status-area">
-
-                <span
-                  class="cow-main-status"
-                  id="detailStatusBadge"
-                >
+</div>
+<div class="cow-status-area">
+<span class="cow-main-status" id="detailStatusBadge">
                   —
                 </span>
-
-              </div>
-
-            </div>
-
-
-            <!-- HEALTH -->
-            <div class="section-caption">
-
-              <span>
+</div>
+</div>
+<!-- HEALTH -->
+<div class="section-caption">
+<span>
                 Kondisi Kesehatan
               </span>
-
-              <small>
+<small>
                 Status ternak berdasarkan parameter monitoring
               </small>
-
-            </div>
-
-
-            <div class="detail-kpis">
-
-
-              <!-- HR -->
-              <div class="detail">
-
-                <span>
+</div>
+<div class="detail-kpis">
+<!-- HR -->
+<div class="detail">
+<span>
                   ♡ Heart Rate
                 </span>
-
-                <b id="dHr">
+<b id="dHr">
                   —
                 </b>
-
-                <small id="dHrState">
+<small id="dHrState">
                   —
                 </small>
-
-              </div>
-
-
-              <!-- TEMPERATURE -->
-              <div class="detail">
-
-                <span>
+</div>
+<!-- TEMPERATURE -->
+<div class="detail">
+<span>
                   🌡 Suhu Tubuh
                 </span>
-
-                <b id="dTemp">
+<b id="dTemp">
                   —
                 </b>
-
-                <small id="dTempState">
+<small id="dTempState">
                   —
                 </small>
-
-              </div>
-
-
-              <!-- ACTIVITY -->
-              <div class="detail">
-
-                <span>
-                  🏃 Aktivitas
-                </span>
-
-                <b id="dAct">
-                  —
-                </b>
-
-                <small id="dActPct">
-                  —
-                </small>
-
-              </div>
+</div>
 
 
-              <!-- RUMINATION -->
-              <div class="detail">
-
-                <span>
+<!-- RUMINATION -->
+<div class="detail">
+<span>
                   🌿 Ruminasi
                 </span>
-
-                <b id="dRum">
+<b id="dRum">
                   —
                 </b>
-
-                <small id="dRumPct">
+<small id="dRumPct">
                   —
                 </small>
-
-              </div>
-
-            </div>
-
-
-            <!-- DEVICE -->
-            <div class="section-caption section-caption-device">
-
-              <span>
+</div>
+</div>
+<!-- DEVICE -->
+<div class="section-caption section-caption-device">
+<span>
                 Status Perangkat
               </span>
-
-              <small>
+<small>
                 Kondisi wearable terpisah dari status kesehatan sapi
               </small>
-
-            </div>
-
-
-            <div class="device-summary-strip">
-
-              <div>
-
-                <span>
+</div>
+<div class="device-summary-strip">
+<div>
+<span>
                   Status Device
                 </span>
-
-                <b id="dDeviceStatus">
+<b id="dDeviceStatus">
                   —
                 </b>
-
-              </div>
-
-
-              <div>
-
-                <span>
+</div>
+<div>
+<span>
                   Baterai
                 </span>
-
-                <b id="dBatt">
+<b id="dBatt">
                   —
                 </b>
-
-                <small id="dBattState">
+<small id="dBattState">
                   —
                 </small>
-
-              </div>
-
-
-              <div>
-
-                <span>
+</div>
+<div>
+<span>
                   Last Update
                 </span>
-
-                <b id="dSeen">
+<b id="dSeen">
                   —
                 </b>
-
-              </div>
-
-            </div>
-
-
-            <!-- DETAIL GRID -->
-            <div class="detail-grid">
-
-
-              <!-- HEART RATE GRAPH -->
-              <div class="subpanel subpanel-chart">
-
-                <div class="subpanel-title">
-
-                  <div>
-
-                    <h3>
+</div>
+</div>
+<!-- DETAIL GRID -->
+<div class="detail-grid">
+<!-- HEART RATE GRAPH -->
+<div class="subpanel subpanel-chart">
+<div class="subpanel-title">
+<div>
+<h3>
                       Heart Rate Trend
                     </h3>
-
-                    <small>
+<small>
                       24 jam terakhir
                     </small>
-
-                  </div>
-
-                  <strong id="currentHrBadge">
+</div>
+<strong id="currentHrBadge">
                     —
                   </strong>
-
-                </div>
-
-
-                <svg
-                  class="chart big"
-                  viewBox="0 0 600 220"
-                  preserveAspectRatio="none"
-                >
-
-                  <polyline
-                    id="detailLine"
-                    points="0,120 40,90 80,105 120,78 160,100 200,82 240,96 280,72 320,98 360,84 400,92 440,76 480,95 520,70 600,88"
-                  />
-
-                  <line
-                    x1="0"
-                    y1="180"
-                    x2="600"
-                    y2="180"
-                  />
-
-                  <line
-                    x1="0"
-                    y1="120"
-                    x2="600"
-                    y2="120"
-                  />
-
-                  <line
-                    x1="0"
-                    y1="60"
-                    x2="600"
-                    y2="60"
-                  />
-
-                </svg>
+</div>
+<svg class="chart big" preserveaspectratio="none" viewbox="0 0 600 220">
+<polyline id="detailLine" points="0,120 40,90 80,105 120,78 160,100 200,82 240,96 280,72 320,98 360,84 400,92 440,76 480,95 520,70 600,88"></polyline>
+<line x1="0" x2="600" y1="180" y2="180"></line>
+<line x1="0" x2="600" y1="120" y2="120"></line>
+<line x1="0" x2="600" y1="60" y2="60"></line>
+</svg>
+<div class="labels">
+<span>10:00</span>
+<span>14:00</span>
+<span>18:00</span>
+<span>22:00</span>
+<span>02:00</span>
+<span>06:00</span>
+<span>10:00</span>
+</div>
+</div>
 
 
-                <div class="labels">
-
-                  <span>10:00</span>
-                  <span>14:00</span>
-                  <span>18:00</span>
-                  <span>22:00</span>
-                  <span>02:00</span>
-                  <span>06:00</span>
-                  <span>10:00</span>
-
-                </div>
-
-              </div>
-
-
-              <!-- ACTIVITY -->
-              <div class="subpanel">
-
-                <div class="subpanel-title">
-
-                  <div>
-
-                    <h3>
-                      Aktivitas 24 Jam
-                    </h3>
-
-                    <small>
-                      Distribusi gerakan
-                    </small>
-
-                  </div>
-
-                </div>
-
-
-                <div class="donut-wrap">
-
-                  <div
-                    class="donut"
-                    id="donut"
-                  ></div>
-
-
-                  <div class="legend">
-
-                    <div>
-
-                      <i class="lg green"></i>
-
-                      Berjalan
-
-                      <b id="lWalk">
-                        —
-                      </b>
-
-                    </div>
-
-
-                    <div>
-
-                      <i class="lg blue"></i>
-
-                      Berdiri
-
-                      <b id="lStand">
-                        —
-                      </b>
-
-                    </div>
-
-
-                    <div>
-
-                      <i class="lg purple"></i>
-
-                      Berbaring
-
-                      <b id="lLie">
-                        —
-                      </b>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-
-              <!-- DEVICE INFORMATION -->
-              <div class="subpanel">
-
-                <div class="subpanel-title">
-
-                  <div>
-
-                    <h3>
+<!-- DEVICE INFORMATION -->
+<div class="subpanel">
+<div class="subpanel-title">
+<div>
+<h3>
                       Informasi Perangkat
                     </h3>
-
-                    <small>
+<small>
                       Wearable sapi
                     </small>
-
-                  </div>
-
-                </div>
-
-
-                <dl>
-
-                  <dt>
+</div>
+</div>
+<dl>
+<dt>
                     Device ID
                   </dt>
-
-                  <dd id="dDevice">
+<dd id="dDevice">
                     —
                   </dd>
-
-
-                  <dt>
+<dt>
                     Model
                   </dt>
-
-                  <dd>
+<dd>
                     ESP32 Wearable
                   </dd>
-
-
-                  <dt>
+<dt>
                     Firmware
                   </dt>
-
-                  <dd>
+<dd>
                     v1.2.3
                   </dd>
-
-
-                  <dt>
+<dt>
                     Status
                   </dt>
-
-                  <dd id="dDeviceInfoStatus">
+<dd id="dDeviceInfoStatus">
                     —
                   </dd>
-
-                </dl>
-
-              </div>
-
-            </div>
-
-          </article>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
+</dl>
+</div>
+</div>
+</article>
+</div>
+</div>
+<!-- =====================================================
            PAGE ENVIRONMENT
            DATA REAL DARI api-environment.php
       ====================================================== -->
-
-      <div
-        class="page"
-        id="page-environment"
-      >
-
-        <div class="heading heading-with-status">
-
-          <div>
-
-            <h1>
+<div class="page" id="page-environment">
+<div class="heading heading-with-status">
+<div>
+<h1>
               Lingkungan Kandang
             </h1>
-
-            <p>
+<p>
               Monitoring suhu, kelembapan, dan konsentrasi metana
             </p>
-
-          </div>
-
-
-          <div class="live-status-card">
-
-            <div>
-
-              <span class="live-dot"></span>
-
-              <b>
+</div>
+<div class="live-status-card">
+<div>
+<span class="live-dot"></span>
+<b>
                 SENSOR TERHUBUNG
               </b>
-
-            </div>
-
-
-            <small>
+</div>
+<small>
               Data lingkungan diperbarui secara berkala
             </small>
-
-          </div>
-
-        </div>
-
-
-        <div class="env-grid">
-
-
-          <!-- SUHU -->
-          <article class="panel env env-main">
-
-            <span>
+</div>
+</div>
+<div class="env-grid">
+<!-- SUHU -->
+<article class="panel env env-main">
+<span>
               🌡
             </span>
-
-            <h3>
+<h3>
               Suhu Kandang
             </h3>
-
-            <b id="envTemperature">
+<b id="envTemperature">
               -- °C
             </b>
-
-            <em class="pill ok">
+<em class="pill ok">
               Nyaman
             </em>
-
-            <small>
+<small>
               Data sensor lingkungan
             </small>
-
-          </article>
-
-
-          <!-- HUMIDITY -->
-          <article class="panel env">
-
-            <span>
+</article>
+<!-- HUMIDITY -->
+<article class="panel env">
+<span>
               💧
             </span>
-
-            <h3>
+<h3>
               Kelembapan
             </h3>
-
-            <b id="envHumidity">
+<b id="envHumidity">
               -- %RH
             </b>
-
-            <em class="pill ok">
+<em class="pill ok">
               Normal
             </em>
-
-            <small>
+<small>
               Kondisi kelembapan kandang
             </small>
-
-          </article>
-
-
-          <!-- CH4 -->
-          <article class="panel env">
-
-            <span>
+</article>
+<!-- CH4 -->
+<article class="panel env">
+<span>
               🔥
             </span>
-
-            <h3>
+<h3>
               Metana CH₄
             </h3>
-
-            <b id="envCh4">
+<b id="envCh4">
               -- ppm
             </b>
-
-            <em class="pill ok">
+<em class="pill ok">
               Monitoring
             </em>
-
-            <small>
+<small>
               Data gas dari sensor MQ-4
             </small>
-
-          </article>
-
-        </div>
-
-
-        <!-- ===================================================
+</article>
+</div>
+<!-- ===================================================
              HISTORY
              MASIH PLACEHOLDER UNTUK SEKARANG
         ==================================================== -->
-
-        <article class="panel environment-history">
-
-          <div class="panel-title">
-
-            <div>
-
-              <span class="title-icon blue-soft">
+<article class="panel environment-history">
+<div class="panel-title">
+<div>
+<span class="title-icon blue-soft">
                 ↗️
               </span>
 
               Tren Lingkungan 24 Jam
 
             </div>
-
-          </div>
-
-
-          <div class="history-placeholder">
-
-            <div>
-
-              <span>
+</div>
+<div class="history-placeholder">
+<div>
+<span>
                 🌡 Suhu
               </span>
-
-              <b>
+<b>
                 26.8 - 30.1 °C
               </b>
-
-            </div>
-
-
-            <div>
-
-              <span>
+</div>
+<div>
+<span>
                 💧 Kelembapan
               </span>
-
-              <b>
+<b>
                 61 - 74 %RH
               </b>
-
-            </div>
-
-
-            <div>
-
-              <span>
+</div>
+<div>
+<span>
                 🔥 CH₄
               </span>
-
-              <b>
+<b>
                 Data histori
               </b>
+</div>
+</div>
+</article>
+</div>
 
-            </div>
 
-          </div>
-
-        </article>
-
-      </div>
-
-
-      <!-- =====================================================
-           PAGE CCTV
-      ====================================================== -->
-
-      <div
-        class="page"
-        id="page-cctv"
-      >
-
-        <div class="heading heading-with-status">
-
-          <div>
-
-            <h1>
-              CCTV Monitoring
-            </h1>
-
-            <p>
-              Live view area kandang dan titik operasional
-            </p>
-
-          </div>
-
-
-          <div class="live-status-card">
-
-            <div>
-
-              <span class="live-dot"></span>
-
-              <b>
-                4 / 4 ONLINE
-              </b>
-
-            </div>
-
-            <small>
-              Streaming lokal tersedia
-            </small>
-
-          </div>
-
-        </div>
-
-
-        <div class="cameras large">
-
-          <div class="camera">
-
-            <div class="cam">
-
-              <span>
-                Kandang A
-              </span>
-
-              <b>
-                LIVE
-              </b>
-
-            </div>
-
-            <footer>
-
-              <span>
-                Camera 01
-              </span>
-
-              <strong class="normal">
-                ● Online
-              </strong>
-
-            </footer>
-
-          </div>
-
-
-          <div class="camera">
-
-            <div class="cam">
-
-              <span>
-                Kandang B
-              </span>
-
-              <b>
-                LIVE
-              </b>
-
-            </div>
-
-            <footer>
-
-              <span>
-                Camera 02
-              </span>
-
-              <strong class="normal">
-                ● Online
-              </strong>
-
-            </footer>
-
-          </div>
-
-
-          <div class="camera">
-
-            <div class="cam">
-
-              <span>
-                Area Pakan
-              </span>
-
-              <b>
-                LIVE
-              </b>
-
-            </div>
-
-            <footer>
-
-              <span>
-                Camera 03
-              </span>
-
-              <strong class="normal">
-                ● Online
-              </strong>
-
-            </footer>
-
-          </div>
-
-
-          <div class="camera">
-
-            <div class="cam">
-
-              <span>
-                Pintu Masuk
-              </span>
-
-              <b>
-                LIVE
-              </b>
-
-            </div>
-
-            <footer>
-
-              <span>
-                Camera 04
-              </span>
-
-              <strong class="normal">
-                ● Online
-              </strong>
-
-            </footer>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
+<!-- =====================================================
            PAGE ALERTS
       ====================================================== -->
-
-      <div
-        class="page"
-        id="page-alerts"
-      >
-
-        <div class="heading">
-
-          <div>
-
-            <h1>
+<div class="page" id="page-alerts">
+<div class="heading">
+<div>
+<h1>
               Alert Center
             </h1>
-
-            <p>
+<p>
               Peringatan kondisi sapi, perangkat, dan lingkungan
             </p>
-
-          </div>
-
-        </div>
-
-
-        <article class="panel">
-
-          <div class="alert-page-head">
-
-            <div>
-
-              <b>
+</div>
+</div>
+<article class="panel">
+<div class="alert-page-head">
+<div>
+<b>
                 Alert Aktif
               </b>
-
-              <small>
+<small>
                 Prioritaskan Critical sebelum Warning
               </small>
-
-            </div>
-
-
-            <div class="alert-summary-pills">
-
-              <span class="summary-pill critical-pill">
-                3 Critical
-              </span>
-
-              <span class="summary-pill warning-pill">
-                9 Warning
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <div
-            id="allAlerts"
-            class="alerts full"
-          ></div>
-
-        </article>
-
-      </div>
-
-
-      <!-- =====================================================
+</div>
+<div class="alert-summary-pills">
+<span class="summary-pill critical-pill">1 Critical</span>
+<span class="summary-pill warning-pill">3 Warning</span>
+</div>
+</div>
+<div class="alerts full" id="allAlerts"></div>
+</article>
+</div>
+<!-- =====================================================
            PAGE DEVICES
       ====================================================== -->
-
-      <div
-        class="page"
-        id="page-devices"
-      >
-
-        <div class="heading">
-
-          <div>
-
-            <h1>
+<div class="page" id="page-devices">
+<div class="heading">
+<div>
+<h1>
               Perangkat
             </h1>
-
-            <p>
-              Status wearable, sensor kandang, dan kamera
+<p>
+              Status wearable dan sensor kandang
             </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="device-kpis">
-
-          <article class="panel device-kpi">
-
-            <small>
+</div>
+</div>
+<div class="device-kpis">
+<article class="panel device-kpi">
+<small>
               Total Perangkat
             </small>
-
-            <b>
-              54
-            </b>
-
-            <span>
+<b>11</b>
+<span>
               Terdaftar
             </span>
-
-          </article>
-
-
-          <article class="panel device-kpi">
-
-            <small>
+</article>
+<article class="panel device-kpi">
+<small>
               Online
             </small>
-
-            <b class="normal">
-              53
-            </b>
-
-            <span>
+<b class="normal">10</b>
+<span>
               Terhubung
             </span>
-
-          </article>
-
-
-          <article class="panel device-kpi">
-
-            <small>
+</article>
+<article class="panel device-kpi">
+<small>
               Offline
             </small>
-
-            <b class="critical">
-              1
-            </b>
-
-            <span>
+<b class="critical">1</b>
+<span>
               Perlu diperiksa
             </span>
-
-          </article>
-
-
-          <article class="panel device-kpi">
-
-            <small>
+</article>
+<article class="panel device-kpi">
+<small>
               Baterai Rendah
             </small>
-
-            <b class="warning">
-              2
-            </b>
-
-            <span>
+<b class="warning">1</b>
+<span>
               &lt; 30%
             </span>
-
-          </article>
-
-        </div>
-
-
-        <article class="panel">
-
-          <div class="table-wrap">
-
-            <table>
-
-              <thead>
-
-                <tr>
-
-                  <th>
+</article>
+</div>
+<article class="panel">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>
                     Perangkat
                   </th>
-
-                  <th>
+<th>
                     Tipe
                   </th>
-
-                  <th>
+<th>
                     Baterai
                   </th>
-
-                  <th>
+<th>
                     Last Seen
                   </th>
-
-                  <th>
+<th>
                     Status
                   </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody id="deviceTable"></tbody>
-
-            </table>
-
-          </div>
-
-        </article>
-
-      </div>
-
-
-      <!-- =====================================================
+</tr>
+</thead>
+<tbody id="deviceTable"></tbody>
+</table>
+</div>
+</article>
+</div>
+<!-- =====================================================
            PAGE REPORTS
       ====================================================== -->
-
-      <div
-        class="page"
-        id="page-reports"
-      >
-
-        <div class="heading">
-
-          <div>
-
-            <h1>
+<div class="page" id="page-reports">
+<div class="heading">
+<div>
+<h1>
               Laporan
             </h1>
-
-            <p>
+<p>
               Histori monitoring dan ekspor data
             </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="simple-grid">
-
-
-          <article class="panel report-card">
-
-            <span class="report-icon">
+</div>
+</div>
+<div class="simple-grid">
+<article class="panel report-card">
+<span class="report-icon">
               🐄
             </span>
-
-            <h3>
+<h3>
               Laporan Harian Ternak
             </h3>
-
-            <p>
-              HR, suhu tubuh, aktivitas, ruminasi, dan alert.
+<p>
+              HR, suhu tubuh, ruminasi, dan alert.
             </p>
-
-            <button class="primary report-btn">
+<button class="primary report-btn">
               Buat Laporan
             </button>
-
-          </article>
-
-
-          <article class="panel report-card">
-
-            <span class="report-icon">
+</article>
+<article class="panel report-card">
+<span class="report-icon">
               🌡
             </span>
-
-            <h3>
+<h3>
               Laporan Lingkungan
             </h3>
-
-            <p>
+<p>
               Suhu kandang, kelembapan, dan konsentrasi CH₄.
             </p>
-
-            <button class="primary report-btn">
+<button class="primary report-btn">
               Buat Laporan
             </button>
-
-          </article>
-
-
-          <article class="panel report-card">
-
-            <span class="report-icon">
+</article>
+<article class="panel report-card">
+<span class="report-icon">
               ⚙
             </span>
-
-            <h3>
+<h3>
               Laporan Perangkat
             </h3>
-
-            <p>
+<p>
               Baterai, uptime, dan status perangkat.
             </p>
-
-            <button class="primary report-btn">
+<button class="primary report-btn">
               Buat Laporan
             </button>
-
-          </article>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
+</article>
+</div>
+</div>
+<!-- =====================================================
            PAGE SETTINGS
       ====================================================== -->
-
-      <div
-        class="page"
-        id="page-settings"
-      >
-
-        <div class="heading">
-
-          <div>
-
-            <h1>
+<div class="page" id="page-settings">
+<div class="heading">
+<div>
+<h1>
               Pengaturan
             </h1>
-
-            <p>
+<p>
               Threshold monitoring dan interval pembaruan data
             </p>
-
-          </div>
-
-        </div>
-
-
-        <article class="panel form settings-card">
-
-          <div class="settings-section-title">
-
-            <b>
+</div>
+</div>
+<article class="panel form settings-card">
+<div class="settings-section-title">
+<b>
               Threshold Monitoring
             </b>
-
-            <small>
+<small>
               Nilai prototype — final mengikuti hasil kalibrasi dan validasi
             </small>
-
-          </div>
-
-
-          <label>
-
-            <span>
+</div>
+<label>
+<span>
 
               Heart Rate Warning
 
               <small>
                 Batas awal warning heart rate
               </small>
-
-            </span>
-
-
-            <input
-              id="settingHr"
-              type="number"
-              value="95"
-            >
-
-
-            <strong>
+</span>
+<input id="settingHr" type="number" value="95"/>
+<strong>
               bpm
             </strong>
-
-          </label>
-
-
-          <label>
-
-            <span>
+</label>
+<label>
+<span>
 
               Suhu Tubuh Warning
 
               <small>
                 Batas awal suhu tubuh tinggi
               </small>
-
-            </span>
-
-
-            <input
-              id="settingTemp"
-              type="number"
-              value="39.5"
-              step="0.1"
-            >
-
-
-            <strong>
+</span>
+<input id="settingTemp" step="0.1" type="number" value="39.5"/>
+<strong>
               °C
             </strong>
-
-          </label>
-
-
-          <!--
+</label>
+<!--
               ID tetap settingNh3 supaya compatible
               dengan app.js lama.
               Label tampilan sekarang CH4.
           -->
-
-          <label>
-
-            <span>
+<label>
+<span>
 
               CH₄ Warning
 
               <small>
                 Batas awal konsentrasi metana kandang
               </small>
-
-            </span>
-
-
-            <input
-              id="settingNh3"
-              type="number"
-              value="20"
-            >
-
-
-            <strong>
+</span>
+<input id="settingNh3" type="number" value="20"/>
+<strong>
               ppm
             </strong>
-
-          </label>
-
-
-          <label>
-
-            <span>
+</label>
+<label>
+<span>
 
               Interval Update
 
               <small>
                 Periode pembaruan dashboard
               </small>
-
-            </span>
-
-
-            <input
-              id="settingInterval"
-              type="number"
-              value="10"
-            >
-
-
-            <strong>
+</span>
+<input id="settingInterval" type="number" value="10"/>
+<strong>
               detik
             </strong>
-
-          </label>
-
-
-          <button
-            class="primary"
-            id="saveSettings"
-          >
+</label>
+<button class="primary" id="saveSettings">
             Simpan Pengaturan
           </button>
-
-        </article>
-
-      </div>
-
-    </section>
-
-  </main>
-
+</article>
 </div>
-
-
+</section>
+</main>
+</div>
 <!-- =====================================================
      TOAST
 ====================================================== -->
-
-<div
-  class="toast"
-  id="toast"
->
+<div class="toast" id="toast">
   Pengaturan berhasil disimpan.
 </div>
-
-
 <!-- =====================================================
      JAVASCRIPT
 ====================================================== -->
-
 <script src="app.js"></script>
-
 </body>
-
 </html>

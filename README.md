@@ -1,24 +1,9 @@
-# SmartCattle Dashboard
+# SmartCattle — revisi permintaan client
 
-Prototype frontend vanilla HTML/CSS/JS.
+Perubahan: CCTV (menu, preview, halaman, perangkat kamera) dihapus; aktivitas gerakan/score/diagram dan alert aktivitas dihapus; daftar sapi C001–C010. Ruminasi dipertahankan.
 
-## Struktur navigasi
-- Dashboard = overview saja.
-- Monitoring Sapi = daftar sapi dan detail individual yang dipilih.
-- Aktivitas & Ruminasi = ringkasan aktivitas.
-- Lingkungan Kandang = suhu, kelembapan, NH3.
-- CCTV Monitoring = mockup kamera.
-- Alert = alert center.
-- Perangkat = status device.
-- Laporan dan Pengaturan.
+Data contoh: 10 sapi, 6 Normal, 3 Warning, 1 Critical; 1 wearable offline. Offline merupakan status perangkat terpisah dari kesehatan sapi. C009/C010 merupakan tambahan data contoh, bukan hasil sensor. Daftar perangkat contoh: 10 wearable dan 1 sensor kandang.
 
-## Menjalankan
-Bisa langsung buka `index.html`, atau lebih baik jalankan local server:
+Desain utama dan integrasi API tetap. api-test.php dan api-environment.php tidak disertakan dalam ZIP awal dan tidak diubah. Jangan hapus file PHP tersebut saat memperbarui VPS.
 
-```bash
-python -m http.server 8000
-```
-
-lalu buka `http://localhost:8000`.
-
-Data saat ini dummy. Nanti dapat dihubungkan ke Laravel/API, MySQL, Node-RED/MQTT, serta CCTV stream.
+Untuk pembaruan tampilan cukup mengganti index.html, style.css, app.js setelah backup file lama. Logo tetap sama. Belum ada perubahan VPS otomatis.

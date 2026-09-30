@@ -2,19 +2,7 @@
    HERD SUMMARY
 ===================================================== */
 
-const herdSummary = {
-
-  total: 50,
-
-  normal: 37,
-
-  warning: 9,
-
-  critical: 3,
-
-  offline: 1
-
-};
+const herdSummary = { total: 10, normal: 6, warning: 3, critical: 1, offline: 1 };
 
 
 /* =====================================================
@@ -27,8 +15,7 @@ const cattle = [
     id: 'C001',
     hr: 72,
     temp: 38.4,
-    activity: 'Berjalan',
-    actPct: 28,
+
     rum: 'Normal',
     rumPct: 78,
     rumMinutes: 468,
@@ -36,9 +23,7 @@ const cattle = [
     battery: 82,
     device: 'C001',
     deviceStatus: 'Online',
-    walk: 28,
-    stand: 42,
-    lie: 30,
+
     recordedAt: null
   },
 
@@ -46,8 +31,7 @@ const cattle = [
     id: 'C002',
     hr: 105,
     temp: 39.6,
-    activity: 'Berdiri',
-    actPct: 42,
+
     rum: 'Normal',
     rumPct: 75,
     rumMinutes: 455,
@@ -55,9 +39,7 @@ const cattle = [
     battery: 68,
     device: 'C002',
     deviceStatus: 'Online',
-    walk: 28,
-    stand: 42,
-    lie: 30,
+
     recordedAt: null
   },
 
@@ -65,8 +47,7 @@ const cattle = [
     id: 'C003',
     hr: 64,
     temp: 38.2,
-    activity: 'Berbaring',
-    actPct: 30,
+
     rum: 'Normal',
     rumPct: 80,
     rumMinutes: 482,
@@ -74,9 +55,7 @@ const cattle = [
     battery: 75,
     device: 'C003',
     deviceStatus: 'Online',
-    walk: 21,
-    stand: 35,
-    lie: 44,
+
     recordedAt: null
   },
 
@@ -84,8 +63,7 @@ const cattle = [
     id: 'C004',
     hr: 90,
     temp: 39.0,
-    activity: 'Berjalan',
-    actPct: 55,
+
     rum: 'Rendah',
     rumPct: 48,
     rumMinutes: 285,
@@ -93,9 +71,7 @@ const cattle = [
     battery: 55,
     device: 'C004',
     deviceStatus: 'Online',
-    walk: 42,
-    stand: 31,
-    lie: 27,
+
     recordedAt: null
   },
 
@@ -103,8 +79,7 @@ const cattle = [
     id: 'C005',
     hr: 112,
     temp: 40.1,
-    activity: 'Berbaring',
-    actPct: 42,
+
     rum: 'Rendah',
     rumPct: 39,
     rumMinutes: 238,
@@ -112,9 +87,7 @@ const cattle = [
     battery: 42,
     device: 'C005',
     deviceStatus: 'Warning',
-    walk: 17,
-    stand: 25,
-    lie: 58,
+
     recordedAt: null
   },
 
@@ -122,8 +95,7 @@ const cattle = [
     id: 'C006',
     hr: 67,
     temp: 38.3,
-    activity: 'Berjalan',
-    actPct: 62,
+
     rum: 'Normal',
     rumPct: 77,
     rumMinutes: 460,
@@ -131,9 +103,7 @@ const cattle = [
     battery: 88,
     device: 'C006',
     deviceStatus: 'Online',
-    walk: 36,
-    stand: 39,
-    lie: 25,
+
     recordedAt: null
   },
 
@@ -141,8 +111,7 @@ const cattle = [
     id: 'C007',
     hr: 76,
     temp: 38.5,
-    activity: 'Berdiri',
-    actPct: 47,
+
     rum: 'Normal',
     rumPct: 73,
     rumMinutes: 438,
@@ -150,9 +119,7 @@ const cattle = [
     battery: 79,
     device: 'C007',
     deviceStatus: 'Online',
-    walk: 24,
-    stand: 51,
-    lie: 25,
+
     recordedAt: null
   },
 
@@ -160,8 +127,7 @@ const cattle = [
     id: 'C008',
     hr: 96,
     temp: 39.1,
-    activity: 'Berbaring',
-    actPct: 24,
+
     rum: 'Rendah',
     rumPct: 45,
     rumMinutes: 271,
@@ -169,11 +135,12 @@ const cattle = [
     battery: 66,
     device: 'C008',
     deviceStatus: 'Online',
-    walk: 16,
-    stand: 28,
-    lie: 56,
+
     recordedAt: null
-  }
+  },
+  // Data contoh C009 dan C010; belum berasal dari alat.
+  { id: 'C009', hr: 70, temp: 38.4, rum: 'Normal', rumPct: 76, rumMinutes: 456, status: 'Normal', battery: 81, device: 'C009', deviceStatus: 'Online', recordedAt: null },
+  { id: 'C010', hr: 69, temp: 38.3, rum: 'Normal', rumPct: 74, rumMinutes: 444, status: 'Normal', battery: 10, device: 'C010', deviceStatus: 'Offline', recordedAt: null }
 
 ];
 
@@ -210,14 +177,6 @@ const alertData = [
   },
 
   {
-    tone: 'orange',
-    title: 'C008 - Aktivitas Rendah',
-    desc: 'Aktivitas menurun dibanding pola normal harian.',
-    time: '10:20',
-    cowId: 'C008'
-  },
-
-  {
     tone: 'blue',
     title: 'C005 - Status Perangkat Perlu Diperiksa',
     desc: 'Perangkat wearable mendeteksi kondisi yang perlu dipantau.',
@@ -240,57 +199,11 @@ const alertData = [
    DEVICE DATA
 ===================================================== */
 
-const deviceData = [
-
-  [
-    'Wearable C001',
-    'ESP32 Wearable',
-    '82%',
-    '3 detik',
-    'Online'
-  ],
-
-  [
-    'Wearable C002',
-    'ESP32 Wearable',
-    '68%',
-    '5 detik',
-    'Online'
-  ],
-
-  [
-    'Wearable C005',
-    'ESP32 Wearable',
-    '42%',
-    '8 detik',
-    'Warning'
-  ],
-
-  [
-    'Sensor Kandang A',
-    'ESP32 Environment',
-    'AC',
-    '2 detik',
-    'Online'
-  ],
-
-  [
-    'Camera 04',
-    'IP Camera',
-    'PoE',
-    '10 detik',
-    'Online'
-  ],
-
-  [
-    'Wearable C011',
-    'ESP32 Wearable',
-    '10%',
-    '18 menit',
-    'Offline'
-  ]
-
-];
+const deviceData = cattle.map(cow => [
+  `Wearable ${cow.id}`, 'ESP32 Wearable', `${cow.battery}%`,
+  cow.deviceStatus === 'Offline' ? '18 menit' : '3 detik', cow.deviceStatus
+]);
+deviceData.push(['Sensor Kandang A', 'ESP32 Environment', 'AC', '2 detik', 'Online']);
 
 
 /* =====================================================
@@ -1311,17 +1224,6 @@ function selectCow(id) {
   );
 
 
-  setText(
-    '#dAct',
-    cow.activity
-  );
-
-
-  setText(
-    '#dActPct',
-    `${cow.actPct}% activity score`
-  );
-
 
   setText(
     '#dRum',
@@ -1393,52 +1295,6 @@ function selectCow(id) {
     cow.deviceStatus
   );
 
-
-  setText(
-    '#lWalk',
-    `${cow.walk}%`
-  );
-
-
-  setText(
-    '#lStand',
-    `${cow.stand}%`
-  );
-
-
-  setText(
-    '#lLie',
-    `${cow.lie}%`
-  );
-
-
-  const donut =
-    document.querySelector(
-      '#donut'
-    );
-
-
-  if (donut) {
-
-    donut.style.background =
-
-      `conic-gradient(
-
-        #36b768
-        0
-        ${cow.walk}%,
-
-        #2b7be4
-        ${cow.walk}%
-        ${cow.walk + cow.stand}%,
-
-        #7354d7
-        ${cow.walk + cow.stand}%
-        100%
-
-      )`;
-
-  }
 
 
   setText(
