@@ -46,7 +46,6 @@
 <span class="nav-symbol">🌡</span>
 <span>Lingkungan Kandang</span>
 </button>
-
 </div>
 <!-- SYSTEM -->
 <div class="nav-group">
@@ -72,10 +71,10 @@
 <span class="nav-symbol">▤</span>
 <span>Laporan</span>
 </button>
-<button class="nav" data-page="settings">
+<button aria-disabled="true" class="nav" data-page="settings" title="Khusus admin — akses belum diaktifkan">
 <span class="nav-symbol">⚙</span>
 <span>Pengaturan</span>
-</button>
+<span aria-hidden="true">🔒</span></button>
 </div>
 </nav>
 <!-- SIDEBAR BOTTOM -->
@@ -85,13 +84,8 @@
           ●
         </div>
 <div>
-<b>
-            Server Lokal
-          </b>
-<small>
-<i></i>
-            Terhubung
-          </small>
+<b>Sumber data sensor</b>
+<small>Belum menerima data</small>
 </div>
 </div>
 <p>
@@ -100,7 +94,7 @@
         Local-first Monitoring
       </p>
 </div>
-</aside>
+</aside><button aria-label="Tutup menu" class="sidebar-backdrop" hidden="" id="sidebarBackdrop"></button>
 <!-- =====================================================
        MAIN
   ====================================================== -->
@@ -109,7 +103,7 @@
          TOPBAR
     ====================================================== -->
 <header class="topbar">
-<button aria-label="Buka menu" class="menu" id="menuBtn">
+<button aria-controls="sidebar" aria-expanded="false" aria-label="Buka menu" class="menu" id="menuBtn">
         ☰
       </button>
 <!-- LOGO INSTANSI -->
@@ -117,50 +111,38 @@
 <div class="logo-box logo-box-pln">
 <img alt="PLN Electricity Services" class="header-logo logo-pln" src="Logo_PLN_ES.png"/>
 </div>
-<div class="logo-box">
-<img alt="" class="" src=""/>
-</div>
-<div class="">
-<img alt="" class="" src=""/>
-</div>
+
+
 </div>
 <div class="grow"></div>
 <!-- SYSTEM STATUS -->
 <div class="system-mini-status">
 <i></i>
-<span>
-          System Online
-        </span>
+<span>Menunggu data</span>
 </div>
 <span class="chip" id="dateText">
         —
       </span>
-<span class="chip" id="clockText">
+<span aria-label="Jam sekarang" class="chip" id="clockText" title="Jam sekarang pada perangkat Anda">
         —
       </span>
-<button aria-label="Notifikasi" class="notif">
+<button aria-controls="notificationPanel" aria-expanded="false" aria-label="Notifikasi" class="notif" id="notificationButton">
 
         🔔
 
         <em id="notifCount">4</em>
 </button>
-<div class="user">
-<span>
-          A
-        </span>
+<button aria-controls="profilePanel" aria-expanded="false" class="user" id="profileButton" type="button">
+<span>P</span>
 <div class="user-text">
-<b>
-            Admin
-          </b>
-<small>
-            Administrator
-          </small>
+<b>Profil</b>
+<small>Mode pengunjung</small>
 </div>
 <strong>
           ⌄
         </strong>
-</div>
-</header>
+</button>
+<section aria-label="Notifikasi" class="header-dropdown" hidden="" id="notificationPanel"><div class="dropdown-heading"><b>Notifikasi</b><button aria-label="Tutup notifikasi" data-close-dropdown="" type="button">×</button></div><p class="dropdown-note">Contoh notifikasi • belum terhubung ke alert alat</p><div id="notificationItems"></div><button class="secondary-btn full-btn" id="viewAllNotifications">Lihat semua notifikasi</button></section><section aria-label="Profil pengguna" class="header-dropdown profile-dropdown" hidden="" id="profilePanel"><div class="dropdown-heading"><b>Akses pengunjung</b><button aria-label="Tutup profil" data-close-dropdown="" type="button">×</button></div><p>Anda sedang melihat dashboard publik.</p><button class="locked-admin" disabled="">🔒 Pengaturan khusus admin</button><small>Akses admin belum diaktifkan.</small></section></header>
 <!-- =====================================================
          CONTENT
     ====================================================== -->
@@ -182,26 +164,15 @@
 <div class="live-status-card">
 <div>
 <span class="live-dot"></span>
-<b>
-                LIVE MONITORING
-              </b>
+<b>BELUM MENERIMA DATA</b>
 </div>
-<small>
-
-              Terakhir diperbarui:
-
-              <span id="overviewUpdated">
-                —
-              </span>
-</small>
+<small>Data sensor belum tersedia</small>
 </div>
 </div>
 <!-- =====================================================
              KPI
         ====================================================== -->
-<div class="kpis">
-<!-- CRITICAL -->
-<button class="kpi kpi-danger" data-jump="alerts">
+<div class="kpis"><button class="kpi kpi-danger" data-jump="alerts">
 <i class="red">
               !
             </i>
@@ -214,9 +185,7 @@
                 Perlu tindakan segera
               </small>
 </div>
-</button>
-<!-- WARNING -->
-<button class="kpi kpi-warning" data-jump="alerts">
+</button><button class="kpi kpi-warning" data-jump="alerts">
 <i class="amber">
               !
             </i>
@@ -229,24 +198,7 @@
                 Perlu dipantau
               </small>
 </div>
-</button>
-<!-- OFFLINE -->
-<button class="kpi" data-jump="devices">
-<i class="gray">
-              ⚙
-            </i>
-<div>
-<span>
-                Perangkat Offline
-              </span>
-<b id="kpiOffline">1</b>
-<small>
-                Periksa perangkat
-              </small>
-</div>
-</button>
-<!-- NORMAL -->
-<button class="kpi" data-jump="cattle">
+</button><button class="kpi" data-jump="cattle">
 <i class="green">
               ✓
             </i>
@@ -255,11 +207,9 @@
                 Normal
               </span>
 <b id="kpiNormal">6</b>
-<small>60% dari total</small>
+<small>Dari data kesehatan tersedia</small>
 </div>
-</button>
-<!-- TOTAL -->
-<button class="kpi" data-jump="cattle">
+</button><button class="kpi" data-jump="cattle">
 <i class="purple">
               🐄
             </i>
@@ -268,12 +218,18 @@
                 Total Sapi
               </span>
 <b id="kpiTotal">10</b>
-<small>
-                Semua ternak terdaftar
-              </small>
+<small>C001–C010 terdaftar</small>
 </div>
-</button>
+</button><button class="kpi" data-jump="devices">
+<i class="gray">
+              ⚙
+            </i>
+<div>
+<span>Perangkat</span>
+<b id="kpiDevices">11</b>
+<small id="kpiDevicesNote">Status belum tersedia</small>
 </div>
+</button><button class="kpi kpi-fan" data-jump="environment"><i aria-hidden="true" class="blue-soft">✣</i><div><span>Kondisi Fan</span><b id="kpiFan">—</b><small id="kpiFanNote">Belum ada data</small></div></button></div>
 <!-- =====================================================
              DASHBOARD GRID
         ====================================================== -->
@@ -314,9 +270,7 @@
                 Kondisi Kandang
 
               </div>
-<span class="pill ok">
-                Live
-              </span>
+<span class="pill neutral">Menunggu data</span>
 </div>
 <div class="barn-status">
 <span class="barn-status-icon">
@@ -326,9 +280,7 @@
 <small>
                   Status Keseluruhan
                 </small>
-<b>
-                  Aman &amp; Stabil
-                </b>
+<b>Belum dapat dinilai</b>
 </div>
 </div>
 <div class="metrics">
@@ -340,9 +292,7 @@
 <b id="overviewEnvTemp">
                   -- °C
                 </b>
-<em class="pill ok">
-                  Nyaman
-                </em>
+<em class="pill neutral">Belum ada data</em>
 </div>
 <!-- HUMIDITY REAL -->
 <div>
@@ -352,9 +302,7 @@
 <b id="overviewEnvHumidity">
                   -- %RH
                 </b>
-<em class="pill ok">
-                  Normal
-                </em>
+<em class="pill neutral">Belum ada data</em>
 </div>
 <!-- CH4 REAL -->
 <div>
@@ -364,9 +312,7 @@
 <b id="overviewEnvCh4">
                   -- ppm
                 </b>
-<em class="pill ok">
-                  Monitoring
-                </em>
+<em class="pill neutral">Belum ada data</em>
 </div>
 </div>
 <button class="secondary-btn full-btn" data-jump="environment">
@@ -392,7 +338,7 @@
                 </option>
 </select>
 </div>
-<div class="split-metric">
+<p class="demo-note">Data contoh · bukan pembacaan alat</p><div class="split-metric">
 <div>
 <small>
                   Rata-rata HR
@@ -417,9 +363,7 @@
 <small>
                   Sapi HR Tinggi
                 </small>
-<strong class="critical-text">
-                  3 sapi
-                </strong>
+<strong class="critical-text">1 sapi (contoh)</strong>
 </div>
 </div>
 <svg class="chart" preserveaspectratio="none" viewbox="0 0 420 150">
@@ -438,7 +382,6 @@
 <span>10:00</span>
 </div>
 </article>
-
 <article class="panel">
 <div class="panel-title">
 <div>
@@ -450,9 +393,7 @@
 
               </div>
 </div>
-
-
-<div class="rumination-box">
+<p class="demo-note">Data contoh · bukan pembacaan alat</p><div class="rumination-box">
 <div>
 <span>
                   🌿 Ruminasi
@@ -469,8 +410,6 @@
               Lihat Monitoring Sapi
             </button>
 </article>
-
-
 </div>
 </div>
 <!-- =====================================================
@@ -489,13 +428,9 @@
 <div class="live-status-card">
 <div>
 <span class="live-dot"></span>
-<b>
-                DATA REAL-TIME
-              </b>
+<b>BELUM MENERIMA DATA</b>
 </div>
-<small id="cattlePageUpdated">
-              —
-            </small>
+<small id="cattlePageUpdated">Data sensor belum tersedia</small>
 </div>
 </div>
 <div class="cattle-layout">
@@ -510,9 +445,7 @@
                 Daftar Sapi
 
               </div>
-<span class="pill ok">
-                Real-time
-              </span>
+<span class="pill neutral">Menunggu data</span>
 </div>
 <div class="toolbar">
 <input id="cowSearch" placeholder="Cari ID sapi..." type="search"/>
@@ -610,8 +543,6 @@
                   —
                 </small>
 </div>
-
-
 <!-- RUMINATION -->
 <div class="detail">
 <span>
@@ -696,8 +627,6 @@
 <span>10:00</span>
 </div>
 </div>
-
-
 <!-- DEVICE INFORMATION -->
 <div class="subpanel">
 <div class="subpanel-title">
@@ -758,13 +687,9 @@
 <div class="live-status-card">
 <div>
 <span class="live-dot"></span>
-<b>
-                SENSOR TERHUBUNG
-              </b>
+<b>BELUM MENERIMA DATA</b>
 </div>
-<small>
-              Data lingkungan diperbarui secara berkala
-            </small>
+<small>Data sensor belum tersedia</small>
 </div>
 </div>
 <div class="env-grid">
@@ -779,9 +704,7 @@
 <b id="envTemperature">
               -- °C
             </b>
-<em class="pill ok">
-              Nyaman
-            </em>
+<em class="pill neutral">Belum ada data</em>
 <small>
               Data sensor lingkungan
             </small>
@@ -797,9 +720,7 @@
 <b id="envHumidity">
               -- %RH
             </b>
-<em class="pill ok">
-              Normal
-            </em>
+<em class="pill neutral">Belum ada data</em>
 <small>
               Kondisi kelembapan kandang
             </small>
@@ -815,9 +736,7 @@
 <b id="envCh4">
               -- ppm
             </b>
-<em class="pill ok">
-              Monitoring
-            </em>
+<em class="pill neutral">Belum ada data</em>
 <small>
               Data gas dari sensor MQ-4
             </small>
@@ -838,36 +757,9 @@
 
             </div>
 </div>
-<div class="history-placeholder">
-<div>
-<span>
-                🌡 Suhu
-              </span>
-<b>
-                26.8 - 30.1 °C
-              </b>
-</div>
-<div>
-<span>
-                💧 Kelembapan
-              </span>
-<b>
-                61 - 74 %RH
-              </b>
-</div>
-<div>
-<span>
-                🔥 CH₄
-              </span>
-<b>
-                Data histori
-              </b>
-</div>
-</div>
+<div class="environment-empty"><b>Belum ada riwayat lingkungan</b><p>Riwayat ditampilkan setelah data sensor tersedia.</p></div>
 </article>
 </div>
-
-
 <!-- =====================================================
            PAGE ALERTS
       ====================================================== -->
@@ -883,7 +775,7 @@
 </div>
 </div>
 <article class="panel">
-<div class="alert-page-head">
+<p class="demo-note">Data contoh · bukan pembacaan alat</p><div class="alert-page-head">
 <div>
 <b>
                 Alert Aktif
@@ -1052,7 +944,7 @@
             </p>
 </div>
 </div>
-<article class="panel form settings-card">
+<article class="panel form settings-card"><p class="access-note">🔒 Khusus admin. Akses admin belum diaktifkan.</p>
 <div class="settings-section-title">
 <b>
               Threshold Monitoring
@@ -1070,7 +962,7 @@
                 Batas awal warning heart rate
               </small>
 </span>
-<input id="settingHr" type="number" value="95"/>
+<input disabled="" id="settingHr" type="number" value="95"/>
 <strong>
               bpm
             </strong>
@@ -1084,7 +976,7 @@
                 Batas awal suhu tubuh tinggi
               </small>
 </span>
-<input id="settingTemp" step="0.1" type="number" value="39.5"/>
+<input disabled="" id="settingTemp" step="0.1" type="number" value="39.5"/>
 <strong>
               °C
             </strong>
@@ -1103,7 +995,7 @@
                 Batas awal konsentrasi metana kandang
               </small>
 </span>
-<input id="settingNh3" type="number" value="20"/>
+<input disabled="" id="settingNh3" type="number" value="20"/>
 <strong>
               ppm
             </strong>
@@ -1117,12 +1009,12 @@
                 Periode pembaruan dashboard
               </small>
 </span>
-<input id="settingInterval" type="number" value="10"/>
+<input disabled="" id="settingInterval" type="number" value="10"/>
 <strong>
               detik
             </strong>
 </label>
-<button class="primary" id="saveSettings">
+<button class="primary" disabled="" id="saveSettings">
             Simpan Pengaturan
           </button>
 </article>
