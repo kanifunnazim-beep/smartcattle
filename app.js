@@ -413,6 +413,27 @@ function updateHealthStatus(cow) {
    API KESEHATAN TIDAK DIUBAH
 ===================================================== */
 
+// Ruminasi adalah total harian dari perangkat, bukan penjumlahan laporan.
+function ruminationView(cow, now = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(now);
+  const datePart = type => parts.find(p => p.type === type).value;
+  const today = `${datePart('year')}-${datePart('month')}-${datePart('day')}`;
+  const raw = cow.ruminationMinutes;
+  const minutes = Number(raw);
+  const valid = (typeof raw === 'number' || typeof raw === 'string') &&
+    String(raw).trim() !== '' && Number.isFinite(minutes) && minutes >= 0 && minutes <= 1440;
+  if (!valid) return { value: '—', note: 'Data ruminasi belum tersedia', available: false };
+  if (cow.ruminationDate !== today) {
+    return { value: '—', note: 'Belum ada data ruminasi hari ini (WIB)', available: false };
+  }
+  return {
+    value: minutes.toLocaleString('id-ID', { maximumFractionDigits: 2 }) + ' menit',
+    note: 'Total hari ini (WIB) hingga laporan terakhir', available: true
+  };
+}
+
 async function fetchHealthData() {
 
   try {
@@ -461,6 +482,11 @@ async function fetchHealthData() {
 
 
     healthHistory = {};
+    // Jangan pertahankan nilai sapi yang tidak ada pada respons terbaru.
+    cattle.forEach(cow => {
+      cow.ruminationMinutes = null;
+      cow.ruminationDate = null;
+    });
 
 
     rows.forEach(
@@ -590,6 +616,8 @@ async function fetchHealthData() {
         }
 
 
+        cow.ruminationMinutes = row.rumination_minutes ?? null;
+        cow.ruminationDate = row.rumination_date ?? null;
         cow.recordedAt = row.recorded_at;
         cow.hasSensorData = true;
 
@@ -2058,7 +2086,13 @@ selectCow=function(id){
  ['#dDeviceStatus','#dDeviceInfoStatus'].forEach(s=>setText(s,state));
  document.querySelector('#dDeviceStatus').className=state==='Online'?'normal':'neutral-text';
  setText('#dBatt','—');setText('#dBattState','Data baterai belum tersedia');
- setText('#dRum','—');setText('#dRumPct','Data ruminasi belum tersedia');
+ const rumination = ruminationView(cow);
+ const ruminationNote = rumination.note + (rumination.available && state !== 'Online' ? ' · Offline' : '');
+ setText('#dRum', rumination.value);
+ setText('#dRumPct', ruminationNote);
+ setText('#overviewRumination', rumination.value);
+ setText('#overviewRuminationNote', cow.id + ' · ' + ruminationNote);
+ setText('#overviewRuminationStatus', state);
  if(!cow.hasSensorData){
   ['#dHr','#dTemp','#currentHrBadge'].forEach(s=>setText(s,'—'));
   ['#dHrState','#dTempState'].forEach(s=>setText(s,'Belum ada data'));
