@@ -1956,6 +1956,12 @@ function clock() {
 /* Presentation state only. Existing API URLs and five-second polling are retained. */
 const sourceState = {health:'waiting',environment:'waiting'};
 let environmentSample = null;
+let fanSample = null;
+let fanApiState = 'waiting';
+let fanRequestBusy = false;
+let fanLastFetchAt = 0;
+// Allow for the five-second polling interval and an eight-second request timeout.
+const FAN_API_FRESHNESS_MS = 15000;
 // Provisional UI freshness window; align with actual device interval at integration.
 const DATA_FRESHNESS_MS = 120000;
 function dataTime(value) {
@@ -1971,6 +1977,70 @@ function connectionState(value,source) {
   if(t>Date.now()+60000)return 'Waktu data perlu diperiksa';
   return Date.now()-t>DATA_FRESHNESS_MS?'Offline':'Online';
 }
+// Fan state comes from its dedicated API, independently of environment readings.
+function renderFanStatus() {
+  const raw = fanSample?.fan_status;
+  const value = String(raw ?? '').trim().toUpperCase();
+  const fanValue = ['1', 'TRUE', 'ON'].includes(value) ? 'ON'
+    : ['0', 'FALSE', 'OFF'].includes(value) ? 'OFF' : null;
+  const connection = String(fanSample?.connection ?? '').trim().toLowerCase();
+  const apiFresh = fanApiState === 'ok' && Date.now() - fanLastFetchAt <= FAN_API_FRESHNESS_MS;
+  const online = apiFresh && connection === 'online';
+  let note;
+  if (fanApiState === 'waiting') {
+    note = 'Memuat status fan…';
+  } else if (fanApiState === 'error' || !apiFresh) {
+    note = fanValue ? 'Status terakhir · API tidak terhubung' : 'API fan tidak terhubung';
+  } else if (!fanValue) {
+    note = connection === 'offline' ? 'Belum ada data · Offline' : 'Belum ada data fan';
+  } else if (online) {
+    note = 'Status fan terkini · Online';
+  } else {
+    note = connection === 'offline' ? 'Status terakhir · Offline'
+      : 'Status terakhir · Koneksi belum diketahui';
+  }
+  setText('#kpiFan', fanValue ?? '—');
+  setText('#kpiFanNote', note);
+  const card = document.querySelector('.kpi-fan');
+  if (card) {
+    card.classList.toggle('fan-on', online && fanValue === 'ON');
+    const timestamp = dataTime(fanSample?.received_at);
+    card.title = Number.isFinite(timestamp)
+      ? 'Data fan terakhir: ' + new Date(timestamp).toLocaleString('id-ID', {
+          timeZone: 'Asia/Jakarta'
+        }) + ' WIB'
+      : 'Belum ada waktu data fan';
+  }
+}
+
+async function loadFanData() {
+  if (fanRequestBusy) return;
+  fanRequestBusy = true;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch('/api/fan', {
+      cache: 'no-store', signal: controller.signal
+    });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const result = await response.json();
+    if (result?.status !== 'success' || !result.data ||
+        typeof result.data !== 'object' || Array.isArray(result.data)) {
+      throw new Error('Format API fan tidak sesuai');
+    }
+    fanSample = result.data;
+    fanApiState = 'ok';
+    fanLastFetchAt = Date.now();
+  } catch (error) {
+    fanApiState = 'error';
+    console.warn('Gagal mengambil status fan:', error);
+  } finally {
+    clearTimeout(timeout);
+    fanRequestBusy = false;
+    renderFanStatus();
+  }
+}
+
 const baseRenderCattle=renderCattle, baseSelectCow=selectCow;
 renderCattle=function(){
  baseRenderCattle();
@@ -2013,12 +2083,7 @@ function refreshDataStatus(){
  const error=Object.values(sourceState).includes('error');
  const online=cattle.filter(c=>connectionState(c.recordedAt,'health')==='Online').length;
  const envStatus=connectionState(envTime,'environment');
- const fanRaw=environmentSample?.fan_status;
- const fanValue=fanRaw===true||fanRaw===1?'ON':fanRaw===false||fanRaw===0?'OFF':typeof fanRaw==='string'?fanRaw.trim().toUpperCase():'';
- const knownFan=['ON','OFF'].includes(fanValue);
- setText('#kpiFan',knownFan?fanValue:'—');
- setText('#kpiFanNote',knownFan?(envStatus==='Online'?'Status fan terkini':'Status terakhir · '+envStatus):'Belum ada data');
- const fanCard=document.querySelector('.kpi-fan');fanCard.classList.toggle('fan-on',knownFan&&fanValue==='ON'&&envStatus==='Online');
+ renderFanStatus();
  let overall=error?'Offline':(online||envStatus==='Online')?'Data sensor tersedia':times.length?'Offline':'Belum menerima data';
  setText('.system-mini-status span',overall);setText('.connection-box small',overall);
  const labels=['#page-overview','#page-cattle','#page-environment'];
@@ -2139,3 +2204,7 @@ document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',closeDra
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 window.addEventListener('resize',()=>{if(window.innerWidth>1150)closeDrawer();else syncDrawer()});
 syncDrawer();
+
+// Dedicated fan polling; existing health/environment polling is unchanged.
+loadFanData();
+setInterval(loadFanData, 5000);
