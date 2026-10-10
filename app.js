@@ -674,154 +674,67 @@ async function fetchHealthData() {
    api-environment.php
 ===================================================== */
 
+// Each reading is independent: missing NH3 must not hide temperature/humidity.
+function environmentNumber(value, min, max) {
+  if (!['number', 'string'].includes(typeof value) || String(value).trim() === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= min && number <= max ? number : null;
+}
+
+function renderEnvironmentReadings() {
+  const fields = [
+    ['temperature', '#overviewEnvTemp', '#envTemperature', '°C', 1],
+    ['humidity', '#overviewEnvHumidity', '#envHumidity', '%RH', 1],
+    ['ammonia_ppm', '#overviewEnvNh3', '#envNh3', 'ppm', 2]
+  ];
+  const state = connectionState(environmentSample?.recorded_at, 'environment');
+  fields.forEach(([field, overview, detail, unit, decimals]) => {
+    const value = environmentSample?.[field];
+    const known = typeof value === 'number' && Number.isFinite(value);
+    const text = known ? value.toLocaleString('id-ID', {
+      minimumFractionDigits: 1, maximumFractionDigits: decimals
+    }) + ' ' + unit : '—';
+    [overview, detail].forEach(selector => {
+      setText(selector, text);
+      const badge = document.querySelector(selector)?.parentElement?.querySelector('.pill');
+      if (badge) {
+        badge.textContent = known ? state : sourceState.environment === 'error' ? 'Offline' : 'Belum ada data';
+        badge.className = 'pill neutral';
+      }
+    });
+  });
+}
+
 async function fetchEnvironmentData() {
-
   try {
-
-    const response =
-      await fetch(
-        'api-environment.php?t=' +
-        Date.now(),
-        {
-          cache: 'no-store'
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    const result =
-      await response.json();
-
-
-    if (
-      result.status !== 'success' ||
-      !result.data
-    ) {
-
-      console.error(
-        'Format API lingkungan tidak sesuai:',
-        result
-      );
-
+    const response = await fetch('api-environment.php?t=' + Date.now(), {cache: 'no-store'});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const result = await response.json();
+    if (result.status === 'empty' && result.data === null) {
+      environmentSample = null;
+      sourceState.environment = 'ok';
+      renderEnvironmentReadings();
       return;
-
     }
-
-
+    if (result.status !== 'success' || !result.data ||
+        typeof result.data !== 'object' || Array.isArray(result.data)) {
+      throw new Error('Format API lingkungan tidak sesuai');
+    }
     const data = result.data;
-
-
-
-    const temperature =
-      Number(
-        data.temperature
-      );
-
-
-    const humidity =
-      Number(
-        data.humidity
-      );
-
-
-    const ch4 =
-      Number(
-        data.ch4_ppm
-      );
-
-
-    if (
-      !Number.isFinite(
-        temperature
-      ) ||
-      !Number.isFinite(
-        humidity
-      ) ||
-      !Number.isFinite(
-        ch4
-      )
-    ) {
-
-      console.error(
-        'Data lingkungan bukan angka valid:',
-        data
-      );
-
-      return;
-
-    }
-
-
-    /* =================================================
-       DASHBOARD UTAMA
-    ================================================= */
-
-    setText(
-      '#overviewEnvTemp',
-      `${temperature.toFixed(1)} °C`
-    );
-
-
-    setText(
-      '#overviewEnvHumidity',
-      `${humidity.toFixed(1)} %RH`
-    );
-
-
-    setText(
-      '#overviewEnvCh4',
-      `${ch4.toFixed(1)} ppm`
-    );
-
-
-    /* =================================================
-       HALAMAN LINGKUNGAN
-    ================================================= */
-
-    setText(
-      '#envTemperature',
-      `${temperature.toFixed(1)} °C`
-    );
-
-
-    setText(
-      '#envHumidity',
-      `${humidity.toFixed(1)} %RH`
-    );
-
-
-    setText(
-      '#envCh4',
-      `${ch4.toFixed(1)} ppm`
-    );
-
-
-    environmentSample = data;
+    environmentSample = {
+      ...data,
+      temperature: environmentNumber(data.temperature, -999.9, 999.9),
+      humidity: environmentNumber(data.humidity, 0, 100),
+      ammonia_ppm: environmentNumber(data.ammonia_ppm, 0, 9999.99)
+    };
     sourceState.environment = 'ok';
-    console.log(
-      'Environment update berhasil:',
-      data
-    );
-
-  }
-
-  catch (error) {
+    renderEnvironmentReadings();
+  } catch (error) {
     sourceState.environment = 'error';
-    console.error(
-      'Gagal mengambil data lingkungan:',
-      error
-    );
-
+    // Keep the last reading, explicitly marked Offline by its badge.
+    renderEnvironmentReadings();
+    console.error('Gagal mengambil data lingkungan:', error);
   }
-
 }
 
 
@@ -1888,19 +1801,9 @@ function loadSettings() {
     }
 
 
-    if (settings.nh3) {
-
-      const element =
-        document.querySelector(
-          '#settingNh3'
-        );
-
-      if (element) {
-        element.value =
-          settings.nh3;
-      }
-
-    }
+    // Ambang gas lama tidak diwariskan sebagai ambang NH3.
+    const nh3Setting = document.querySelector('#settingNh3');
+    if (nh3Setting) nh3Setting.value = '';
 
 
     if (settings.interval) {
@@ -2129,7 +2032,7 @@ function refreshDataStatus(){
  });
  document.querySelector('.system-mini-status').classList.toggle('is-online',!error&&(online>0||envStatus==='Online'));
  setText('.barn-status b','Status kondisi belum dinilai');
- document.querySelectorAll('#page-overview .metrics .pill, #page-environment .env .pill').forEach(e=>{e.textContent=envStatus;e.className='pill neutral';});
+ renderEnvironmentReadings();
  const fresh=received.filter(c=>connectionState(c.recordedAt,'health')==='Online');
  setText('#kpiTotal',cattle.length);setText('#kpiNormal',fresh.filter(c=>c.status==='Normal').length);setText('#kpiWarning',fresh.filter(c=>c.status==='Warning').length);setText('#kpiCritical',fresh.filter(c=>c.status==='Critical').length);setText('#kpiDevices',cattle.length+1);setText('#kpiDevicesNote',`${online+(envStatus==='Online'?1:0)} online · ${11-online-(envStatus==='Online'?1:0)} offline`);
  setText('#kpiNormal + small',received.length?'Dari data terkini':'Belum ada data kesehatan');
