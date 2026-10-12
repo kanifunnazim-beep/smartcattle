@@ -9,140 +9,7 @@ const herdSummary = { total: 10, normal: 6, warning: 3, critical: 1, offline: 1 
    CATTLE DATA
 ===================================================== */
 
-const cattle = [
-
-  {
-    id: 'C001',
-    hr: 72,
-    temp: 38.4,
-
-    rum: 'Normal',
-    rumPct: 78,
-    rumMinutes: 468,
-    status: 'Normal',
-    battery: 82,
-    device: 'C001',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C002',
-    hr: 105,
-    temp: 39.6,
-
-    rum: 'Normal',
-    rumPct: 75,
-    rumMinutes: 455,
-    status: 'Warning',
-    battery: 68,
-    device: 'C002',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C003',
-    hr: 64,
-    temp: 38.2,
-
-    rum: 'Normal',
-    rumPct: 80,
-    rumMinutes: 482,
-    status: 'Normal',
-    battery: 75,
-    device: 'C003',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C004',
-    hr: 90,
-    temp: 39.0,
-
-    rum: 'Rendah',
-    rumPct: 48,
-    rumMinutes: 285,
-    status: 'Warning',
-    battery: 55,
-    device: 'C004',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C005',
-    hr: 112,
-    temp: 40.1,
-
-    rum: 'Rendah',
-    rumPct: 39,
-    rumMinutes: 238,
-    status: 'Critical',
-    battery: 42,
-    device: 'C005',
-    deviceStatus: 'Warning',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C006',
-    hr: 67,
-    temp: 38.3,
-
-    rum: 'Normal',
-    rumPct: 77,
-    rumMinutes: 460,
-    status: 'Normal',
-    battery: 88,
-    device: 'C006',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C007',
-    hr: 76,
-    temp: 38.5,
-
-    rum: 'Normal',
-    rumPct: 73,
-    rumMinutes: 438,
-    status: 'Normal',
-    battery: 79,
-    device: 'C007',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-
-  {
-    id: 'C008',
-    hr: 96,
-    temp: 39.1,
-
-    rum: 'Rendah',
-    rumPct: 45,
-    rumMinutes: 271,
-    status: 'Warning',
-    battery: 66,
-    device: 'C008',
-    deviceStatus: 'Online',
-
-    recordedAt: null
-  },
-  // Data contoh C009 dan C010; belum berasal dari alat.
-  { id: 'C009', hr: 70, temp: 38.4, rum: 'Normal', rumPct: 76, rumMinutes: 456, status: 'Normal', battery: 81, device: 'C009', deviceStatus: 'Online', recordedAt: null },
-  { id: 'C010', hr: 69, temp: 38.3, rum: 'Normal', rumPct: 74, rumMinutes: 444, status: 'Normal', battery: 10, device: 'C010', deviceStatus: 'Offline', recordedAt: null }
-
-];
+const cattle = Array.from({length:10}, (_,i) => { const id='C'+String(i+1).padStart(3,'0'); return {id,device:id,hr:null,temp:null,recordedAt:null,hasSensorData:false,status:'Belum ada data'}; });
 
 
 /* =====================================================
@@ -158,41 +25,7 @@ let healthHistory = {};
    ALERT DATA
 ===================================================== */
 
-const alertData = [
-
-  {
-    tone: 'red',
-    title: 'C002 - Heart Rate Tinggi',
-    desc: 'HR 105 bpm berada di atas threshold monitoring.',
-    time: '10:25',
-    cowId: 'C002'
-  },
-
-  {
-    tone: 'orange',
-    title: 'C004 - Ruminasi Menurun',
-    desc: 'Ruminasi 285 menit/hari, lebih rendah dari baseline.',
-    time: '10:23',
-    cowId: 'C004'
-  },
-
-  {
-    tone: 'blue',
-    title: 'C005 - Status Perangkat Perlu Diperiksa',
-    desc: 'Perangkat wearable mendeteksi kondisi yang perlu dipantau.',
-    time: '10:15',
-    cowId: 'C005'
-  },
-
-  {
-    tone: 'red',
-    title: 'Kandang - Kondisi Gas Perlu Dipantau',
-    desc: 'Konsentrasi gas kandang perlu dipantau.',
-    time: '09:58',
-    cowId: null
-  }
-
-];
+const alertData = [];
 
 
 /* =====================================================
@@ -248,7 +81,7 @@ function statusClass(status) {
 
   }
 
-  return 'critical';
+  return status === 'Critical' ? 'critical' : 'neutral-text';
 
 }
 
@@ -275,7 +108,7 @@ function cowStatusBadgeClass(status) {
 
   }
 
-  return 'status-critical';
+  return status === 'Critical' ? 'status-critical' : '';
 
 }
 
@@ -353,60 +186,22 @@ function formatDatabaseTime(value) {
    HEALTH STATUS
 ===================================================== */
 
-function updateHealthStatus(cow) {
-
-  const hrInput =
-    document.querySelector(
-      '#settingHr'
-    );
-
-  const tempInput =
-    document.querySelector(
-      '#settingTemp'
-    );
-
-
-  const hrWarning =
-    hrInput
-      ? Number(hrInput.value)
-      : 95;
-
-
-  const tempWarning =
-    tempInput
-      ? Number(tempInput.value)
-      : 39.5;
-
-
-  if (
-    cow.hr >= 110 ||
-    cow.temp >= 40.0
-  ) {
-
-    cow.status =
-      'Critical';
-
-  }
-
-  else if (
-    cow.hr >= hrWarning ||
-    cow.temp >= tempWarning
-  ) {
-
-    cow.status =
-      'Warning';
-
-  }
-
-  else {
-
-    cow.status =
-      'Normal';
-
-  }
-
+// Temporary monitoring thresholds, not clinical cutoffs validated for Bali cattle.
+const HEALTH_LIMITS = {hrMin:48, hrMax:84, hrCriticalLow:40, hrCriticalHigh:110,
+ tempMin:36.7, tempMax:39.1, tempCriticalLow:35, tempCriticalHigh:40};
+function readingStatus(value, type) {
+ if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0 ||
+     (type === 'temp' && value === 85)) return 'Periksa sensor';
+ const l=HEALTH_LIMITS;
+ if(type==='hr') return value<l.hrCriticalLow||value>=l.hrCriticalHigh?'Critical':value<l.hrMin||value>l.hrMax?'Warning':'Normal';
+ return value<l.tempCriticalLow||value>=l.tempCriticalHigh?'Critical':value<l.tempMin||value>l.tempMax?'Warning':'Normal';
 }
-
+function updateHealthStatus(cow) {
+ const states=[readingStatus(cow.hr,'hr'),readingStatus(cow.temp,'temp')];
+ cow.measurementStatus=['Critical','Warning','Periksa sensor'].find(x=>states.includes(x))||'Normal';
+ const link=connectionState(cow.recordedAt,'health');
+ cow.status=!cow.hasSensorData?'Belum ada data':link!=='Online'?link:cow.measurementStatus;
+}
 
 /* =====================================================
    LOAD HEALTH DATA
@@ -477,13 +272,13 @@ async function fetchHealthData() {
     }
 
 
-    const rows =
-      result.data;
+    const rows = [...result.data].sort((a,b)=> (dataTime(b.recorded_at)||0)-(dataTime(a.recorded_at)||0));
 
 
     healthHistory = {};
     // Jangan pertahankan nilai sapi yang tidak ada pada respons terbaru.
     cattle.forEach(cow => {
+      cow.hr=null; cow.temp=null; cow.recordedAt=null; cow.hasSensorData=false;
       cow.ruminationMinutes = null;
       cow.ruminationDate = null;
     });
@@ -591,9 +386,7 @@ async function fetchHealthData() {
 
 
         if (
-          Number.isFinite(
-            heartRate
-          )
+          row.heart_rate !== null && row.heart_rate !== undefined && String(row.heart_rate).trim() !== '' && Number.isFinite(heartRate)
         ) {
 
           cow.hr =
@@ -635,6 +428,7 @@ async function fetchHealthData() {
 
 
     sourceState.health = 'ok';
+    cattle.forEach(updateHealthStatus);
     renderCattle();
 
 
@@ -1962,8 +1756,10 @@ let fanRequestBusy = false;
 let fanLastFetchAt = 0;
 // Allow for the five-second polling interval and an eight-second request timeout.
 const FAN_API_FRESHNESS_MS = 15000;
+
 // Provisional UI freshness window; align with actual device interval at integration.
-const DATA_FRESHNESS_MS = 120000;
+const DATA_FRESHNESS_MS = 360000; // Health firmware reports every five minutes.
+const ENV_FRESHNESS_MS = 120000;
 function dataTime(value) {
   if (!value) return NaN;
   // SQL timestamps without zone are assumed WIB, matching this project's location.
@@ -1975,7 +1771,7 @@ function connectionState(value,source) {
   const t=dataTime(value);
   if(!Number.isFinite(t))return 'Belum menerima data';
   if(t>Date.now()+60000)return 'Waktu data perlu diperiksa';
-  return Date.now()-t>DATA_FRESHNESS_MS?'Offline':'Online';
+  return Date.now()-t>(source==='health'?DATA_FRESHNESS_MS:ENV_FRESHNESS_MS)?'Offline':'Online';
 }
 // Fan state comes from its dedicated API, independently of environment readings.
 function renderFanStatus() {
@@ -2070,12 +1866,14 @@ selectCow=function(id){
   ['#dHr','#dTemp','#currentHrBadge'].forEach(s=>setText(s,'—'));
   ['#dHrState','#dTempState'].forEach(s=>setText(s,'Belum ada data'));
   const b=document.querySelector('#detailStatusBadge');b.textContent='Belum ada data kesehatan';b.className='cow-main-status';
-  document.querySelector('#detailLine').setAttribute('points','');
+  document.querySelector('#detailLine')?.setAttribute('points','');
  }else if(state!=='Online'){
   setText('#dHrState','Data terakhir');setText('#dTempState','Data terakhir');
  }
 };
 function refreshDataStatus(){
+ cattle.forEach(updateHealthStatus);
+ renderCattle();
  const received=cattle.filter(c=>c.hasSensorData);
  const newest=received.reduce((a,c)=>dataTime(c.recordedAt)>dataTime(a?.recordedAt)||!a?c:a,null);
  const envTime=environmentSample?.recorded_at;
@@ -2106,9 +1904,76 @@ function refreshDataStatus(){
  const tr=document.createElement('tr');['Sensor Kandang A','ESP32 Environment','—',envTime||'Belum ada data',envStatus].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr);
  const counts=document.querySelectorAll('.device-kpi b');[11,online+(envStatus==='Online'?1:0),11-online-(envStatus==='Online'?1:0),'—'].forEach((v,i)=>counts[i].textContent=v);
  selectCow(selectedCowId);
+ refreshClientViews();
 }
 async function loadHealthData(){await fetchHealthData();refreshDataStatus();}
 async function loadEnvironmentData(){sourceState.environment='error';await fetchEnvironmentData();refreshDataStatus();}
+/* Client revision: real API readings; no fabricated history or feed records. */
+function stamp(value) {
+ const t=dataTime(value); return Number.isFinite(t)?new Date(t).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'})+' WIB':'Waktu belum tersedia';
+}
+function refreshClientViews() {
+ alertData.length=0;
+ cattle.forEach(c=>{
+  if(!c.hasSensorData)return;
+  if(c.status!=='Normal') alertData.push({tone:c.status==='Critical'?'red':c.status==='Warning'?'orange':'blue',
+   title:c.id+' · '+c.status,desc:c.status==='Offline'?'Data melewati 6 menit atau API tidak terhubung.':
+   'HR: '+(c.hr??'—')+' bpm ('+readingStatus(c.hr,'hr')+'); suhu sensor: '+(c.temp??'—')+' °C ('+readingStatus(c.temp,'temp')+'). Periksa alat dan kondisi sapi.',time:stamp(c.recordedAt),cowId:c.id});
+ });
+ if(sourceState.health==='error')alertData.push({tone:'blue',title:'API kesehatan tidak terhubung',desc:'Pembacaan terakhir tidak menunjukkan kondisi terkini.',time:'Saat ini'});
+ const envState=connectionState(environmentSample?.recorded_at,'environment');
+ if(sourceState.environment==='error'||environmentSample&&envState!=='Online')alertData.push({tone:'blue',title:'Lingkungan · '+envState,desc:'Periksa koneksi perangkat dan waktu data.',time:stamp(environmentSample?.recorded_at)});
+ // Environmental thresholds are deliberately not invented; only availability is assessed.
+ renderAlerts();
+ for(const id of ['#overviewAlerts','#allAlerts'])if(!alertData.length)setText(id, 'Belum ada peringatan aktif dari data yang tersedia.');
+ setText('#navAlertCount',alertData.length);setText('#notifCount',alertData.length);
+ setText('#alertCritical',alertData.filter(a=>a.tone==='red').length+' Critical');
+ setText('#alertWarning',alertData.filter(a=>a.tone==='orange').length+' Warning');
+ const list=document.getElementById('notificationItems');list.replaceChildren();
+ alertData.forEach(a=>{const b=document.createElement('button');b.className='notification-item';b.type='button';
+ const title=document.createElement('strong'),desc=document.createElement('span'),time=document.createElement('small');
+ title.textContent=a.title;desc.textContent=a.desc;time.textContent=a.time;b.append(title,desc,time);
+ b.onclick=()=>{closeDropdowns();showPage(a.cowId?'cattle':'environment');if(a.cowId)selectCow(a.cowId);};list.append(b);});
+ if(!alertData.length)list.textContent='Belum ada peringatan aktif dari data yang tersedia.';
+ const live=cattle.filter(c=>c.hasSensorData&&connectionState(c.recordedAt,'health')==='Online'&&typeof c.hr==='number'&&c.hr>0);
+ setText('#hrMean',live.length?(live.reduce((a,c)=>a+c.hr,0)/live.length).toFixed(1)+' bpm':'—');
+ setText('#hrRange',live.length?Math.min(...live.map(c=>c.hr))+'–'+Math.max(...live.map(c=>c.hr))+' bpm':'—');
+ setText('#hrHigh',live.filter(c=>c.hr>HEALTH_LIMITS.hrMax).length+' sapi');
+ setText('#hrSummaryNote','Ringkasan '+live.length+' sapi dengan data terkini dan HR terbaca.');
+ drawHealthTrend(document.getElementById('overviewCow').value,'#overviewHrPlot',420,150,'#overviewHrNote');
+}
+function drawHealthTrend(id,selector,width,height,note) {
+ const rows=(healthHistory[id]||[]).map(r=>({t:dataTime(r.recorded_at),v:environmentNumber(r.heart_rate,1,65535)}))
+ .filter(r=>Number.isFinite(r.t)&&r.t<=Date.now()+60000&&r.t>=Date.now()-86400000).sort((a,b)=>a.t-b.t);
+ const svg=document.querySelector(selector); if(!svg)return; svg.replaceChildren();
+ const vals=rows.filter(r=>r.v!==null).map(r=>r.v);
+ if(!vals.length){setText(note,'Belum ada HR terbaca dalam riwayat API 24 jam terakhir.');return;}
+ const low=Math.min(...vals)-5,high=Math.max(...vals)+5,first=rows[0].t,last=rows.at(-1).t;
+ let segment=[];
+ function flush(){if(segment.length>1){const e=document.createElementNS('http://www.w3.org/2000/svg','polyline');e.setAttribute('points',segment.join(' '));e.setAttribute('fill','none');e.setAttribute('stroke','#e55c69');e.setAttribute('stroke-width','2');svg.append(e);}segment=[];}
+ rows.forEach(r=>{if(r.v===null){flush();return;} const x=12+(r.t-first)/Math.max(1,last-first)*(width-24),y=height-12-(r.v-low)/(high-low)*(height-24);
+ segment.push(x+','+y);const c=document.createElementNS(svg.namespaceURI,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','3');c.setAttribute('fill','#e55c69');const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=stamp(new Date(r.t).toISOString())+' · '+r.v+' bpm';c.append(t);svg.append(c);});flush();
+ setText(note,id+' · '+vals.length+' pembacaan · '+Math.min(...vals)+'–'+Math.max(...vals)+' bpm · '+stamp(new Date(first).toISOString())+' — '+stamp(new Date(last).toISOString())+'. Riwayat terbatas pada data yang dikirim API.');
+}
+const previousSelectCow=selectCow;
+selectCow=function(id){previousSelectCow(id);const c=cattle.find(c=>c.id===id);if(!c)return;
+ const live=c.hasSensorData&&connectionState(c.recordedAt,'health')==='Online';
+ setText('#detailStatusBadge',c.status);document.querySelector('#detailStatusBadge').className='cow-main-status '+cowStatusBadgeClass(c.status);
+ setText('#dHr',c.hr===null?'—':c.hr+' bpm');setText('#dTemp',c.temp===null?'—':c.temp.toFixed(1)+' °C');
+ setText('#currentHrBadge',c.hr>0?c.hr+' bpm':'HR belum terbaca');
+ setText('#dHrState',live?readingStatus(c.hr,'hr'):'Data terakhir · '+c.status);
+ setText('#dTempState',live?readingStatus(c.temp,'temp')+' · acuan sementara':'Data terakhir · '+c.status);
+ drawHealthTrend(id,'#detailHrPlot',600,230,'#detailHrNote');
+};
+const previousRenderCattle=renderCattle;
+renderCattle=function(){previousRenderCattle();document.querySelectorAll('#cowTable tr').forEach(row=>{const c=cattle.find(c=>c.id===row.dataset.id),td=row.querySelectorAll('td');
+ td[1].textContent=c.hr===null?'—':c.hr;td[2].textContent=c.temp===null?'—':c.temp.toFixed(1)+'°';
+ td[1].className=statusClass(readingStatus(c.hr,'hr'));td[2].className=statusClass(readingStatus(c.temp,'temp'));
+ td[3].textContent=c.status;td[3].className=statusClass(c.status);
+});};
+document.getElementById('overviewCow').onchange=refreshClientViews;
+document.getElementById('feedCow').onchange=function(){setText('#feedScope',this.value==='all'?'Semua sapi':this.value);};
+
 const dropdowns=[['notificationButton','notificationPanel'],['profileButton','profilePanel']];
 function closeDropdowns(restore=false){dropdowns.forEach(([b,p])=>{const panel=document.getElementById(p);if(!panel.hidden&&restore)document.getElementById(b).focus();panel.hidden=true;document.getElementById(b).setAttribute('aria-expanded','false')});}
 dropdowns.forEach(([b,p])=>document.getElementById(b).addEventListener('click',()=>{const open=document.getElementById(p).hidden;closeDropdowns();document.getElementById(p).hidden=!open;document.getElementById(b).setAttribute('aria-expanded',String(open));}));
@@ -2205,6 +2070,5 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 window.addEventListener('resize',()=>{if(window.innerWidth>1150)closeDrawer();else syncDrawer()});
 syncDrawer();
 
-// Dedicated fan polling; existing health/environment polling is unchanged.
 loadFanData();
-setInterval(loadFanData, 5000);
+setInterval(loadFanData,5000);
