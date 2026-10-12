@@ -1915,14 +1915,11 @@ function stamp(value) {
 function refreshClientViews() {
  alertData.length=0;
  cattle.forEach(c=>{
-  if(!c.hasSensorData)return;
+  if(!c.hasSensorData || connectionState(c.recordedAt,'health')!=='Online')return;
   if(c.status!=='Normal') alertData.push({tone:c.status==='Critical'?'red':c.status==='Warning'?'orange':'blue',
    title:c.id+' · '+c.status,desc:c.status==='Offline'?'Data melewati 6 menit atau API tidak terhubung.':
    'HR: '+(c.hr??'—')+' bpm ('+readingStatus(c.hr,'hr')+'); suhu sensor: '+(c.temp??'—')+' °C ('+readingStatus(c.temp,'temp')+'). Periksa alat dan kondisi sapi.',time:stamp(c.recordedAt),cowId:c.id});
  });
- if(sourceState.health==='error')alertData.push({tone:'blue',title:'API kesehatan tidak terhubung',desc:'Pembacaan terakhir tidak menunjukkan kondisi terkini.',time:'Saat ini'});
- const envState=connectionState(environmentSample?.recorded_at,'environment');
- if(sourceState.environment==='error'||environmentSample&&envState!=='Online')alertData.push({tone:'blue',title:'Lingkungan · '+envState,desc:'Periksa koneksi perangkat dan waktu data.',time:stamp(environmentSample?.recorded_at)});
  // Environmental thresholds are deliberately not invented; only availability is assessed.
  renderAlerts();
  for(const id of ['#overviewAlerts','#allAlerts'])if(!alertData.length)setText(id, 'Belum ada peringatan aktif dari data yang tersedia.');
@@ -1945,15 +1942,25 @@ function refreshClientViews() {
 function drawHealthTrend(id,selector,width,height,note) {
  const rows=(healthHistory[id]||[]).map(r=>({t:dataTime(r.recorded_at),v:environmentNumber(r.heart_rate,1,65535)}))
  .filter(r=>Number.isFinite(r.t)&&r.t<=Date.now()+60000&&r.t>=Date.now()-86400000).sort((a,b)=>a.t-b.t);
- const svg=document.querySelector(selector); if(!svg)return; svg.replaceChildren();
- const vals=rows.filter(r=>r.v!==null).map(r=>r.v);
- if(!vals.length){setText(note,'Belum ada HR terbaca dalam riwayat API 24 jam terakhir.');return;}
- const low=Math.min(...vals)-5,high=Math.max(...vals)+5,first=rows[0].t,last=rows.at(-1).t;
- let segment=[];
- function flush(){if(segment.length>1){const e=document.createElementNS('http://www.w3.org/2000/svg','polyline');e.setAttribute('points',segment.join(' '));e.setAttribute('fill','none');e.setAttribute('stroke','#e55c69');e.setAttribute('stroke-width','2');svg.append(e);}segment=[];}
- rows.forEach(r=>{if(r.v===null){flush();return;} const x=12+(r.t-first)/Math.max(1,last-first)*(width-24),y=height-12-(r.v-low)/(high-low)*(height-24);
- segment.push(x+','+y);const c=document.createElementNS(svg.namespaceURI,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','3');c.setAttribute('fill','#e55c69');const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=stamp(new Date(r.t).toISOString())+' · '+r.v+' bpm';c.append(t);svg.append(c);});flush();
- setText(note,id+' · '+vals.length+' pembacaan · '+Math.min(...vals)+'–'+Math.max(...vals)+' bpm · '+stamp(new Date(first).toISOString())+' — '+stamp(new Date(last).toISOString())+'. Riwayat terbatas pada data yang dikirim API.');
+ const svg=document.querySelector(selector);if(!svg)return;svg.replaceChildren();
+ width=600;height=260;svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+ const ns='http://www.w3.org/2000/svg';
+ const add=(tag,attrs,text)=>{const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;svg.append(e);return e;};
+ const valid=rows.filter(r=>r.v!==null),vals=valid.map(r=>r.v);
+ if(!vals.length){add('text',{x:300,y:125,'text-anchor':'middle',fill:'#8492a6','font-size':14},'Belum ada data HR terbaca');setText(note,'Riwayat 24 jam terakhir · '+id);return;}
+ const min=Math.min(40,...vals),max=Math.max(100,...vals),step=Math.max(10,Math.ceil((max-min)/40)*10);
+ const low=Math.max(0,Math.floor(min/step)*step-step),high=Math.ceil(max/step)*step+step;
+ const left=52,right=582,top=28,bottom=212;
+ const first=rows[0].t,last=rows.at(-1).t,start=first===last?first-300000:first,end=first===last?last+300000:last;
+ const x=t=>left+(t-start)/(end-start)*(right-left),y=v=>bottom-(v-low)/(high-low)*(bottom-top);
+ add('text',{x:left,y:15,fill:'#8492a6','font-size':11},'BPM');
+ for(let v=low;v<=high;v+=step){add('line',{x1:left,x2:right,y1:y(v),y2:y(v),stroke:'#e7edf3','stroke-width':1});add('text',{x:left-10,y:y(v)+4,'text-anchor':'end',fill:'#8492a6','font-size':11},v);}
+ for(let i=0;i<5;i++){const t=start+(end-start)*i/4;add('text',{x:x(t),y:235,'text-anchor':i===0?'start':i===4?'end':'middle',fill:'#8492a6','font-size':11},new Date(t).toLocaleTimeString('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit'}));}
+ let segment=[];const flush=()=>{if(segment.length>1)add('polyline',{points:segment.join(' '),fill:'none',stroke:'#ee6474','stroke-width':2.5,'stroke-linecap':'round','stroke-linejoin':'round'});segment=[];};
+ let previous=null;
+ rows.forEach(r=>{if(r.v===null){flush();previous=null;return;}if(previous!==null&&r.t-previous>DATA_FRESHNESS_MS)flush();segment.push(x(r.t)+','+y(r.v));previous=r.t;});flush();
+ valid.forEach(r=>{const dot=add('circle',{cx:x(r.t),cy:y(r.v),r:3.5,fill:'#ee6474',stroke:'#fff','stroke-width':1.5});const title=document.createElementNS(ns,'title');title.textContent=stamp(new Date(r.t).toISOString())+' · '+r.v+' bpm';dot.append(title);});
+ setText(note,id+' · '+vals.length+' pembacaan · '+Math.min(...vals)+'–'+Math.max(...vals)+' bpm · Waktu WIB');
 }
 const previousSelectCow=selectCow;
 selectCow=function(id){previousSelectCow(id);const c=cattle.find(c=>c.id===id);if(!c)return;
