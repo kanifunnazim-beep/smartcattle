@@ -33,10 +33,10 @@ const alertData = [];
 ===================================================== */
 
 const deviceData = cattle.map(cow => [
-  `Wearable ${cow.id}`, 'ESP32 Wearable', `${cow.battery}%`,
+  `Wearable ${cow.id}`, 'Sensor Kesehatan', `${cow.battery}%`,
   cow.deviceStatus === 'Offline' ? '18 menit' : '3 detik', cow.deviceStatus
 ]);
-deviceData.push(['Sensor Kandang A', 'ESP32 Environment', 'AC', '2 detik', 'Online']);
+deviceData.push(['Sensor Kandang A', 'Sensor Lingkungan', 'AC', '2 detik', 'Online']);
 
 
 /* =====================================================
@@ -1252,7 +1252,7 @@ function renderDevices() {
 ===================================================== */
 
 function showPage(name) {
-  if (name === 'settings') { showToast('Khusus admin. Akses admin belum diaktifkan.'); return; }
+  if (name === 'settings' && !window.scUser) { if(window.scOpenLogin)window.scOpenLogin();else showToast('Login sedang dimuat.'); return; }
 
   const target =
     document.querySelector(
@@ -1448,185 +1448,6 @@ if (menuBtn) {
 /* =====================================================
    SETTINGS SAVE
 ===================================================== */
-
-const saveSettings =
-  document.querySelector(
-    '#saveSettings'
-  );
-
-
-if (saveSettings) {
-
-  saveSettings.onclick =
-    () => {
-
-
-      showToast('Akses admin belum diaktifkan.');
-      return;
-      const settings = {
-
-        hr:
-          document
-            .querySelector(
-              '#settingHr'
-            )
-            ?.value,
-
-        temp:
-          document
-            .querySelector(
-              '#settingTemp'
-            )
-            ?.value,
-
-        nh3:
-          document
-            .querySelector(
-              '#settingNh3'
-            )
-            ?.value,
-
-        interval:
-          document
-            .querySelector(
-              '#settingInterval'
-            )
-            ?.value
-
-      };
-
-
-      localStorage.setItem(
-        'smartcattle-settings',
-        JSON.stringify(
-          settings
-        )
-      );
-
-
-      cattle.forEach(
-        cow => {
-
-          updateHealthStatus(
-            cow
-          );
-
-        }
-      );
-
-
-      renderCattle();
-
-
-      if (
-        selectedCowId
-      ) {
-
-        selectCow(
-          selectedCowId
-        );
-
-      }
-
-
-      showToast(
-        'Pengaturan berhasil disimpan.'
-      );
-
-    };
-
-}
-
-
-/* =====================================================
-   LOAD SETTINGS
-===================================================== */
-
-function loadSettings() {
-
-  const saved =
-    localStorage.getItem(
-      'smartcattle-settings'
-    );
-
-
-  if (!saved) {
-
-    return;
-
-  }
-
-
-  try {
-
-    const settings =
-      JSON.parse(
-        saved
-      );
-
-
-    if (settings.hr) {
-
-      const element =
-        document.querySelector(
-          '#settingHr'
-        );
-
-      if (element) {
-        element.value =
-          settings.hr;
-      }
-
-    }
-
-
-    if (settings.temp) {
-
-      const element =
-        document.querySelector(
-          '#settingTemp'
-        );
-
-      if (element) {
-        element.value =
-          settings.temp;
-      }
-
-    }
-
-
-    // Ambang gas lama tidak diwariskan sebagai ambang NH3.
-    const nh3Setting = document.querySelector('#settingNh3');
-    if (nh3Setting) nh3Setting.value = '';
-
-
-    if (settings.interval) {
-
-      const element =
-        document.querySelector(
-          '#settingInterval'
-        );
-
-      if (element) {
-        element.value =
-          settings.interval;
-      }
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.error(
-      'Gagal membaca pengaturan:',
-      error
-    );
-
-  }
-
-}
-
 
 /* =====================================================
    REPORT BUTTON
@@ -1900,8 +1721,8 @@ function refreshDataStatus(){
  setText('#kpiTotal',cattle.length);setText('#kpiNormal',fresh.filter(c=>c.status==='Normal').length);setText('#kpiWarning',fresh.filter(c=>c.status==='Warning').length);setText('#kpiCritical',fresh.filter(c=>c.status==='Critical').length);setText('#kpiDevices',cattle.length+1);setText('#kpiDevicesNote',`${online+(envStatus==='Online'?1:0)} online · ${11-online-(envStatus==='Online'?1:0)} offline`);
  setText('#kpiNormal + small',received.length?'Dari data terkini':'Belum ada data kesehatan');
  const table=document.querySelector('#deviceTable');table.innerHTML='';
- cattle.forEach(c=>{const tr=document.createElement('tr');['Wearable '+c.id,'ESP32 Wearable','—',c.recordedAt||'Belum ada data',connectionState(c.recordedAt,'health')].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr)});
- const tr=document.createElement('tr');['Sensor Kandang A','ESP32 Environment','—',envTime||'Belum ada data',envStatus].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr);
+ cattle.forEach(c=>{const tr=document.createElement('tr');['Wearable '+c.id,'Sensor Kesehatan','—',c.recordedAt||'Belum ada data',connectionState(c.recordedAt,'health')].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr)});
+ const tr=document.createElement('tr');['Sensor Kandang A','Sensor Lingkungan','—',envTime||'Belum ada data',envStatus].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr);
  const counts=document.querySelectorAll('.device-kpi b');[11,online+(envStatus==='Online'?1:0),11-online-(envStatus==='Online'?1:0),'—'].forEach((v,i)=>counts[i].textContent=v);
  selectCow(selectedCowId);
  refreshClientViews();
@@ -1921,6 +1742,7 @@ function refreshClientViews() {
    'HR: '+(c.hr??'—')+' bpm ('+readingStatus(c.hr,'hr')+'); suhu sensor: '+(c.temp??'—')+' °C ('+readingStatus(c.temp,'temp')+'). Periksa alat dan kondisi sapi.',time:stamp(c.recordedAt),cowId:c.id});
  });
  // Environmental thresholds are deliberately not invented; only availability is assessed.
+ if(typeof window.scNh3Warning==='number' && connectionState(environmentSample?.recorded_at,'environment')==='Online' && typeof environmentSample?.ammonia_ppm==='number' && environmentSample.ammonia_ppm>=window.scNh3Warning)alertData.push({tone:'orange',title:'Lingkungan · Amonia tinggi',desc:'NH₃ '+environmentSample.ammonia_ppm+' ppm, ambang '+window.scNh3Warning+' ppm.',time:stamp(environmentSample.recorded_at)});
  renderAlerts();
  for(const id of ['#overviewAlerts','#allAlerts'])if(!alertData.length)setText(id, 'Belum ada peringatan aktif dari data yang tersedia.');
  setText('#navAlertCount',alertData.length);setText('#notifCount',alertData.length);
@@ -1979,7 +1801,7 @@ renderCattle=function(){previousRenderCattle();document.querySelectorAll('#cowTa
  td[3].textContent=c.status;td[3].className=statusClass(c.status);
 });};
 document.getElementById('overviewCow').onchange=refreshClientViews;
-document.getElementById('feedCow').onchange=function(){setText('#feedScope',this.value==='all'?'Semua sapi':this.value);};
+
 
 const dropdowns=[['notificationButton','notificationPanel'],['profileButton','profilePanel']];
 function closeDropdowns(restore=false){dropdowns.forEach(([b,p])=>{const panel=document.getElementById(p);if(!panel.hidden&&restore)document.getElementById(b).focus();panel.hidden=true;document.getElementById(b).setAttribute('aria-expanded','false')});}
@@ -2017,7 +1839,7 @@ renderCattle();
 
 renderDevices();
 
-loadSettings();
+
 
 
 /* =====================================================

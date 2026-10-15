@@ -1,0 +1,60 @@
+CATATAN VERSI SEBELUMNYA. Login/pakan kini mengikuti REVISI-LOGIN.txt dan setup/INSTALL.md.
+
+REVISI CLIENT — 12 Oktober 2026
+
+File aplikasi: app.js, index.html, style.css. Logo tetap.
+Tidak ada perubahan server, database, firmware, atau kredensial dalam paket ini.
+
+1. Menu Pakan & Bobot di bawah Lingkungan Kandang, pilihan C001–C010,
+   ringkasan dan area grafik kosong. Belum tersedia API/database pakan.
+   Input tetap dikunci sampai autentikasi petugas dan penyimpanan dibuat.
+   Tidak ada angka contoh yang disajikan sebagai hasil nyata.
+2. Alert Center/notifikasi mengikuti pembacaan terbaru, bukan data contoh.
+   Ini daftar peringatan aktif, bukan histori alert tersimpan. Lingkungan
+   baru dinilai dari ketersediaan data; ambang NH3/suhu kandang belum ditetapkan.
+3. Heart Rate Overview: ringkasan HR positif pada sapi online; grafik per sapi
+   memakai timestamp riwayat API, rentang 24 jam. Kelengkapan bergantung pada
+   jumlah baris API. Titik tunggal tetap satu titik, HR nol tidak digambar.
+4. Status diperiksa dua arah, termasuk nilai rendah. Data kosong bukan nol.
+   HR 0/null dan suhu <=0/85/null: Periksa sensor. Bila parameter lain Critical,
+   status gabungan Critical, tetapi masalah sensor tetap ditulis pada alert.
+5. Fan memakai /api/fan seperti versi yang sebelumnya berhasil.
+6. Offline kesehatan: lewat 6 menit (interval firmware 5 menit + toleransi).
+   Lingkungan tetap 2 menit. Polling web tetap 5 detik.
+
+AMBANG SEMENTARA (inklusif jika ditulis >= atau <=)
+HR normal 48–84 bpm; Warning >0 sampai <48 atau >84;
+Critical >0 sampai <40 atau >=110 bpm mendahului Warning.
+Suhu sensor normal 36.7–39.1 C; Warning di luar rentang;
+Critical >0 sampai <35 atau >=40 C mendahului Warning.
+Status gabungan memakai kondisi terberat dari parameter valid.
+Offline/belum ada data terpisah dari kondisi kesehatan terkini.
+
+PENTING: Ini ambang monitoring sementara, bukan diagnosis dan belum divalidasi
+untuk sapi Bali. Batas Critical adalah keputusan implementasi sementara,
+bukan batas klinis yang dikutip dari referensi. HR 48–84 berasal dari sapi
+perah istirahat; suhu 36.7–39.1 adalah suhu REKTAL sapi potong. Sensor di dekat
+HR mengukur kondisi lokal; tidak setara otomatis dengan suhu rektal.
+Verifikasi dengan alat rujukan dan tenaga veteriner sebelum pemakaian klinis.
+Referensi:
+https://www.merckvetmanual.com/multimedia/table/resting-heart-rates
+https://www.merckvetmanual.com/multimedia/table/normal-rectal-temperature-ranges
+
+PEMASANGAN
+1. Cadangkan app.js/index.html/style.css yang sedang digunakan.
+2. Unggah tiga file revisi ke folder yang sama di GitHub (jangan folder bertingkat).
+3. Di VPS /var/www/smart-cattle: git pull --ff-only.
+4. Refresh browser Ctrl+F5. Tidak perlu restart Apache.
+5. Pastikan /api/fan, api-test.php dan api-environment.php tetap tersedia.
+   File PHP server tidak disertakan/diganti.
+6. Periksa fan, data C001–C010, grafik, notifikasi, dan menu Pakan.
+Rollback: pulihkan tiga file dari cadangan atau revert commit revisi.
+
+VALIDASI: syntax JavaScript, 19 uji ambang/status, dan uji DOM dengan API
+simulasi (inisialisasi, ingest data, rerata HR, status, fan, navigasi, detail
+tanpa data) lolos. Belum diuji terhadap VPS aktif atau tampilan browser nyata.
+
+REVISI LANJUTAN: paragraf acuan panjang dihapus dari halaman; dokumentasi
+ambang tetap di file ini. Offline/API error tidak menghasilkan alert maupun
+notifikasi. Grafik HR overview/detail memakai sumbu BPM dan waktu WIB, grid,
+titik data dengan tooltip, serta keterangan ringkas. Jeda data tidak disambung.

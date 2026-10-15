@@ -1,0 +1,42 @@
+CATATAN VERSI SEBELUMNYA. Login/pakan kini mengikuti REVISI-LOGIN.txt dan setup/INSTALL.md.
+
+CATATAN VERSI LAMA. Untuk revisi saat ini baca REVISI-CLIENT.txt.
+
+REVISI AMONIA SMARTCATTLE — 10 Oktober 2026
+
+Berdasarkan ZIP V5 terbaru dari pengguna.
+File berubah: app.js dan index.html. CSS/logo identik dengan versi awal.
+Perbaikan ruminasi, pengambilan data kesehatan, dan detail sapi dipertahankan.
+Tidak berisi PHP, password, atau perubahan database/Node-RED.
+
+API lingkungan harus mengirim temperature, humidity, ammonia_ppm, recorded_at.
+Membaca NH3 tanpa fallback dari CH4. Nilai null/kosong/tidak valid tampil —.
+Nilai nol tetap tampil 0,0. Suhu/kelembapan tetap tampil ketika gas kosong.
+Gas ditampilkan maksimal dua desimal, sesuai kolom database.
+Angka terakhir tetap terlihat ketika koneksi gagal, dengan badge Offline.
+Respons status empty mengosongkan pembacaan.
+Label dashboard, halaman lingkungan, dan pengaturan memakai NH3.
+Ambang gas lama tidak dipakai sebagai ambang NH3; pengaturan masih dinonaktifkan.
+Tidak menghitung status aman/bahaya untuk NH3 tanpa ambang yang disepakati.
+
+PEMASANGAN
+1. Unggah hanya app.js dan index.html ke lokasi yang sama di GitHub lalu commit.
+2. VPS: cd /var/www/smart-cattle
+3. Periksa: git status --short
+4. Jika hanya API untracked seperti sebelumnya dan GitHub tidak menambah PHP,
+   jalankan: git pull --ff-only
+5. Ctrl+F5 di browser, periksa Dashboard dan Lingkungan Kandang.
+Jangan menghapus PHP, memakai git reset --hard, atau mengganti seluruh folder VPS.
+
+HASIL UJI YANG DIHARAPKAN
+Bila laporan terbaru masih data uji 10 Oktober pukul 10:50:43 WIB:
+Suhu 29,5 °C; kelembapan 75,0 %RH; amonia 2,4 ppm.
+Status Offline wajar setelah lebih dari dua menit tanpa laporan baru.
+Angka ini data simulasi, bukan pengukuran sensor asli.
+
+VERIFIKASI
+node --check lulus. Uji fungsi dengan respons API simulasi mencakup data lengkap,
+parsial, null, nol, invalid, format CH4 lama, angka string, dua desimal,
+API gagal, dan API kosong; kedua lokasi tampilan diuji.
+Fungsi ruminasi/pengambilan kesehatan/detail sapi dibandingkan dan tidak berubah.
+Belum diuji langsung di browser atau VPS pengguna.

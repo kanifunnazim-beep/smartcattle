@@ -1,0 +1,42 @@
+REVISI V8: LOGIN PETUGAS, PENGATURAN, PAKAN DAN BOBOT
+
+1. Semua penyebutan nama mikrokontroler di HTML/JS tampilan diganti Sensor Kesehatan atau
+   Sensor Lingkungan. ID perangkat serta format payload tidak diubah.
+2. Login petugas berbasis sesi PHP, cookie Secure/HttpOnly/SameSite Strict,
+   token CSRF untuk perubahan, hash password, pembatasan percobaan login,
+   pengecekan akun aktif untuk setiap request, expiry 8 jam, logout.
+3. Pengaturan delapan ambang HR/suhu serta Warning NH3 opsional disimpan di
+   database. NH3 kosong = alert ambang gas nonaktif. Offline tidak menjadi alert.
+   HR 0 tetap Periksa sensor. Ambang awal sama dengan versi sebelumnya.
+   Tidak mengubah interval kirim alat, kontrol fan, atau polling sensor web 5 detik.
+4. Pakan adalah total pemberian per sapi per tanggal (kg/hari). Bobot merupakan
+   penimbangan bertanggal. Kedua input dapat diisi terpisah; nilai kosong bukan 0.
+   Satu baris per sapi/tanggal. Ubah/hapus memerlukan login; konflik revisi ditolak.
+5. Halaman pakan publik: filter sapi/rentang tanggal, ringkasan, grafik mingguan,
+   tabel data. Rata-rata pakan adalah rerata total mingguan yang punya catatan,
+   bukan estimasi kebutuhan pakan atau rerata per hari. Minggu parsial tetap dihitung
+   sesuai catatan yang ada. Bobot terkini diambil dari catatan terakhir seluruh waktu.
+   Perubahan bobot dihitung dari pertama dan terakhir dalam periode; semua sapi
+   memakai rata-rata sapi yang memiliki minimal dua penimbangan.
+6. Pengaturan tersimpan dicek tiap 30 detik; halaman pakan diperbarui dengan tombol
+   Tampilkan atau setelah simpan/hapus. Login tidak diperlukan untuk membaca data.
+7. Setiap perubahan pengaturan/catatan dicatat di sc_audit. Tidak ada registrasi
+   publik atau reset password via email. Akun dibuat dari CLI oleh pengelola server.
+
+INSTALASI WAJIB: baca setup/INSTALL.md. Git pull saja belum membuat akun/tabel.
+Jangan commit /etc/smartcattle-web.php atau password lain.
+
+File lama API kesehatan/lingkungan tidak ada dalam ZIP, tidak ditimpa.
+Tidak ada perubahan konfigurasi MQTT, Node-RED atau tabel sensor.
+
+VALIDASI LOKAL
+- Syntax JavaScript dan parsing PHP 8.3.
+- Simulasi DOM/API: akses pengunjung terkunci, login, token perubahan, simpan
+  pengaturan dengan revisi, simpan catatan, grafik, nilai kosong/nol, logout,
+  monitoring sensor dan fan tetap berfungsi.
+- PHP/MySQL live dan tampilan browser nyata belum dijalankan di lingkungan ini.
+  Pemeriksaan runtime VPS dan uji penerapan dalam INSTALL.md masih diperlukan.
+
+Referensi implementasi:
+https://www.php.net/manual/en/function.password-hash.php
+https://www.php.net/manual/en/session.security.ini.php

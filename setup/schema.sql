@@ -1,0 +1,31 @@
+-- Additive schema: does not alter sensor tables.
+CREATE TABLE IF NOT EXISTS sc_users (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ username VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL UNIQUE,
+ password_hash VARCHAR(255) NOT NULL,
+ active TINYINT NOT NULL DEFAULT 1,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS sc_settings (
+ id TINYINT PRIMARY KEY, settings_json TEXT NOT NULL, revision INT NOT NULL DEFAULT 1,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+INSERT IGNORE INTO sc_settings (id,settings_json) VALUES (1,'{"hrMin":48,"hrMax":84,"hrCriticalLow":40,"hrCriticalHigh":110,"tempMin":36.7,"tempMax":39.1,"tempCriticalLow":35,"tempCriticalHigh":40,"nh3Warning":null}');
+CREATE TABLE IF NOT EXISTS sc_records (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ cow_id CHAR(4) CHARACTER SET ascii NOT NULL,
+ recorded_date DATE NOT NULL, feed_kg DECIMAL(8,2) NULL, weight_kg DECIMAL(8,2) NULL,
+ revision INT NOT NULL DEFAULT 1,
+ updated_by INT UNSIGNED NOT NULL,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ UNIQUE KEY cow_date(cow_id,recorded_date), KEY record_date(recorded_date)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS sc_login_attempts (
+ bucket CHAR(64) CHARACTER SET ascii PRIMARY KEY,
+ attempts INT NOT NULL DEFAULT 0, expires_at BIGINT NOT NULL
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS sc_audit (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ user_id INT UNSIGNED NOT NULL, action VARCHAR(32) NOT NULL,
+ details TEXT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
