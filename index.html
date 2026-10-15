@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>SmartCattle Monitoring</title>
-<link href="style.css?v=20261015-login-1" rel="stylesheet"/>
+<link href="style.css?v=20261015-report-1" rel="stylesheet"/>
 </head>
 <body>
 <div class="app">
@@ -761,56 +761,9 @@
 <!-- =====================================================
            PAGE REPORTS
       ====================================================== -->
-<div class="page" id="page-reports">
-<div class="heading">
-<div>
-<h1>
-              Laporan
-            </h1>
-<p>
-              Histori monitoring dan ekspor data
-            </p>
-</div>
-</div>
-<div class="simple-grid">
-<article class="panel report-card">
-<span class="report-icon"><svg aria-hidden="true" class="ui-icon icon-cow" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M7 8 4 5 2 8l4 4v6l3 3h6l3-3v-6l4-4-2-3-3 3M7 8h10M8 3v5m8-5v5M8 16h8"></path><circle cx="9" cy="12" r=".7"></circle><circle cx="15" cy="12" r=".7"></circle><path d="M10 18h.01M14 18h.01"></path></svg></span>
-<h3>
-              Laporan Harian Ternak
-            </h3>
-<p>
-              HR, suhu tubuh, ruminasi, dan alert.
-            </p>
-<button class="primary report-btn">
-              Buat Laporan
-            </button>
-</article>
-<article class="panel report-card">
-<span class="report-icon"><svg aria-hidden="true" class="ui-icon icon-temp" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M9 14V5a3 3 0 0 1 6 0v9a5 5 0 1 1-6 0ZM12 8v9"></path><circle cx="12" cy="18" r="1"></circle></svg></span>
-<h3>
-              Laporan Lingkungan
-            </h3>
-<p>
-              Suhu kandang, kelembapan, dan konsentrasi CH₄.
-            </p>
-<button class="primary report-btn">
-              Buat Laporan
-            </button>
-</article>
-<article class="panel report-card">
-<span class="report-icon"><svg aria-hidden="true" class="ui-icon icon-device" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><rect height="18" rx="3" width="12" x="6" y="3"></rect><path d="M10 6h4m-3 12h2"></path></svg></span>
-<h3>
-              Laporan Perangkat
-            </h3>
-<p>
-              Baterai, uptime, dan status perangkat.
-            </p>
-<button class="primary report-btn">
-              Buat Laporan
-            </button>
-</article>
-</div>
-</div>
+<div class="page" id="page-reports"><div class="heading"><div><h1>Laporan</h1><p>Ringkasan monitoring yang dapat diunduh oleh semua pengunjung.</p></div></div>
+<div class="report-options"><article class="panel report-card"><h3>Laporan Harian Ternak</h3><p>Ringkasan HR, suhu sensor, ruminasi, dan indikator pembacaan.</p><button class="secondary-btn" data-report-type="health" type="button">Pilih laporan</button></article><article class="panel report-card"><h3>Laporan Lingkungan</h3><p>Suhu kandang, kelembapan, dan amonia (NH₃).</p><button class="secondary-btn" data-report-type="environment" type="button">Pilih laporan</button></article><article class="panel report-card"><h3>Laporan Pakan &amp; Bobot</h3><p>Total pemberian pakan dan hasil penimbangan bertanggal.</p><button class="secondary-btn" data-report-type="feed" type="button">Pilih laporan</button></article><article class="panel report-card"><h3>Laporan Perangkat</h3><p>Waktu pembacaan terakhir dan status sensor saat ringkasan disiapkan.</p><button class="secondary-btn" data-report-type="devices" type="button">Pilih laporan</button></article></div>
+<article class="panel report-download"><h2>Unduh PDF</h2><form id="reportForm"><div class="sc-filters"><label>Jenis laporan<select id="reportType"><option value="health">Harian ternak</option><option value="environment">Lingkungan</option><option value="feed">Pakan &amp; bobot</option><option value="devices">Perangkat</option></select></label><label>Sapi<select id="reportCow"><option value="all">Semua sapi</option><option value="C001">C001</option><option value="C002">C002</option><option value="C003">C003</option><option value="C004">C004</option><option value="C005">C005</option><option value="C006">C006</option><option value="C007">C007</option><option value="C008">C008</option><option value="C009">C009</option><option value="C010">C010</option></select></label><label>Dari tanggal<input id="reportFrom" required="" type="date"/></label><label>Sampai tanggal<input id="reportTo" required="" type="date"/></label></div><p class="sc-muted" id="reportScopeNote"></p><button class="primary" id="downloadReport" type="submit">Unduh PDF</button><p aria-live="polite" class="sc-message" id="reportMessage" role="status"></p></form><p class="sc-muted">Hari tanpa pembacaan tidak dianggap bernilai nol. Ringkasan dapat memakai data yang disiapkan hingga 2 menit sebelumnya; laporan perangkat hingga 30 detik.</p></article></div>
 <!-- =====================================================
            PAGE SETTINGS
       ====================================================== -->
@@ -829,6 +782,6 @@
 <!-- =====================================================
      JAVASCRIPT
 ====================================================== -->
-<script src="app.js?v=20261015-login-1"></script>
-<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Masuk untuk mengubah pengaturan dan mencatat pakan/bobot.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261015-login-1"></script></body>
+<script src="app.js?v=20261015-report-1"></script>
+<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Masuk untuk mengubah pengaturan dan mencatat pakan/bobot.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261015-login-1"></script><script src="reports.js?v=20261015-report-1"></script></body>
 </html>

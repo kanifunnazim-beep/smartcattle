@@ -1,0 +1,46 @@
+LAPORAN PDF PUBLIK — 15 Oktober 2026
+
+Empat jenis: kesehatan harian, lingkungan, pakan/bobot, snapshot perangkat.
+PDF langsung diunduh oleh browser pengunjung, tidak memerlukan login.
+Logo PLN, header berulang, cakupan, waktu data, tabel, dan nomor halaman.
+Default 7 hari, maksimum 31 hari inklusif, pilihan C001–C010 / semua sapi.
+Perangkat memakai kondisi terakhir, bukan histori yang tidak tersedia.
+
+Semantik data:
+- Session query MySQL diatur +07:00 agar TIMESTAMP dikelompokkan menurut hari WIB.
+- WHERE rentang tanggal memakai >= awal dan < hari setelah akhir. Tidak menerapkan
+  DATE() pada kolom di WHERE, sehingga indeks tetap dapat digunakan.
+- Kesehatan: satu query per device menggunakan idx_device_time yang tersedia;
+  query ROW_NUMBER memilih ruminasi valid terakhir per hari (urut waktu lalu id).
+- Ruminasi hanya jika rumination_date sama dengan tanggal WIB recorded_at,
+  nilai 0–1440; tidak dijumlahkan dan tidak memakai nilai maksimum.
+- HR 0/NULL dikeluarkan dari AVG/MIN/MAX. Suhu <=0/85/NULL dikeluarkan.
+- Jumlah N per parameter ditampilkan agar data kosong tidak tersamarkan.
+- Warning/Critical adalah jumlah pembacaan yang dihitung ulang dengan ambang saat
+  ringkasan disiapkan. Bukan histori alert tersimpan dan bukan diagnosis.
+- NH3 dibaca dari kolom ammonia. Kelembapan di luar 0–100 dan ammonia negatif
+  tidak masuk statistik. Nilai suhu lingkungan non-NULL mengikuti data tersimpan.
+- Pakan/bobot berdasarkan sc_records tanpa identitas petugas/audit.
+- Status perangkat dari timestamp terakhir: kesehatan 6 menit, lingkungan 2 menit.
+  Tidak menyertakan baterai/uptime karena belum ada data.
+
+Tidak mengubah polling sensor 5 detik, login, kontrol fan, database sensor,
+atau konfigurasi MQTT/Node-RED. Tidak menambah indeks/migrasi database.
+Cache perlu dibuat di /var/cache/smartcattle-reports sesuai INSTALL-REPORTS.md.
+
+Validasi lokal:
+- Pemeriksaan sintaks JS dan parsing PHP.
+- Agregasi/window SQL diuji pada fixture SQLite untuk null/nol, rentang tanggal,
+  pemisahan sapi, ruminasi terakhir, indikator status dan ringkasan lingkungan.
+  Ini bukan pengganti pengujian optimizer/timezone/izin pada MySQL VPS.
+- DOM simulasi: download publik, validasi 31 hari, cegah klik ganda,
+  pemulihan setelah error/sibuk, kontrol pilihan perangkat.
+- Regresi login/pakan/fan dengan API simulasi lolos.
+- Contoh PDF kosong, lingkungan, pakan, perangkat, dan 310 baris kesehatan
+  berhasil dibuat; tata letak beberapa halaman diperiksa dari hasil render.
+- Belum diuji terhadap database VPS aktif atau beban 20 pengunjung.
+
+Komponen PDF dibundel lokal:
+jsPDF 4.2.1 / https://github.com/parallax/jsPDF (MIT)
+jsPDF-AutoTable 5.0.9 / https://github.com/simonbengtsson/jsPDF-AutoTable (MIT)
+Lisensi disertakan dalam folder vendor.
