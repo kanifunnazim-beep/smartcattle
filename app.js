@@ -9,7 +9,7 @@ const herdSummary = { total: 10, normal: 6, warning: 3, critical: 1, offline: 1 
    CATTLE DATA
 ===================================================== */
 
-const cattle = Array.from({length:10}, (_,i) => { const id='C'+String(i+1).padStart(3,'0'); return {id,device:id,hr:null,temp:null,recordedAt:null,hasSensorData:false,status:'Belum ada data'}; });
+const cattle = Array.from({length:10}, (_,i) => { const id='C'+String(i+1).padStart(3,'0'); return {id,device:id,hr:null,temp:null,battery:null,recordedAt:null,hasSensorData:false,status:'Belum ada data'}; });
 
 
 /* =====================================================
@@ -33,7 +33,7 @@ const alertData = [];
 ===================================================== */
 
 const deviceData = cattle.map(cow => [
-  `Wearable ${cow.id}`, 'Sensor Kesehatan', `${cow.battery}%`,
+  `Wearable ${cow.id}`, 'Sensor Kesehatan', batteryTableText(cow),
   cow.deviceStatus === 'Offline' ? '18 menit' : '3 detik', cow.deviceStatus
 ]);
 deviceData.push(['Sensor Kandang A', 'Sensor Lingkungan', 'AC', '2 detik', 'Online']);
@@ -409,6 +409,7 @@ async function fetchHealthData() {
         }
 
 
+        cow.battery = batteryNumber(row.battery_percent);
         cow.ruminationMinutes = row.rumination_minutes ?? null;
         cow.ruminationDate = row.rumination_date ?? null;
         cow.recordedAt = row.recorded_at;
@@ -819,7 +820,7 @@ function renderCattle() {
             </td>
 
             <td>
-              ${cow.battery}%
+              ${batteryTableText(cow)}
             </td>
 
           </tr>
@@ -998,7 +999,7 @@ function selectCow(id) {
 
   setText(
     '#dBatt',
-    `${cow.battery}%`
+    batteryTableText(cow)
   );
 
 
@@ -1636,13 +1637,34 @@ async function loadFanData() {
   }
 }
 
+// Battery comes from the latest health row only; never infer missing values.
+function batteryNumber(value) {
+ if (!['number','string'].includes(typeof value) || String(value).trim()==='') return null;
+ const number=Number(value);
+ return Number.isInteger(number) && number>=0 && number<=100 ? number : null;
+}
+function batteryView(cow) {
+ const value=batteryNumber(cow.battery);
+ if(value===null)return {text:'—',note:'Data baterai belum tersedia',low:false};
+ const state=connectionState(cow.recordedAt,'health');
+ const online=state==='Online';
+ const level=value<30?'Baterai rendah':value<60?'Baterai sedang':'Baterai normal';
+ return {text:value+'%',note:online?level:'Data terakhir · '+state,
+   low:online && value<30};
+}
+function batteryTableText(cow) {
+ const view=batteryView(cow);
+ return view.text==='—'?'—':view.text+(connectionState(cow.recordedAt,'health')==='Online'?'':' · Data terakhir');
+}
+
 const baseRenderCattle=renderCattle, baseSelectCow=selectCow;
 renderCattle=function(){
  baseRenderCattle();
  document.querySelectorAll('#cowTable tr').forEach(row=>{
   const cow=cattle.find(c=>c.id===row.dataset.id),td=row.querySelectorAll('td');
   if(!cow.hasSensorData){td[1].textContent='—';td[2].textContent='—';td[3].textContent='Belum ada data';td[3].className='neutral-text';}
-  td[4].textContent='—';
+  td[4].textContent=batteryTableText(cow);
+  td[4].title=batteryView(cow).note;
  });
 };
 selectCow=function(id){
@@ -1653,7 +1675,8 @@ selectCow=function(id){
  const state=connectionState(cow.recordedAt,'health');
  ['#dDeviceStatus','#dDeviceInfoStatus'].forEach(s=>setText(s,state));
  document.querySelector('#dDeviceStatus').className=state==='Online'?'normal':'neutral-text';
- setText('#dBatt','—');setText('#dBattState','Data baterai belum tersedia');
+ const battery=batteryView(cow);
+ setText('#dBatt',battery.text);setText('#dBattState',battery.note);
  const rumination = ruminationView(cow);
  const ruminationNote = rumination.note + (rumination.available && state !== 'Online' ? ' · Offline' : '');
  setText('#dRum', rumination.value);
@@ -1699,9 +1722,9 @@ function refreshDataStatus(){
  setText('#kpiTotal',cattle.length);setText('#kpiNormal',fresh.filter(c=>c.status==='Normal').length);setText('#kpiWarning',fresh.filter(c=>c.status==='Warning').length);setText('#kpiCritical',fresh.filter(c=>c.status==='Critical').length);setText('#kpiDevices',cattle.length+1);setText('#kpiDevicesNote',`${online+(envStatus==='Online'?1:0)} online · ${11-online-(envStatus==='Online'?1:0)} offline`);
  setText('#kpiNormal + small',received.length?'Dari data terkini':'Belum ada data kesehatan');
  const table=document.querySelector('#deviceTable');table.innerHTML='';
- cattle.forEach(c=>{const tr=document.createElement('tr');['Wearable '+c.id,'Sensor Kesehatan','—',c.recordedAt||'Belum ada data',connectionState(c.recordedAt,'health')].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr)});
+ cattle.forEach(c=>{const tr=document.createElement('tr');['Wearable '+c.id,'Sensor Kesehatan',batteryTableText(c),c.recordedAt||'Belum ada data',connectionState(c.recordedAt,'health')].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr)});
  const tr=document.createElement('tr');['Sensor Kandang A','Sensor Lingkungan','—',envTime||'Belum ada data',envStatus].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr);
- const counts=document.querySelectorAll('.device-kpi b');[11,online+(envStatus==='Online'?1:0),11-online-(envStatus==='Online'?1:0),'—'].forEach((v,i)=>counts[i].textContent=v);
+ const counts=document.querySelectorAll('.device-kpi b');[11,online+(envStatus==='Online'?1:0),11-online-(envStatus==='Online'?1:0),cattle.filter(c=>batteryView(c).low).length].forEach((v,i)=>counts[i].textContent=v);
  selectCow(selectedCowId);
  refreshClientViews();
 }

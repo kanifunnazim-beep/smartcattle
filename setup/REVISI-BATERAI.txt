@@ -1,0 +1,26 @@
+REVISI BATERAI - 17 Oktober 2026
+
+File aplikasi berubah: app.js dan index.html (versi cache script).
+Persentase dari battery_percent pada data kesehatan terbaru per sapi.
+Tampil di tabel Monitoring Sapi, detail sapi, dan tabel Perangkat.
+0 tampil 0%; null/kosong/invalid tampil tanda pisah.
+Offline mempertahankan nilai terakhir dengan keterangan Data terakhir.
+KPI Baterai Rendah menghitung hanya sapi online dengan baterai <30%.
+Tidak menambahkan alert kesehatan akibat baterai.
+Tidak mengubah firmware, flow Node-RED, login, pakan, fan, atau laporan PDF.
+API lokal api-test.php tidak disertakan. Pertahankan file API di VPS.
+Database dan API baterai sudah dipasang sebelum revisi web ini.
+
+PEMASANGAN
+1. Backup app.js dan index.html di VPS ke folder /root.
+2. Upload app.js, index.html, dan catatan ini ke GitHub sesuai folder.
+3. git fetch origin; git status --short; git diff HEAD origin/main --name-status
+4. Pastikan hanya perubahan yang dimaksud, lalu git pull --ff-only.
+5. Refresh browser Ctrl+F5. C002 harus menampilkan 0% jika data terakhir masih 0.
+6. Cek detail sapi, tabel sapi, dan perangkat; sapi tanpa baterai tampil tanda pisah.
+Tidak perlu migrasi SQL ulang, import flow, atau restart layanan.
+
+VALIDASI LOKAL
+Sintaks JS; pengolahan 0/null/string/invalid/offline; tampilan DOM tabel dan detail.
+Regresi login, pengaturan, input pakan, grafik pakan, logout, sensor, dan fan lolos.
+Belum diuji di browser VPS setelah deployment; verifikasi dengan data alat nyata.
