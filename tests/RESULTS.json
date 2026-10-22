@@ -1,0 +1,12 @@
+{
+  "javascript_syntax": "passed",
+  "flow_unit_tests": "passed",
+  "ui_state_mock_tests": "passed",
+  "html_structure": "passed",
+  "php_lint": "not_run_no_php_runtime",
+  "mysql_integration": "not_run_no_mysql_runtime",
+  "browser_visual": "not_run_no_chromium",
+  "production_deployed": false,
+  "v2_1_scope_check": "passed: only bridge configuration and guides changed",
+  "v2_1_template_token": "empty"
+}

@@ -2850,3 +2850,6 @@ th{font-size:13px}.kpi b{font-size:32px}.detail b{font-size:25px}.alert b,.subpa
 
 /* Public report download */
 .report-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:24px}.report-options .report-card{min-height:0;display:flex;flex-direction:column;align-items:flex-start;gap:14px}.report-options .report-card h3{margin:0}.report-options .report-card p{margin:0;flex:1;line-height:1.6}.report-download h2{font-size:20px;margin-bottom:22px}.report-download select{font:inherit;border:1px solid #d7e1ec;border-radius:9px;padding:11px 12px;background:#fff;color:#18263b}.report-download .sc-filters{align-items:end}.report-download .sc-filters label{min-width:155px}.report-download #downloadReport{min-width:170px}@media(max-width:650px){.report-options{grid-template-columns:1fr}.report-download .sc-filters{grid-template-columns:1fr}.report-download #downloadReport{width:100%}}
+
+/* Weighing session controls */
+.sc-scale-panel{margin-bottom:24px;padding:24px}.sc-scale-panel select{display:block;width:100%;padding:12px;margin:10px 0;border:1px solid #cad7e4;border-radius:8px}.sc-scale-panel [role="status"]{margin:12px 0;line-height:1.6}

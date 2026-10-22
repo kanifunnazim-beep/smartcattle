@@ -1,0 +1,137 @@
+[
+  {
+    "file": "REVISI-V2-BACA-DULU.md",
+    "change": "added",
+    "sha256": "da0a5fead6147dd064c92da3fe1ae9b6f27203eb5b992461afadf189515c4bf8"
+  },
+  {
+    "file": "app.js",
+    "change": "modified",
+    "sha256": "7447f8b0523fe038040f09a24aa1b91cbe9702affb05f2833fc06d5b3d17a651"
+  },
+  {
+    "file": "backend/.htaccess",
+    "change": "added",
+    "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934"
+  },
+  {
+    "file": "backend/entries.php",
+    "change": "added",
+    "sha256": "6e748567c4b1724cf6423e5c8e0ad6096a10ed0a580e89c02eb74a9b5c68998d"
+  },
+  {
+    "file": "backend/report-auth.php",
+    "change": "added",
+    "sha256": "f947ce21db334be872e9ac7ab14f7bf7f1d73b7f1b7fb7de65831b7f6d743e77"
+  },
+  {
+    "file": "backend/scale-domain.php",
+    "change": "added",
+    "sha256": "f02210943f5646f3dfc0ab75406eeea89602bc170ebaeaae931c1bc4b8a25db5"
+  },
+  {
+    "file": "index.html",
+    "change": "modified",
+    "sha256": "800801ea9d0d342f4dbeef1a008485b7745730612498452842a3fd086a7708b9"
+  },
+  {
+    "file": "petugas.js",
+    "change": "modified",
+    "sha256": "eff04d2d8a6816e77f1a108b5900ed0c07658ec49eb622bf036c242630d20519"
+  },
+  {
+    "file": "report-api.php",
+    "change": "modified",
+    "sha256": "51e8b1140e521eb90f1c361b83fd4af7285e74af2eb4ff89127003f1ff2c99fd"
+  },
+  {
+    "file": "reports.js",
+    "change": "modified",
+    "sha256": "784c3f2bbcfe329e9b5cd78ee74d44b541ae1ecd104acb1b393b1490074fc622"
+  },
+  {
+    "file": "scale-api.php",
+    "change": "added",
+    "sha256": "0344e4c81e13ed0febb51aa61e0bac71d9f4a8b2076e4c59a8d3fe5c81bf9148"
+  },
+  {
+    "file": "scales.js",
+    "change": "added",
+    "sha256": "72d8fc36465a193dc00d478d2755dd2a2cc03b3211692f4271eab34723954566"
+  },
+  {
+    "file": "setup/PANDUAN-V2.md",
+    "change": "added",
+    "sha256": "6d047ef6da87e867d70b5dacd0d57156494d6b0d0b1d0d0e6ca02406f2b64c17"
+  },
+  {
+    "file": "setup/PROTOKOL-ESP32.md",
+    "change": "added",
+    "sha256": "9286090b5e956f8d4eace7ce5a0e14bb18d37ad751906f067a2329cc4eacb4db"
+  },
+  {
+    "file": "setup/create-user.php",
+    "change": "modified",
+    "sha256": "07ca1f6ced083ab277cf247b3cfcef4867bc08caa2cf70c14760cef6102c67be"
+  },
+  {
+    "file": "setup/migrate-v2.php",
+    "change": "added",
+    "sha256": "b1da2f6896a60586b2d2d2db93a8ead298dc693fc50a9b436f2dc4e9d2c427d4"
+  },
+  {
+    "file": "setup/nodered-scales-v2.json",
+    "change": "added",
+    "sha256": "3f677b5a67976792649fd98284fe93365b193a85a27fafe01b975c5e48d29f25"
+  },
+  {
+    "file": "setup/prepare-bridge.php",
+    "change": "added",
+    "sha256": "b6c4f7b2f463da26fcb923a5641ef5f87377870be0f90173992129f0b6333c4a"
+  },
+  {
+    "file": "setup/schema-v2.sql",
+    "change": "added",
+    "sha256": "b47e85593891cdeaf5f7ce0f7e594e5f9a12f7887443999f5bf286c7e67ed7e4"
+  },
+  {
+    "file": "style.css",
+    "change": "modified",
+    "sha256": "e2d1ca9ecd0d513b82730a41065b3f6ddf69e5df8bfcd90762fac0dd96ce1ed6"
+  },
+  {
+    "file": "tests/.htaccess",
+    "change": "added",
+    "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934"
+  },
+  {
+    "file": "tests/RESULTS.json",
+    "change": "added",
+    "sha256": "1c1de1838c80f9bccda5ae837e3a9047853d4bf49ce405a10afc90c0da567132"
+  },
+  {
+    "file": "tests/browser.cjs",
+    "change": "added",
+    "sha256": "c3dbea400d61fe5d9236580e492504ec89b6dcb5a398771bb7b09dd06f8e29aa"
+  },
+  {
+    "file": "tests/domain.php",
+    "change": "added",
+    "sha256": "a495a83a39c99badc55d06cced3a6fbb3b0126e3caa53c1e2361a6eab30a2ac9"
+  },
+  {
+    "file": "tests/flow.cjs",
+    "change": "added",
+    "sha256": "d2ee68365a246c2d82fd3c6dc6f57a870007bfd6fdf5f9d1b5aaf34baaca5157"
+  },
+  {
+    "file": "tests/ui-state.cjs",
+    "change": "added",
+    "sha256": "136f92e6b137dd8efc6d8d56c2c9f89d86a293cc639cef9eac1b99d8a21cc782"
+  },
+  {
+    "file": "web-api.php",
+    "change": "modified",
+    "sha256": "c3624e2df1be20ab9b2a8bff1e13ffbb624b117324d58c27abddd8c2d63b1d2e"
+  }
+]

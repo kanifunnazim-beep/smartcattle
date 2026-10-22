@@ -1,0 +1,202 @@
+[
+  {
+    "id": "sc-scale-v2-tab",
+    "type": "tab",
+    "label": "SmartCattle - Timbangan v2",
+    "disabled": false,
+    "info": "Bridge timbangan tambahan. SC_SCALE_TOKEN adalah environment tingkat TAB, bukan service Linux. Isi melalui salinan JSON privat yang dihasilkan prepare-bridge.php. Deploy Modified Flows hanya untuk tab baru; jangan mengubah flow sensor/broker lama. Jangan membagikan ekspor yang sudah berisi token.",
+    "env": [
+      {
+        "name": "SC_SCALE_TOKEN",
+        "value": "",
+        "type": "str"
+      }
+    ]
+  },
+  {
+    "id": "sc-poll",
+    "type": "inject",
+    "z": "sc-scale-v2-tab",
+    "name": "Cek sesi setiap 5 detik",
+    "x": 130,
+    "y": 80,
+    "wires": [
+      [
+        "sc-get"
+      ]
+    ],
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "once": true,
+    "onceDelay": 3,
+    "payload": "",
+    "payloadType": "str"
+  },
+  {
+    "id": "sc-get",
+    "type": "function",
+    "z": "sc-scale-v2-tab",
+    "name": "Otorisasi bridge lokal",
+    "x": 370,
+    "y": 80,
+    "wires": [
+      [
+        "sc-get-http"
+      ]
+    ],
+    "outputs": 1,
+    "func": "const token=env.get('SC_SCALE_TOKEN');\nif(!token||token.length<32){node.status({fill:'red',shape:'ring',text:'SC_SCALE_TOKEN belum diisi'});return null;}\nnode.status({});msg.headers={'X-Scale-Token':token};msg.payload='';return msg;"
+  },
+  {
+    "id": "sc-get-http",
+    "type": "http request",
+    "z": "sc-scale-v2-tab",
+    "name": "Baca sesi backend",
+    "x": 600,
+    "y": 80,
+    "wires": [
+      [
+        "sc-commands"
+      ]
+    ],
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://127.0.0.1:8081/scale-api.php",
+    "persist": false,
+    "senderr": false,
+    "headers": [],
+    "requestTimeout": "5000"
+  },
+  {
+    "id": "sc-commands",
+    "type": "function",
+    "z": "sc-scale-v2-tab",
+    "name": "Kirim perintah sesi",
+    "x": 830,
+    "y": 80,
+    "wires": [
+      [
+        "sc-command-out"
+      ]
+    ],
+    "outputs": 1,
+    "func": "if(msg.statusCode!==200||msg.payload?.status!=='success'||!Array.isArray(msg.payload.data)){node.status({fill:'red',shape:'ring',text:'Backend sesi belum siap'});return null;}\nnode.status({fill:'green',shape:'dot',text:'Bridge aktif'});\nconst commands=msg.payload.data.map(s=>({topic:'smartcattle/scales/'+s.device_id+'/command',qos:'1',retain:false,payload:JSON.stringify({...s,command:'arm',unit:'kg'})}));\nreturn [commands];"
+  },
+  {
+    "id": "sc-command-out",
+    "type": "mqtt out",
+    "z": "sc-scale-v2-tab",
+    "name": "Perintah ke ESP32",
+    "x": 1060,
+    "y": 80,
+    "wires": [],
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "sc-scale-v2-mqtt"
+  },
+  {
+    "id": "sc-result-in",
+    "type": "mqtt in",
+    "z": "sc-scale-v2-tab",
+    "name": "Hasil stabil ESP32",
+    "x": 130,
+    "y": 220,
+    "wires": [
+      [
+        "sc-result"
+      ]
+    ],
+    "topic": "smartcattle/scales/+/result",
+    "qos": "1",
+    "datatype": "auto-detect",
+    "broker": "sc-scale-v2-mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0
+  },
+  {
+    "id": "sc-result",
+    "type": "function",
+    "z": "sc-scale-v2-tab",
+    "name": "Validasi identitas hasil",
+    "x": 380,
+    "y": 220,
+    "wires": [
+      [
+        "sc-post-http"
+      ]
+    ],
+    "outputs": 1,
+    "func": "if(msg.retain===true)return null;\ntry{\n const token=env.get('SC_SCALE_TOKEN');if(!token||token.length<32)throw Error('SC_SCALE_TOKEN belum diisi');\n const device=String(msg.topic).split('/')[2];\n if(!['scale-weight-01','scale-feed-01'].includes(device))throw Error('Perangkat tidak dikenal');\n let b=msg.payload;if(Buffer.isBuffer(b))b=b.toString('utf8');if(typeof b==='string')b=JSON.parse(b);\n if(!b||typeof b!=='object'||Array.isArray(b)||b.device_id!==device||!/^([a-f0-9]{32})$/.test(b.session_id))throw Error('Identitas tidak cocok');\n if(b.stable!==true||b.unit!=='kg'||typeof b.weight_kg!=='number'||!Number.isFinite(b.weight_kg))throw Error('Hasil belum valid/stabil');\n msg._scaleDevice=device;msg._scaleSession=b.session_id;\n msg.headers={'X-Scale-Token':token,'Content-Type':'application/json'};\n msg.payload=JSON.stringify(b);return msg;\n}catch(e){node.warn(e.message);return null;}"
+  },
+  {
+    "id": "sc-post-http",
+    "type": "http request",
+    "z": "sc-scale-v2-tab",
+    "name": "Simpan hasil ke backend",
+    "x": 640,
+    "y": 220,
+    "wires": [
+      [
+        "sc-ack"
+      ]
+    ],
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://127.0.0.1:8081/scale-api.php",
+    "persist": false,
+    "senderr": false,
+    "headers": [],
+    "requestTimeout": "5000"
+  },
+  {
+    "id": "sc-ack",
+    "type": "function",
+    "z": "sc-scale-v2-tab",
+    "name": "ACK setelah penyimpanan",
+    "x": 880,
+    "y": 220,
+    "wires": [
+      [
+        "sc-ack-out"
+      ]
+    ],
+    "outputs": 1,
+    "func": "if(!msg._scaleDevice)return null;\nconst ok=msg.statusCode===200&&msg.payload?.status==='success';\nconst retryable=!Number.isInteger(msg.statusCode)||msg.statusCode>=500;\nreturn {topic:'smartcattle/scales/'+msg._scaleDevice+'/ack',qos:'1',retain:false,payload:JSON.stringify({session_id:msg._scaleSession,status:ok?'saved':retryable?'retry':'rejected',duplicate:!!msg.payload?.duplicate,message:ok?'Tersimpan':String(msg.payload?.message||'Bridge belum merespons')})};"
+  },
+  {
+    "id": "sc-ack-out",
+    "type": "mqtt out",
+    "z": "sc-scale-v2-tab",
+    "name": "ACK ke ESP32",
+    "x": 1080,
+    "y": 220,
+    "wires": [],
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "sc-scale-v2-mqtt"
+  },
+  {
+    "id": "sc-scale-v2-mqtt",
+    "type": "mqtt-broker",
+    "name": "Timbangan - pilih broker lokal yang sudah ada",
+    "broker": "127.0.0.1",
+    "port": "1883",
+    "clientid": "smartcattle-scales-bridge",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true
+  }
+]

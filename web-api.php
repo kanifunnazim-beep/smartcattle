@@ -46,10 +46,10 @@ try {
     if(!is_file('/etc/smartcattle-web.php'))fail('Fitur petugas belum dikonfigurasi di server.',503);
     $cfg=require '/etc/smartcattle-web.php';
     mysqli_report(MYSQLI_REPORT_ERROR|MYSQLI_REPORT_STRICT);
-    $db=new mysqli($cfg['host'],$cfg['username'],$cfg['password'],$cfg['database']);$db->set_charset('utf8mb4');
+    $db=new mysqli($cfg['host'],$cfg['username'],$cfg['password'],$cfg['database']);$db->set_charset('utf8mb4');$db->query("SET time_zone='+07:00'");
     $user=null;
     if(isset($_SESSION['uid'])){
-        $user=query($db,'SELECT id,username FROM sc_users WHERE id=? AND active=1',[$_SESSION['uid']])->get_result()->fetch_assoc();
+        $user=query($db,'SELECT id,username,role FROM sc_users WHERE id=? AND active=1',[$_SESSION['uid']])->get_result()->fetch_assoc();
         if(!$user){unset($_SESSION['uid']);}
     }
     if($action==='session'&&$method==='GET')reply(['status'=>'success','user'=>$user,'csrf'=>$_SESSION['csrf']]);
@@ -69,13 +69,13 @@ try {
             query($db,'UPDATE sc_login_attempts SET attempts=attempts+1 WHERE bucket=?',[$key]);
         }$db->commit();
         if($limited){header('Retry-After: 900');fail('Terlalu banyak percobaan. Coba lagi setelah 15 menit.',429);}
-        $u=query($db,'SELECT id,username,password_hash FROM sc_users WHERE username=? AND active=1',[$name])->get_result()->fetch_assoc();
+        $u=query($db,'SELECT id,username,role,password_hash FROM sc_users WHERE username=? AND active=1',[$name])->get_result()->fetch_assoc();
         $hash=$u['password_hash']??'$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
         $ok=password_verify($pass,$hash);unset($pass);
         if(!$u||!$ok)fail('Username atau password salah.',401);
         query($db,'DELETE FROM sc_login_attempts WHERE bucket=?',[$buckets[0]]);
         session_regenerate_id(true);$_SESSION['uid']=(int)$u['id'];$_SESSION['login_at']=time();$_SESSION['csrf']=bin2hex(random_bytes(32));
-        reply(['status'=>'success','user'=>['id'=>$u['id'],'username'=>$u['username']],'csrf'=>$_SESSION['csrf']]);
+        reply(['status'=>'success','user'=>['id'=>$u['id'],'username'=>$u['username'],'role'=>$u['role']],'csrf'=>$_SESSION['csrf']]);
     }
     if($action==='logout'&&$method==='POST'){
         $_SESSION=[];session_regenerate_id(true);$_SESSION['csrf']=bin2hex(random_bytes(32));reply(['status'=>'success','user'=>null,'csrf'=>$_SESSION['csrf']]);
@@ -85,15 +85,10 @@ try {
         if(!$row)fail('Tabel pengaturan belum disiapkan.',503);
         reply(['status'=>'success','data'=>json_decode($row['settings_json'],true),'revision'=>(int)$row['revision']]);
     }
-    if($action==='records'&&$method==='GET'){
-        $from=$_GET['from']??date('Y-m-d',strtotime('-27 days'));$to=$_GET['to']??date('Y-m-d');
-        if(!validDate($from)||!validDate($to)||$from>$to||strtotime($to)-strtotime($from)>366*86400)fail('Rentang tanggal tidak valid (maksimum 366 hari).');
-        $rows=query($db,'SELECT id,cow_id,recorded_date,feed_kg,weight_kg,revision FROM sc_records WHERE recorded_date BETWEEN ? AND ? ORDER BY recorded_date,cow_id',[$from,$to])->get_result()->fetch_all(MYSQLI_ASSOC);
-        $latest=query($db,'SELECT r.cow_id,r.recorded_date,r.weight_kg FROM sc_records r JOIN (SELECT cow_id,MAX(recorded_date) d FROM sc_records WHERE weight_kg IS NOT NULL GROUP BY cow_id) x ON r.cow_id=x.cow_id AND r.recorded_date=x.d')->get_result()->fetch_all(MYSQLI_ASSOC);
-        reply(['status'=>'success','data'=>$rows,'latest_weights'=>$latest,'from'=>$from,'to'=>$to]);
-    }
+    require __DIR__.'/backend/entries.php';
     // Every mutation below must authenticate, even when invoked outside the UI.
     if(!$user)fail('Silakan login petugas.',401);
+    if($user['role']!=='petugas')fail('Akun PLN hanya dapat membuka laporan.',403);
     $uid=(int)$user['id'];
     if($action==='settings'&&$method==='POST'){
         $b=body();$v=$b['data']??null;if(!is_array($v))fail('Pengaturan tidak valid.');
@@ -105,30 +100,6 @@ try {
         $db->begin_transaction();$q=query($db,'UPDATE sc_settings SET settings_json=?,revision=revision+1 WHERE id=1 AND revision=?',[json_encode($out),$b['revision']??0]);
         if($q->affected_rows!==1){$db->rollback();fail('Pengaturan telah berubah. Muat ulang sebelum menyimpan.',409);}
         audit($db,$uid,'settings',$out);$db->commit();reply(['status'=>'success','data'=>$out,'revision'=>(int)$b['revision']+1]);
-    }
-    if($action==='records'&&$method==='POST'){
-        $b=body();$cow=$b['cow_id']??'';$date=$b['recorded_date']??'';
-        if(!is_string($cow)||!preg_match('/^C00[1-9]$|^C010$/D',$cow))fail('ID sapi tidak valid.');
-        if(!validDate($date)||$date<'2020-01-01'||$date>date('Y-m-d'))fail('Tanggal harus valid dan tidak di masa depan.');
-        $feed=numeric($b['feed_kg']??null,0,500,true);$weight=numeric($b['weight_kg']??null,1,2000,true);
-        if($feed===null&&$weight===null)fail('Isi pakan atau bobot.');
-        if(($feed!==null&&abs(round($feed,2)-$feed)>0.000001)||($weight!==null&&abs(round($weight,2)-$weight)>0.000001))fail('Maksimum dua angka desimal.');
-        $revision=$b['revision']??0;if(!is_int($revision)||$revision<0)fail('Versi catatan tidak valid.');
-        $db->begin_transaction();
-        if($revision===0){
-            try {query($db,'INSERT INTO sc_records(cow_id,recorded_date,feed_kg,weight_kg,updated_by) VALUES (?,?,?,?,?)',[$cow,$date,$feed,$weight,$uid]);}
-            catch(mysqli_sql_exception $e){if($e->getCode()===1062){$db->rollback();fail('Catatan tanggal ini sudah ada. Muat catatan sebelum mengubahnya.',409);}throw $e;}
-        }else{
-            $q=query($db,'UPDATE sc_records SET feed_kg=?,weight_kg=?,updated_by=?,revision=revision+1 WHERE cow_id=? AND recorded_date=? AND revision=?',[$feed,$weight,$uid,$cow,$date,$revision]);
-            if($q->affected_rows!==1){$db->rollback();fail('Catatan sudah berubah atau dihapus. Muat ulang.',409);}
-        }
-        audit($db,$uid,'record_save',['cow'=>$cow,'date'=>$date,'feed'=>$feed,'weight'=>$weight,'previous_revision'=>$revision]);$db->commit();reply(['status'=>'success']);
-    }
-    if($action==='records'&&$method==='DELETE'){
-        $b=body();$db->begin_transaction();
-        $row=query($db,'SELECT * FROM sc_records WHERE id=? FOR UPDATE',[$b['id']??0])->get_result()->fetch_assoc();
-        if(!$row||(int)$row['revision']!==($b['revision']??null)){$db->rollback();fail('Catatan sudah berubah. Muat ulang.',409);}
-        query($db,'DELETE FROM sc_records WHERE id=?',[$row['id']]);audit($db,$uid,'record_delete',$row);$db->commit();reply(['status'=>'success']);
     }
     fail('Aksi tidak tersedia.',404);
 } catch(Throwable $e) {

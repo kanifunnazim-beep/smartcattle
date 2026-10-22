@@ -4,12 +4,17 @@
  const $=id=>document.getElementById(id);
  const state={user:null,csrf:'',settingsRevision:0,records:[],latest:[],range:null,recordRevision:0,recordKey:'',recordRequest:0,settingsBusy:false,recordsBusy:false,settingsReady:false,recordsRequest:0,settingsGeneration:0,savingSettings:false};
  window.scUser=null;window.scNh3Warning=null;
+ const isStaff=()=>state.user?.role==='petugas';
+ const token=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
+ const feedNames={kering:'Pakan Kering',combor:'Combor',basah:'Pakan Basah'};
+ state.entryId=0;state.requestId=token();
+ window.scApi=api;
  const field=(form,name)=>$(form).elements.namedItem(name);
  const message=(id,text,error=false)=>{const e=$(id);e.textContent=text;e.className='sc-message '+(error?'error':'success');};
  function dateWib(d=new Date()) {return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);}
  function shiftDay(day,delta){const d=new Date(day+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+delta);return d.toISOString().slice(0,10);}
  function weekOf(day){const d=new Date(day+'T12:00:00Z');return shiftDay(day,-((d.getUTCDay()+6)%7));}
- function format(v){return v===null||!Number.isFinite(v)?'—':v.toLocaleString('id-ID',{maximumFractionDigits:2});}
+ function format(v){return v===null||!Number.isFinite(v)?'—':v.toLocaleString('id-ID',{maximumFractionDigits:3});}
  function number(v){return v===null||v===undefined||v===''?null:Number(v);}
  async function api(action,{method='GET',body,params}={}) {
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
@@ -25,28 +30,29 @@
   }catch(e){if(e.name==='AbortError')throw new Error('Server belum merespons. Coba lagi.');throw e;}finally{clearTimeout(timer);}
  }
  function applySession(data) {
-  const changed=state.user?.id!==data.user?.id;
+  const changed=state.user?.id!==data.user?.id||state.user?.role!==data.user?.role;
   state.user=data.user;state.csrf=data.csrf||state.csrf;window.scUser=data.user;
-  $('accountTitle').textContent=data.user?'Petugas · '+data.user.username:'Akses pengunjung';
-  $('accountNote').textContent=data.user?'Akses pengaturan dan catatan aktif.':'Monitoring terbuka untuk pengunjung.';
-  $('accountLogin').hidden=!!data.user;$('accountLogout').hidden=!data.user;$('accountSettings').hidden=!data.user;
-  $('thresholdFields').disabled=!data.user||!state.settingsReady;$('recordFields').disabled=!data.user;
-  const sub=document.querySelector('#profileButton small');if(sub)sub.textContent=data.user?'Petugas':'Mode pengunjung';
-  if(!data.user&&$('page-settings').classList.contains('active'))showPage('overview');
+  $('accountTitle').textContent=data.user?(data.user.role==='pln'?'PLN · ':'Petugas · ')+data.user.username:'Akses pengunjung';
+  $('accountNote').textContent=data.user?(isStaff()?'Akses pengaturan dan laporan aktif.':'Akses seluruh laporan aktif.'):'Monitoring terbuka untuk pengunjung.';
+  $('accountLogin').hidden=!!data.user;$('accountLogout').hidden=!data.user;$('accountSettings').hidden=!isStaff();$('feedInput').hidden=!isStaff();
+  $('thresholdFields').disabled=!isStaff()||!state.settingsReady;$('recordFields').disabled=!isStaff();
+  const sub=document.querySelector('#profileButton small');if(sub)sub.textContent=data.user?(isStaff()?'Petugas':'PLN'):'Mode pengunjung';
+  if((!isStaff()&&$('page-settings').classList.contains('active'))||(!data.user&&$('page-reports').classList.contains('active')))showPage('overview');
+  window.dispatchEvent(new Event('sc-session'));
   if(changed){state.recordKey='';$('saveRecord').disabled=true;renderFeed();}
  }
  async function syncSession(){const r=await api('session');applySession(r);return r;}
  function openLogin(){closeDropdowns();message('loginMessage','');field('loginForm','password').value='';$('loginDialog').showModal();field('loginForm','username').focus();}
  window.scOpenLogin=openLogin;
  async function openSettings(){closeDropdowns();try{await syncSession();}catch(e){openLogin();message('loginMessage',e.message,true);return;}
-  if(!state.user){openLogin();return;}showPage('settings');await loadSettings(true);await loadRecord();}
+  if(!state.user){window.scLoginTarget='settings';openLogin();return;}if(!isStaff()){showPage('reports');return;}showPage('settings');await loadSettings(true);await loadRecord();}
  $('accountLogin').onclick=openLogin;$('accountSettings').onclick=openSettings;$('feedInput').onclick=openSettings;
  document.querySelector('[data-page="settings"]').addEventListener('click',()=>{if(state.user)openSettings();});
  $('closeLogin').onclick=()=>{$('loginDialog').close();field('loginForm','password').value='';};
  $('loginDialog').addEventListener('close',()=>field('loginForm','password').value='');
  $('loginForm').onsubmit=async event=>{
   event.preventDefault();const button=$('loginForm').querySelector('[type="submit"]');button.disabled=true;message('loginMessage','Memeriksa akun…');
-  try{await syncSession();const r=await api('login',{method:'POST',body:{username:field('loginForm','username').value.trim(),password:field('loginForm','password').value}});applySession(r);$('loginDialog').close();showPage('settings');await loadSettings(true);await loadRecord();}
+  try{await syncSession();const r=await api('login',{method:'POST',body:{username:field('loginForm','username').value.trim(),password:field('loginForm','password').value}});applySession(r);$('loginDialog').close();const target=isStaff()?(window.scLoginTarget||'settings'):'reports';window.scLoginTarget=null;showPage(target);if(isStaff()){await loadSettings(true);await loadRecord();}}
   catch(e){message('loginMessage',e.message,true);}finally{button.disabled=false;field('loginForm','password').value='';}
  };
  async function logout(){try{const r=await api('logout',{method:'POST',body:{}});applySession(r);closeDropdowns();showToast('Anda sudah logout.');}catch(e){showToast('Logout belum berhasil: '+e.message);}}
@@ -55,36 +61,32 @@
   if(state.settingsBusy||state.savingSettings)return;state.settingsBusy=true;const generation=++state.settingsGeneration;
   try{const r=await api('settings');if(generation!==state.settingsGeneration)return;Object.assign(HEALTH_LIMITS,r.data);window.scNh3Warning=r.data.nh3Warning;state.settingsReady=true;
    if(fill||!state.settingsRevision){Object.entries(r.data).forEach(([k,v])=>{const input=field('thresholdForm',k);if(input)input.value=v??'';});state.settingsRevision=r.revision;}
-   $('thresholdFields').disabled=!state.user;refreshDataStatus();if(fill)message('thresholdMessage','Pengaturan tersimpan telah dimuat.');
+   $('thresholdFields').disabled=!isStaff();refreshDataStatus();if(fill)message('thresholdMessage','Pengaturan tersimpan telah dimuat.');
   }catch(e){if(fill||!state.settingsReady)message('thresholdMessage',e.message,true);}finally{state.settingsBusy=false;}
  }
  $('reloadThreshold').onclick=()=>loadSettings(true);
  $('thresholdForm').onsubmit=async e=>{e.preventDefault();const data={};for(const [key,value] of new FormData($('thresholdForm')))data[key]=value===''?null:Number(value);
   state.savingSettings=true;++state.settingsGeneration;$('thresholdFields').disabled=true;try{const r=await api('settings',{method:'POST',body:{data,revision:state.settingsRevision}});state.settingsRevision=r.revision;Object.assign(HEALTH_LIMITS,r.data);window.scNh3Warning=r.data.nh3Warning;refreshDataStatus();message('thresholdMessage','Ambang berhasil disimpan untuk seluruh dashboard.');}
-  catch(err){message('thresholdMessage',err.message,true);}finally{state.savingSettings=false;$('thresholdFields').disabled=!state.user;}
+  catch(err){message('thresholdMessage',err.message,true);}finally{state.savingSettings=false;$('thresholdFields').disabled=!isStaff();}
  };
  const today=dateWib();$('feedFrom').value=shiftDay(today,-27);$('feedTo').value=today;field('recordForm','recorded_date').value=today;field('recordForm','recorded_date').max=today;
- async function loadRecord(){
-  const n=++state.recordRequest,cow=field('recordForm','cow_id').value,date=field('recordForm','recorded_date').value;
-  state.recordKey='';$('saveRecord').disabled=true;field('recordForm','feed_kg').value='';field('recordForm','weight_kg').value='';
-  if(!state.user||!date)return;message('recordMessage','Memuat catatan…');
-  try{const r=await api('records',{params:{from:date,to:date}});if(n!==state.recordRequest||!state.user)return;const found=r.data.find(x=>x.cow_id===cow);
-   state.recordRevision=found?Number(found.revision):0;state.recordKey=cow+'|'+date;
-   field('recordForm','feed_kg').value=found?.feed_kg??'';field('recordForm','weight_kg').value=found?.weight_kg??'';
-   $('saveRecord').disabled=false;message('recordMessage',found?'Catatan tersedia. Simpan akan memperbarui catatan ini.':'Belum ada catatan pada tanggal ini.');
-  }catch(err){if(n===state.recordRequest)message('recordMessage',err.message,true);}
+ function loadRecord(){
+  state.entryId=0;state.recordRevision=0;state.requestId=token();
+  field('recordForm','feed_kg').value='';field('recordForm','weight_kg').value='';field('recordForm','feed_type').value='';
+  $('saveRecord').disabled=!isStaff();message('recordMessage','Catatan baru. Untuk koreksi, pilih Ubah pada daftar catatan.');
  }
- field('recordForm','cow_id').onchange=loadRecord;field('recordForm','recorded_date').onchange=loadRecord;$('reloadRecord').onclick=loadRecord;
+ $('reloadRecord').onclick=loadRecord;
  $('recordForm').onsubmit=async e=>{
   e.preventDefault();const cow=field('recordForm','cow_id').value,date=field('recordForm','recorded_date').value;
-  if(state.recordKey!==cow+'|'+date){message('recordMessage','Muat catatan terlebih dahulu.',true);return;}
   const feed=number(field('recordForm','feed_kg').value),weight=number(field('recordForm','weight_kg').value);
   if(feed===null&&weight===null){message('recordMessage','Isi pakan atau bobot.',true);return;}
+  if(feed!==null&&!field('recordForm','feed_type').value){message('recordMessage','Pilih jenis pakan.',true);return;}
   $('recordFields').disabled=true;
-  try{await api('records',{method:'POST',body:{cow_id:cow,recorded_date:date,feed_kg:feed,weight_kg:weight,revision:state.recordRevision}});await loadRecord();await loadFeed();message('recordMessage','Catatan berhasil disimpan.');}
-  catch(err){message('recordMessage',err.message,true);if(err.status===409){state.recordKey='';$('saveRecord').disabled=true;}}
-  finally{$('recordFields').disabled=!state.user;}
+  try{await api('records',{method:'POST',body:{id:state.entryId,revision:state.recordRevision,request_id:state.requestId,cow_id:cow,recorded_date:date,feed_kg:feed,weight_kg:weight,feed_type:field('recordForm','feed_type').value||null}});loadRecord();await loadFeed();message('recordMessage','Catatan berhasil disimpan.');}
+  catch(err){message('recordMessage',err.message,true);}
+  finally{$('recordFields').disabled=!isStaff();}
  };
+ window.addEventListener('sc-records-updated',()=>loadFeed());
  async function loadFeed(){
   const request=++state.recordsRequest;state.recordsBusy=true;const from=$('feedFrom').value,to=$('feedTo').value;
   try{const r=await api('records',{params:{from,to}});if(request!==state.recordsRequest)return;state.records=r.data;state.latest=r.latest_weights;state.range={from:r.from,to:r.to};renderFeed();message('feedMessage','Periode '+r.from+' sampai '+r.to+' · Catatan petugas');}
@@ -96,7 +98,7 @@
   const weeks=new Map(),perCow=new Map();
   rows.forEach(r=>{const wk=weekOf(r.recorded_date);if(!weeks.has(wk))weeks.set(wk,{date:wk,feed:null,weights:new Map()});const w=weeks.get(wk);
    if(r.feed_kg!==null)w.feed=(w.feed??0)+Number(r.feed_kg);
-   if(r.weight_kg!==null){const old=w.weights.get(r.cow_id);if(!old||old.date<r.recorded_date)w.weights.set(r.cow_id,{date:r.recorded_date,value:Number(r.weight_kg)});
+   if(r.weight_kg!==null){const old=w.weights.get(r.cow_id);if(!old||old.date<=r.recorded_date)w.weights.set(r.cow_id,{date:r.recorded_date,value:Number(r.weight_kg)});
     if(!perCow.has(r.cow_id))perCow.set(r.cow_id,[]);perCow.get(r.cow_id).push(r);}
   });
   const groups=[...weeks.values()].sort((a,b)=>a.date.localeCompare(b.date)).map(w=>({...w,weight:w.weights.size?[...w.weights.values()].reduce((sum,x)=>sum+x.value,0)/w.weights.size:null}));
@@ -112,13 +114,13 @@
   const latest=state.latest.filter(r=>cow==='all'||r.cow_id===cow).map(r=>r.recorded_date).sort();
   $('feedMetricNote').textContent=(cow==='all'?'Pakan dijumlahkan untuk seluruh sapi; bobot adalah rata-rata '+result.weightCount+' sapi. Perubahan bobot adalah rata-rata '+result.deltaCount+' sapi dengan minimal dua penimbangan.':'Perubahan bobot memakai penimbangan pertama dan terakhir dalam periode.')+(latest.length?' Bobot terakhir dicatat '+latest[0]+(latest.at(-1)!==latest[0]?' – '+latest.at(-1):'')+'.':'')+' Data kosong tidak dihitung sebagai nol.';
   drawFeed(result.groups);const table=$('feedRows');table.replaceChildren();
-  [...result.rows].reverse().forEach(row=>{const tr=document.createElement('tr');[row.recorded_date,row.cow_id,format(number(row.feed_kg)),format(number(row.weight_kg))].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});
-   const actions=document.createElement('td');if(state.user){
-    const edit=document.createElement('button');edit.type='button';edit.className='secondary-btn';edit.textContent='Ubah';edit.onclick=async()=>{showPage('settings');field('recordForm','cow_id').value=row.cow_id;field('recordForm','recorded_date').value=row.recorded_date;await loadRecord();};actions.append(edit);
+  [...result.rows].reverse().forEach(row=>{const tr=document.createElement('tr');[row.recorded_date,row.cow_id,feedNames[row.feed_type]||'Belum ditentukan',({manual:'Manual',automatic:'Otomatis',legacy:'Data lama'})[row.source]||'—',format(number(row.feed_kg)),format(number(row.weight_kg))].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});
+   const actions=document.createElement('td');if(isStaff()){
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary-btn';edit.textContent='Ubah';edit.onclick=async()=>{showPage('settings');field('recordForm','cow_id').value=row.cow_id;field('recordForm','recorded_date').value=row.recorded_date;state.entryId=Number(row.id);state.recordRevision=Number(row.revision);field('recordForm','feed_kg').value=row.feed_kg??'';field('recordForm','weight_kg').value=row.weight_kg??'';field('recordForm','feed_type').value=row.feed_type||'';$('saveRecord').disabled=false;message('recordMessage','Mengoreksi catatan #'+row.id+' untuk '+row.cow_id+'.');};actions.append(edit);
     const del=document.createElement('button');del.type='button';del.className='secondary-btn';del.textContent='Hapus';del.onclick=async()=>{if(!confirm('Hapus catatan '+row.cow_id+' tanggal '+row.recorded_date+'?'))return;del.disabled=true;
-     try{await api('records',{method:'DELETE',body:{id:Number(row.id),revision:Number(row.revision)}});await loadFeed();if(state.recordKey===row.cow_id+'|'+row.recorded_date)await loadRecord();}catch(e){showToast(e.message);del.disabled=false;}};actions.append(del);
+     try{await api('records',{method:'DELETE',body:{id:Number(row.id),revision:Number(row.revision)}});await loadFeed();if(state.entryId===Number(row.id))loadRecord();}catch(e){showToast(e.message);del.disabled=false;}};actions.append(del);
    }else actions.textContent='—';tr.append(actions);table.append(tr);});
-  if(!result.rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.textContent='Belum ada catatan dalam periode ini.';tr.append(td);table.append(tr);}
+  if(!result.rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=7;td.textContent='Belum ada catatan dalam periode ini.';tr.append(td);table.append(tr);}
  }
  function drawFeed(groups){
   const svg=$('feedChart');svg.replaceChildren();const add=(name,attrs,text)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;svg.append(e);return e;};

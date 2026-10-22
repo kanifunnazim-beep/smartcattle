@@ -11,7 +11,7 @@
  const day=v=>String(v).split('-').reverse().join('/');
  const sum=(rows,k)=>rows.reduce((n,r)=>n+(num(r[k])??0),0);
  function buildReportPdf(report,logoData){
-  if(report.status!=='success'||!titles[report.type]||!Array.isArray(report.data)||report.data.length>400)throw new Error('Format ringkasan tidak valid.');
+  if(report.status!=='success'||!titles[report.type]||!Array.isArray(report.data)||report.data.length>20000)throw new Error('Format ringkasan tidak valid.');
   const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
   doc.setProperties({title:titles[report.type]+' - SmartCattle',subject:'Ringkasan monitoring',author:'SmartCattle',creator:'SmartCattle'});
   const rows=report.data,blue=[25,53,91],muted=[101,118,139],width=269;let cursor=56;
@@ -46,8 +46,8 @@
    const fed=rows.filter(r=>num(r.feed_kg)!==null);cards([['Sapi dengan catatan',String(new Set(rows.map(r=>r.cow_id)).size)],['Total pakan tercatat',fed.length?fmt(sum(fed,'feed_kg'),2)+' kg':'-'],['Catatan penimbangan',String(rows.filter(r=>num(r.weight_kg)!==null).length)]]);
    if(rows.length){
     const ids=[...new Set(rows.map(r=>r.cow_id))].sort();heading('Ringkasan per sapi dalam periode');
-    table(['Sapi','Hari pakan\ntercatat','Total pakan\n(kg)','Bobot awal\n(kg / tanggal)','Bobot akhir\n(kg / tanggal)','Perubahan\n(kg)'],ids.map(id=>{const r=rows.filter(x=>x.cow_id===id),f=r.filter(x=>num(x.feed_kg)!==null),w=r.filter(x=>num(x.weight_kg)!==null).sort((a,b)=>a.day.localeCompare(b.day)),first=w[0],last=w.at(-1);return [id,String(f.length),f.length?fmt(sum(f,'feed_kg'),2):'-',first?fmt(first.weight_kg,2)+' / '+day(first.day):'-',last?fmt(last.weight_kg,2)+' / '+day(last.day):'-',w.length>=2?fmt(Number(last.weight_kg)-Number(first.weight_kg),2):'-'];}));
-    heading('Catatan pakan dan penimbangan');table(['Tanggal','Sapi','Total pakan harian (kg)','Bobot hasil penimbangan (kg)'],rows.map(r=>[day(r.day),r.cow_id,fmt(r.feed_kg,2),fmt(r.weight_kg,2)]));
+    table(['Sapi','Hari pakan\ntercatat','Total pakan\n(kg)','Bobot awal\n(kg / tanggal)','Bobot akhir\n(kg / tanggal)','Perubahan\n(kg)'],ids.map(id=>{const r=rows.filter(x=>x.cow_id===id),f=r.filter(x=>num(x.feed_kg)!==null),w=r.filter(x=>num(x.weight_kg)!==null).sort((a,b)=>a.day.localeCompare(b.day)),first=w[0],last=w.at(-1);return [id,String(new Set(f.map(x=>x.day)).size),f.length?fmt(sum(f,'feed_kg'),2):'-',first?fmt(first.weight_kg,2)+' / '+day(first.day):'-',last?fmt(last.weight_kg,2)+' / '+day(last.day):'-',w.length>=2?fmt(Number(last.weight_kg)-Number(first.weight_kg),2):'-'];}));
+    heading('Catatan pakan dan penimbangan');table(['Tanggal','Sapi','Jenis pakan','Sumber','Pakan (kg)','Bobot (kg)'],rows.map(r=>[day(r.day),r.cow_id,({kering:'Pakan Kering',combor:'Combor',basah:'Pakan Basah'})[r.feed_type]||'-',({manual:'Manual',automatic:'Otomatis',legacy:'Data lama'})[r.source]||'-',fmt(r.feed_kg,3),fmt(r.weight_kg,2)]));
    }
   }else{
    cards([['Jumlah sensor',String(rows.length)],['Online saat ringkasan disiapkan',String(rows.filter(r=>r.state==='Online').length)],['Offline saat ringkasan disiapkan',String(rows.filter(r=>r.state==='Offline').length)]]);
@@ -84,14 +84,14 @@
  function libraries(){if(!pdfLibraries)pdfLibraries=(async()=>{await script('vendor/jspdf.umd.min.js?v=4.2.1');await script('vendor/jspdf.plugin.autotable.min.js?v=5.0.9');if(!window.jspdf?.jsPDF||typeof window.jspdf.jsPDF.API.autoTable!=='function')throw new Error('Komponen PDF tidak lengkap.');})().catch(e=>{pdfLibraries=null;throw e;});return pdfLibraries;}
  async function logo(){if(!logoPromise)logoPromise=(async()=>{const r=await fetch('Logo_PLN_ES.png',{cache:'force-cache'});if(!r.ok)throw new Error('Logo laporan gagal dimuat.');const blob=await r.blob();return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Logo tidak dapat dibaca.'));reader.readAsDataURL(blob);});})().catch(e=>{logoPromise=null;throw e;});return logoPromise;}
  form.onsubmit=async e=>{
-  e.preventDefault();if(busy)return;
+  e.preventDefault();if(busy)return;if(!window.scUser){window.scLoginTarget='reports';window.scOpenLogin();return;}
   const isDevice=type.value==='devices',days=(Date.parse(to.value+'T00:00:00Z')-Date.parse(from.value+'T00:00:00Z'))/86400000+1;
   if(!isDevice&&(!Number.isFinite(days)||days<1||days>31||to.value>today)){status.textContent='Pilih rentang 1–31 hari, tidak di masa depan.';status.className='sc-message error';return;}
   busy=true;button.disabled=true;status.className='sc-message';status.textContent='Menyiapkan ringkasan dan PDF…';
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),25000);
   const selection={type:type.value,cow:cow.disabled?'all':cow.value,from:isDevice?today:from.value,to:isDevice?today:to.value};
   try{
-   const [response,,logoData]=await Promise.all([fetch('report-api.php?'+new URLSearchParams(selection),{cache:'no-store',credentials:'omit',signal:controller.signal}),libraries(),logo()]);
+   const [response,,logoData]=await Promise.all([fetch('report-api.php?'+new URLSearchParams(selection),{cache:'no-store',credentials:'same-origin',signal:controller.signal}),libraries(),logo()]);
    let report;try{report=await response.json();}catch(err){throw new Error('Respons laporan tidak valid. Periksa pemasangan API laporan.');}
    if(!response.ok||report.status!=='success')throw new Error(report.message||'Laporan gagal disiapkan.');
    const pdf=buildReportPdf(report,logoData),filename='SmartCattle-'+report.type+'-'+(report.type==='devices'?today:report.from+'_'+report.to)+'-'+report.cow+'.pdf';

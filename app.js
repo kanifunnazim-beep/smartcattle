@@ -1253,7 +1253,8 @@ function renderDevices() {
 ===================================================== */
 
 function showPage(name) {
-  if (name === 'settings' && !window.scUser) { if(window.scOpenLogin)window.scOpenLogin();else showToast('Login sedang dimuat.'); return; }
+  if (['settings','reports'].includes(name) && !window.scUser) { window.scLoginTarget=name; if(window.scOpenLogin)window.scOpenLogin();else showToast('Login sedang dimuat.'); return; }
+  if(name==='settings' && window.scUser?.role!=='petugas'){showToast('Akun PLN hanya memiliki akses laporan.');return;}
 
   const target =
     document.querySelector(

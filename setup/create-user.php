@@ -19,10 +19,12 @@ try {
     $db = new mysqli($cfg['host'],$cfg['username'],$cfg['password'],$cfg['database']);
     $user = strtolower(trim(prompt('Username petugas baru: ')));
     if (!preg_match('/^[a-z0-9_.-]{3,64}$/D',$user)) throw new RuntimeException('Username 3–64 karakter: a-z, 0-9, _, titik, atau minus.');
+    $role = strtolower(trim(prompt('Peran (petugas/pln): ')));
+    if(!in_array($role,['petugas','pln'],true))throw new RuntimeException('Peran tidak valid.');
     $password = prompt('Password (12–72 byte): ',true);
     if (strlen($password)<12 || strlen($password)>72 || str_contains($password,"\0")) throw new RuntimeException('Panjang password harus 12–72 byte.');
     if ($password !== prompt('Ulangi password: ',true)) throw new RuntimeException('Password tidak sama.');
     $hash = password_hash($password,PASSWORD_DEFAULT); unset($password);
-    $q=$db->prepare('INSERT INTO sc_users(username,password_hash) VALUES (?,?)');$q->bind_param('ss',$user,$hash);$q->execute();
+    $q=$db->prepare('INSERT INTO sc_users(username,password_hash,role) VALUES (?,?,?)');$q->bind_param('sss',$user,$hash,$role);$q->execute();
     echo "Akun dibuat. Login melalui menu Pengaturan pada HTTPS dashboard.\n";
 } catch (Throwable $e) { fwrite(STDERR,"Gagal membuat akun. Periksa konfigurasi, tabel, format input, atau username yang sudah ada.\n"); exit(1); }

@@ -6,6 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 date_default_timezone_set('Asia/Jakarta');
+require __DIR__.'/backend/report-auth.php';
 const REPORT_CACHE='/var/cache/smartcattle-reports';
 function reportReply(array $payload,int $code=200): void {http_response_code($code);echo json_encode($payload,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);exit;}
 function reportFail(string $text,int $code=400): void {reportReply(['status'=>'error','message'=>$text],$code);}
@@ -41,7 +42,7 @@ try {
  $params=['type'=>$type,'cow'=>$cow,'from'=>$from->format('Y-m-d'),'to'=>$to->format('Y-m-d')];
  $ttl=$type==='devices'?30:120;
  // Normalize the key: device snapshot is independent of selected dates.
- $key=hash('sha256',json_encode($type==='devices'?['v'=>1,'type'=>$type]:['v'=>1]+$params));
+ $key=hash('sha256',json_encode($type==='devices'?['v'=>2,'type'=>$type]:['v'=>2]+$params));
  if(!is_dir(REPORT_CACHE)||!is_writable(REPORT_CACHE))reportFail('Laporan belum disiapkan. Pengelola perlu menyiapkan folder cache.',503);
  $path=REPORT_CACHE.'/'.$key.'.json';
  $hit=cachedReport($path,$ttl);if($hit){$hit['cache_hit']=true;reportReply($hit);}
@@ -99,8 +100,8 @@ try {
   $notes=['Gas yang dilaporkan adalah amonia (NH3), bukan metana (CH4).','Nilai kosong tidak dianggap nol. Kelembapan di luar 0–100% dan amonia negatif dikeluarkan dari statistik.','Satu baris mewakili pembacaan tersimpan pada satu hari WIB, bukan jaminan perekaman sepanjang hari.'];
  }elseif($type==='feed'){
   $where=$cow==='all'?'':' AND cow_id=?';$args=[$from->format('Y-m-d'),$to->format('Y-m-d')];if($cow!=='all')$args[]=$cow;
-  $rows=reportQuery($db,'SELECT /*+ MAX_EXECUTION_TIME(2000) */ cow_id,recorded_date day,feed_kg,weight_kg FROM sc_records WHERE recorded_date BETWEEN ? AND ?'.$where.' ORDER BY recorded_date,cow_id',$args);
-  $notes=['Pakan adalah total pemberian per sapi per tanggal, dalam kg. Bobot adalah hasil penimbangan pada tanggal tersebut.','Nilai kosong berarti belum dicatat; pakan 0 berarti tercatat tidak ada pemberian.','Perubahan bobot memakai penimbangan pertama dan terakhir dalam periode untuk sapi yang sama; minimal dua penimbangan. Identitas akun petugas tidak disertakan.'];
+  $rows=reportQuery($db,'SELECT /*+ MAX_EXECUTION_TIME(2000) */ id,cow_id,recorded_date day,feed_kg,weight_kg,feed_type,source FROM sc_entries WHERE recorded_date BETWEEN ? AND ?'.$where.' ORDER BY recorded_date,id',$args);
+  $notes=['Setiap baris adalah satu catatan pemberian per sapi; total periode menjumlahkan seluruh pemberian. Jenis kosong berarti catatan lama belum ditentukan. Bobot adalah hasil penimbangan pada tanggal tersebut.','Nilai kosong berarti belum dicatat; pakan 0 berarti tercatat tidak ada pemberian.','Perubahan bobot memakai penimbangan pertama dan terakhir dalam periode untuk sapi yang sama; minimal dua penimbangan. Identitas akun petugas tidak disertakan.'];
  }else{
   $now=time();
   foreach($cows as $id){$last=reportQuery($db,'SELECT /*+ MAX_EXECUTION_TIME(2000) */ recorded_at FROM kesehatan_sapi WHERE device_id=? AND recorded_at IS NOT NULL ORDER BY recorded_at DESC LIMIT 1',[$id]);$t=$last[0]['recorded_at']??null;
