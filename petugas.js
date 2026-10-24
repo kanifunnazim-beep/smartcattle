@@ -96,8 +96,8 @@
  function summarize(rows,latest,cow){
   rows=rows.filter(r=>cow==='all'||r.cow_id===cow);latest=latest.filter(r=>cow==='all'||r.cow_id===cow);
   const weeks=new Map(),perCow=new Map();
-  rows.forEach(r=>{const wk=weekOf(r.recorded_date);if(!weeks.has(wk))weeks.set(wk,{date:wk,feed:null,weights:new Map()});const w=weeks.get(wk);
-   if(r.feed_kg!==null)w.feed=(w.feed??0)+Number(r.feed_kg);
+  rows.forEach(r=>{const wk=weekOf(r.recorded_date);if(!weeks.has(wk))weeks.set(wk,{date:wk,feed:null,feedTypes:{kering:0,combor:0,basah:0,unknown:0},weights:new Map()});const w=weeks.get(wk);
+   if(r.feed_kg!==null){const amount=Number(r.feed_kg);w.feed=(w.feed??0)+amount;const type=['kering','combor','basah'].includes(r.feed_type)?r.feed_type:'unknown';w.feedTypes[type]+=amount;}
    if(r.weight_kg!==null){const old=w.weights.get(r.cow_id);if(!old||old.date<=r.recorded_date)w.weights.set(r.cow_id,{date:r.recorded_date,value:Number(r.weight_kg)});
     if(!perCow.has(r.cow_id))perCow.set(r.cow_id,[]);perCow.get(r.cow_id).push(r);}
   });
@@ -123,20 +123,23 @@
   if(!result.rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=7;td.textContent='Belum ada catatan dalam periode ini.';tr.append(td);table.append(tr);}
  }
  function drawFeed(groups){
-  const svg=$('feedChart');svg.replaceChildren();const add=(name,attrs,text)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;svg.append(e);return e;};
+  const svg=$('feedChart');svg.replaceChildren();$('feedChartDetail').textContent='Arahkan kursor atau ketuk batang pakan untuk melihat rincian minggu tersebut.';const add=(name,attrs,text)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;svg.append(e);return e;};
   if(!groups.length){add('text',{x:380,y:150,'text-anchor':'middle',fill:'#8492a6','font-size':15},'Belum ada data pakan dan bobot');return;}
   // Fill empty weeks with null, never zero or an interpolated body weight.
   const byWeek=new Map(groups.map(x=>[x.date,x])),weeks=[];
   for(let day=groups[0].date;day<=groups.at(-1).date;day=shiftDay(day,7))weeks.push(byWeek.get(day)||{date:day,feed:null,weight:null});
   const feedMax=Math.max(10,...weeks.map(x=>x.feed??0))*1.15,weights=weeks.filter(x=>x.weight!==null).map(x=>x.weight),lo=weights.length?Math.max(0,Math.floor(Math.min(...weights)/10)*10-10):0,hi=weights.length?Math.ceil(Math.max(...weights)/10)*10+10:100;
   const left=58,right=696,top=30,bottom=244,step=(right-left)/weeks.length;
-  add('text',{x:left,y:16,fill:'#5688af','font-size':11},'Pakan kg/minggu');add('text',{x:right,y:16,fill:'#26916a','font-size':11,'text-anchor':'end'},'Bobot kg');
+  add('text',{x:left,y:16,fill:'#5688af','font-size':11},'Pakan kg/minggu');add('text',{x:right,y:16,fill:'#7c3aed','font-size':11,'text-anchor':'end'},'Bobot kg');
   for(let i=0;i<=4;i++){const y=bottom-(bottom-top)*i/4;add('line',{x1:left,x2:right,y1:y,y2:y,stroke:'#e5edf3'});add('text',{x:left-8,y:y+4,'text-anchor':'end','font-size':11,fill:'#8492a6'},format(Math.round(feedMax*i/4)));add('text',{x:right+8,y:y+4,'font-size':11,fill:'#8492a6'},format(Math.round(lo+(hi-lo)*i/4)));}
-  let points=[];const flush=()=>{if(points.length>1)add('polyline',{points:points.join(' '),fill:'none',stroke:'#2db783','stroke-width':2.5});points=[];};
-  weeks.forEach((w,i)=>{const x=left+step*(i+.5);if(w.feed!==null){const h=(bottom-top)*w.feed/feedMax;const r=add('rect',{x:x-Math.min(30,step*.25),y:bottom-h,width:Math.min(60,step*.5),height:h,rx:4,fill:'#9cd4ff'});const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=w.date+' · Pakan '+format(w.feed)+' kg';r.append(t);}
+  let points=[];const flush=()=>{if(points.length>1)add('polyline',{points:points.join(' '),fill:'none',stroke:'#7c3aed','stroke-width':2.5});points=[];};
+  weeks.forEach((w,i)=>{const x=left+step*(i+.5);if(w.feed!==null){let stacked=0;const types=[['kering','Kering','#60a5fa'],['combor','Combor','#22c55e'],['basah','Basah','#facc15'],['unknown','Belum dikategorikan','#94a3b8']];
+    const label=w.date+' – '+shiftDay(w.date,6)+' · '+types.map(([key,name])=>name+': '+format(w.feedTypes[key])+' kg').join(' · ')+' · Total: '+format(w.feed)+' kg';
+    types.forEach(([key,name,color])=>{const amount=w.feedTypes[key];if(amount<=0)return;const h=(bottom-top)*amount/feedMax;stacked+=h;const r=add('rect',{x:x-Math.min(30,step*.25),y:bottom-stacked,width:Math.min(60,step*.5),height:h,fill:color,tabindex:0,role:'img','aria-label':label});const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=label;r.append(t);
+     const detail=()=>{$('feedChartDetail').textContent=label+(w.weight!==null?' · Bobot: '+format(w.weight)+' kg':' · Belum ada penimbangan minggu ini.');};r.onmouseenter=detail;r.onfocus=detail;r.onclick=detail;});}
    if(w.weight===null)flush();else points.push(x+','+(bottom-(w.weight-lo)/(hi-lo)*(bottom-top)));
    if(i%Math.max(1,Math.ceil(weeks.length/6))===0||i===weeks.length-1)add('text',{x,y:270,'text-anchor':'middle','font-size':11,fill:'#8492a6'},w.date.slice(5));
-  });flush();weeks.forEach((w,i)=>{if(w.weight!==null){const dot=add('circle',{cx:left+step*(i+.5),cy:bottom-(w.weight-lo)/(hi-lo)*(bottom-top),r:4,fill:'#2db783'});const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=w.date+' · Bobot '+format(w.weight)+' kg';dot.append(t);}});
+  });flush();weeks.forEach((w,i)=>{if(w.weight!==null){const dot=add('circle',{cx:left+step*(i+.5),cy:bottom-(w.weight-lo)/(hi-lo)*(bottom-top),r:4,fill:'#7c3aed'});const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=w.date+' · Bobot '+format(w.weight)+' kg';dot.append(t);}});
  }
  syncSession().catch(e=>message('loginMessage',e.message,true));loadSettings();loadFeed();
  setInterval(()=>loadSettings(false),30000);
