@@ -65,14 +65,15 @@
 <span class="nav-label">
           MANAGEMENT
         </span>
-<button class="nav" data-page="reports">
+<button class="nav" data-page="reports" title="Login petugas atau PLN untuk membuka laporan" aria-label="Laporan, perlu login">
 <span class="nav-symbol"><svg aria-hidden="true" class="ui-icon icon-report" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M14 2H5v20h14V7Zm0 0v5h5M8 12h8m-8 4h6"></path></svg></span>
 <span>Laporan</span>
+<span id="reportsLock" aria-hidden="true"><svg aria-hidden="true" class="ui-icon icon-lock" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><rect height="11" rx="2" width="14" x="5" y="10"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"></path></svg></span>
 </button>
-<button class="nav" data-page="settings" title="Login petugas untuk mengubah pengaturan">
+<button class="nav" data-page="settings" aria-label="Pengaturan, khusus petugas" title="Login petugas untuk mengubah pengaturan">
 <span class="nav-symbol"><svg aria-hidden="true" class="ui-icon icon-settings" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 7h16M4 17h16"></path><circle cx="9" cy="7" r="3"></circle><circle cx="15" cy="17" r="3"></circle></svg></span>
 <span>Pengaturan</span>
-<span aria-hidden="true"><svg aria-hidden="true" class="ui-icon icon-lock" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><rect height="11" rx="2" width="14" x="5" y="10"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"></path></svg></span></button>
+<span id="settingsLock" aria-hidden="true"><svg aria-hidden="true" class="ui-icon icon-lock" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><rect height="11" rx="2" width="14" x="5" y="10"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"></path></svg></span></button>
 </div>
 </nav>
 <!-- SIDEBAR BOTTOM -->
@@ -783,5 +784,5 @@
      JAVASCRIPT
 ====================================================== -->
 <script src="cow-labels.js?v=20261025-tags-v4"></script><script src="app.js?v=20261025-tags-v4"></script>
-<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas / PLN</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Petugas dapat mengelola catatan dan laporan. Akun PLN dapat mengunduh laporan.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261025-tags-v4"></script><script src="reports.js?v=20261025-tags-v4"></script><script src="scales.js?v=20261025-tags-v4"></script></body>
+<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas / PLN</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Petugas dapat mengelola catatan dan laporan. Akun PLN dapat mengunduh laporan.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261025-lock-v5"></script><script src="reports.js?v=20261025-tags-v4"></script><script src="scales.js?v=20261025-tags-v4"></script></body>
 </html>

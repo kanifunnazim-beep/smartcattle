@@ -35,6 +35,13 @@
   $('accountTitle').textContent=data.user?(data.user.role==='pln'?'PLN · ':'Petugas · ')+data.user.username:'Akses pengunjung';
   $('accountNote').textContent=data.user?(isStaff()?'Akses pengaturan dan laporan aktif.':'Akses seluruh laporan aktif.'):'Monitoring terbuka untuk pengunjung.';
   $('accountLogin').hidden=!!data.user;$('accountLogout').hidden=!data.user;$('accountSettings').hidden=!isStaff();$('feedInput').hidden=!isStaff();
+  const canReport=['petugas','pln'].includes(state.user?.role);
+  $('reportsLock').hidden=canReport;$('settingsLock').hidden=isStaff();
+  const reportsNav=document.querySelector('[data-page="reports"]'),settingsNav=document.querySelector('[data-page="settings"]');
+  reportsNav.title=canReport?'Buka laporan':'Login petugas atau PLN untuk membuka laporan';
+  reportsNav.setAttribute('aria-label',canReport?'Laporan':'Laporan, perlu login');
+  settingsNav.title=isStaff()?'Buka pengaturan':'Login petugas untuk mengubah pengaturan';
+  settingsNav.setAttribute('aria-label',isStaff()?'Pengaturan':'Pengaturan, khusus petugas');
   $('thresholdFields').disabled=!isStaff()||!state.settingsReady;$('recordFields').disabled=!isStaff();
   const sub=document.querySelector('#profileButton small');if(sub)sub.textContent=data.user?(isStaff()?'Petugas':'PLN'):'Mode pengunjung';
   if((!isStaff()&&$('page-settings').classList.contains('active'))||(!data.user&&$('page-reports').classList.contains('active')))showPage('overview');
