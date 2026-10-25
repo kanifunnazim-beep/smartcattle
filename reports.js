@@ -2,7 +2,7 @@
 (() => {
  'use strict';
  const titles={health:'Laporan Harian Ternak',environment:'Laporan Lingkungan',feed:'Laporan Pakan & Bobot',devices:'Laporan Perangkat'};
- const clean=v=>String(v??'').replace(/[\u2010-\u2015]/g,'-').replace(/\u2083/g,'3').replace(/\u2084/g,'4');
+ const clean=v=>window.scCowDisplayText(v).replace(/[\u2010-\u2015]/g,'-').replace(/\u2083/g,'3').replace(/\u2084/g,'4');
  const num=v=>v===null||v===undefined||v===''||!Number.isFinite(Number(v))?null:Number(v);
  const fmt=(v,d=1)=>num(v)===null?'-':Number(v).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:d});
  const count=v=>fmt(v,0);
@@ -21,7 +21,7 @@
   function heading(text){ensure(32);doc.setTextColor(...blue);doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text(text,14,cursor);cursor+=5;}
   function table(head,body,columnStyles={}){
    ensure(22);
-   doc.autoTable({startY:cursor,head:[head],body,margin:{top:56,bottom:20,left:14,right:14},tableWidth:width,theme:'striped',
+   doc.autoTable({startY:cursor,head:[head],body:body.map(row=>row.map(value=>typeof value==='string'?window.scCowDisplayText(value):value)),margin:{top:56,bottom:20,left:14,right:14},tableWidth:width,theme:'striped',
     styles:{font:'helvetica',fontSize:8.5,cellPadding:1.2,textColor:[34,49,69],overflow:'linebreak',lineWidth:0},
     headStyles:{fillColor:blue,textColor:255,fontStyle:'bold',fontSize:8.5},alternateRowStyles:{fillColor:[244,248,252]},
     columnStyles,showHead:'everyPage',rowPageBreak:'avoid'});
@@ -65,7 +65,7 @@
     else {const h=Math.min(20,52*prop.height/prop.width),w=h*prop.width/prop.height;doc.addImage(logoData,'PNG',283-w,7,w,h,'pln-logo','FAST');}
    }
    doc.setDrawColor(220,229,238);doc.line(14,32,283,32);doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...muted);
-   const scope=report.type==='devices'?'Snapshot status perangkat':day(report.from)+' - '+day(report.to)+(report.type==='health'||report.type==='feed'?'  |  '+(report.cow==='all'?'Semua sapi':report.cow):'');
+   const scope=report.type==='devices'?'Snapshot status perangkat':day(report.from)+' - '+day(report.to)+(report.type==='health'||report.type==='feed'?'  |  '+(report.cow==='all'?'Semua sapi':window.scCowLabel(report.cow)):'');
    doc.text('Cakupan: '+scope,14,39);doc.text('Data disiapkan: '+when(report.generated_at)+'  |  Cache maksimum '+report.cache_seconds+' detik',14,45);
    doc.line(14,195,283,195);doc.setFontSize(8);doc.text('SmartCattle | Waktu laporan: '+when(new Date().toISOString()),14,201);doc.text('Halaman '+p+' / '+total,283,201,{align:'right'});
   }
@@ -94,7 +94,7 @@
    const [response,,logoData]=await Promise.all([fetch('report-api.php?'+new URLSearchParams(selection),{cache:'no-store',credentials:'same-origin',signal:controller.signal}),libraries(),logo()]);
    let report;try{report=await response.json();}catch(err){throw new Error('Respons laporan tidak valid. Periksa pemasangan API laporan.');}
    if(!response.ok||report.status!=='success')throw new Error(report.message||'Laporan gagal disiapkan.');
-   const pdf=buildReportPdf(report,logoData),filename='SmartCattle-'+report.type+'-'+(report.type==='devices'?today:report.from+'_'+report.to)+'-'+report.cow+'.pdf';
+   const pdf=buildReportPdf(report,logoData),filename='SmartCattle-'+report.type+'-'+(report.type==='devices'?today:report.from+'_'+report.to)+'-'+window.scCowLabel(report.cow)+'.pdf';
    pdf.save(filename);status.className='sc-message success';status.textContent='PDF siap diunduh. '+report.data.length+' baris ringkasan; data disiapkan '+when(report.generated_at)+'.';
   }catch(err){status.className='sc-message error';status.textContent=err.name==='AbortError'?'Waktu tunggu habis. Coba lagi atau pilih periode lebih pendek.':err.message;}
   finally{clearTimeout(timer);busy=false;button.disabled=false;}

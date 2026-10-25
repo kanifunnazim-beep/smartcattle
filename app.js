@@ -33,7 +33,7 @@ const alertData = [];
 ===================================================== */
 
 const deviceData = cattle.map(cow => [
-  `Wearable ${cow.id}`, 'Sensor Kesehatan', batteryTableText(cow),
+  `Wearable ${window.scCowLabel(cow.id)}`, 'Sensor Kesehatan', batteryTableText(cow),
   cow.deviceStatus === 'Offline' ? '18 menit' : '3 detik', cow.deviceStatus
 ]);
 deviceData.push(['Sensor Kandang A', 'Sensor Lingkungan', 'AC', '2 detik', 'Online']);
@@ -755,9 +755,7 @@ function renderCattle() {
     cattle.filter(
       cow =>
 
-        cow.id
-          .toLowerCase()
-          .includes(search)
+        (window.scCowLabel(cow.id).toLowerCase().includes(search) || cow.id.toLowerCase().includes(search))
 
         &&
 
@@ -790,7 +788,7 @@ function renderCattle() {
           <tr data-id="${cow.id}">
 
             <td>
-              <b>${cow.id}</b>
+              <b>${window.scCowLabel(cow.id)}</b>
             </td>
 
             <td
@@ -902,7 +900,7 @@ function selectCow(id) {
 
   setText(
     '#detailTitle',
-    `Sapi ${cow.id}`
+    `Sapi ${window.scCowLabel(cow.id)}`
   );
 
 
@@ -1026,7 +1024,7 @@ function selectCow(id) {
 
   setText(
     '#dDevice',
-    cow.device
+    window.scCowLabel(cow.device)
   );
 
 
@@ -1683,7 +1681,7 @@ selectCow=function(id){
  setText('#dRum', rumination.value);
  setText('#dRumPct', ruminationNote);
  setText('#overviewRumination', rumination.value);
- setText('#overviewRuminationNote', cow.id + ' · ' + ruminationNote);
+ setText('#overviewRuminationNote', window.scCowLabel(cow.id) + ' · ' + ruminationNote);
  setText('#overviewRuminationStatus', state);
  if(!cow.hasSensorData){
   ['#dHr','#dTemp','#currentHrBadge'].forEach(s=>setText(s,'—'));
@@ -1723,7 +1721,7 @@ function refreshDataStatus(){
  setText('#kpiTotal',cattle.length);setText('#kpiNormal',fresh.filter(c=>c.status==='Normal').length);setText('#kpiWarning',fresh.filter(c=>c.status==='Warning').length);setText('#kpiCritical',fresh.filter(c=>c.status==='Critical').length);setText('#kpiDevices',cattle.length+1);setText('#kpiDevicesNote',`${online+(envStatus==='Online'?1:0)} online · ${11-online-(envStatus==='Online'?1:0)} offline`);
  setText('#kpiNormal + small',received.length?'Dari data terkini':'Belum ada data kesehatan');
  const table=document.querySelector('#deviceTable');table.innerHTML='';
- cattle.forEach(c=>{const tr=document.createElement('tr');['Wearable '+c.id,'Sensor Kesehatan',batteryTableText(c),c.recordedAt||'Belum ada data',connectionState(c.recordedAt,'health')].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr)});
+ cattle.forEach(c=>{const tr=document.createElement('tr');['Wearable '+window.scCowLabel(c.id),'Sensor Kesehatan',batteryTableText(c),c.recordedAt||'Belum ada data',connectionState(c.recordedAt,'health')].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr)});
  const tr=document.createElement('tr');['Sensor Kandang A','Sensor Lingkungan','—',envTime||'Belum ada data',envStatus].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});table.append(tr);
  const counts=document.querySelectorAll('.device-kpi b');[11,online+(envStatus==='Online'?1:0),11-online-(envStatus==='Online'?1:0),cattle.filter(c=>batteryView(c).low).length].forEach((v,i)=>counts[i].textContent=v);
  selectCow(selectedCowId);
@@ -1740,7 +1738,7 @@ function refreshClientViews() {
  cattle.forEach(c=>{
   if(!c.hasSensorData || connectionState(c.recordedAt,'health')!=='Online')return;
   if(c.status!=='Normal') alertData.push({tone:c.status==='Critical'?'red':c.status==='Warning'?'orange':'blue',
-   title:c.id+' · '+c.status,desc:c.status==='Offline'?'Data melewati 6 menit atau API tidak terhubung.':
+   title:window.scCowLabel(c.id)+' · '+c.status,desc:c.status==='Offline'?'Data melewati 6 menit atau API tidak terhubung.':
    'HR: '+(c.hr??'—')+' bpm ('+readingStatus(c.hr,'hr')+'); suhu sensor: '+(c.temp??'—')+' °C ('+readingStatus(c.temp,'temp')+'). Periksa alat dan kondisi sapi.',time:stamp(c.recordedAt),cowId:c.id});
  });
  // Environmental thresholds are deliberately not invented; only availability is assessed.
@@ -1771,7 +1769,7 @@ function drawHealthTrend(id,selector,width,height,note) {
  const ns='http://www.w3.org/2000/svg';
  const add=(tag,attrs,text)=>{const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;svg.append(e);return e;};
  const valid=rows.filter(r=>r.v!==null),vals=valid.map(r=>r.v);
- if(!vals.length){add('text',{x:300,y:125,'text-anchor':'middle',fill:'#8492a6','font-size':14},'Belum ada data HR terbaca');setText(note,'Riwayat 24 jam terakhir · '+id);return;}
+ if(!vals.length){add('text',{x:300,y:125,'text-anchor':'middle',fill:'#8492a6','font-size':14},'Belum ada data HR terbaca');setText(note,'Riwayat 24 jam terakhir · '+window.scCowLabel(id));return;}
  const min=Math.min(40,...vals),max=Math.max(100,...vals),step=Math.max(10,Math.ceil((max-min)/40)*10);
  const low=Math.max(0,Math.floor(min/step)*step-step),high=Math.ceil(max/step)*step+step;
  const left=52,right=582,top=28,bottom=212;
@@ -1784,7 +1782,7 @@ function drawHealthTrend(id,selector,width,height,note) {
  let previous=null;
  rows.forEach(r=>{if(r.v===null){flush();previous=null;return;}if(previous!==null&&r.t-previous>DATA_FRESHNESS_MS)flush();segment.push(x(r.t)+','+y(r.v));previous=r.t;});flush();
  valid.forEach(r=>{const dot=add('circle',{cx:x(r.t),cy:y(r.v),r:3.5,fill:'#ee6474',stroke:'#fff','stroke-width':1.5});const title=document.createElementNS(ns,'title');title.textContent=stamp(new Date(r.t).toISOString())+' · '+r.v+' bpm';dot.append(title);});
- setText(note,id+' · '+vals.length+' pembacaan · '+Math.min(...vals)+'–'+Math.max(...vals)+' bpm · Waktu WIB');
+ setText(note,window.scCowLabel(id)+' · '+vals.length+' pembacaan · '+Math.min(...vals)+'–'+Math.max(...vals)+' bpm · Waktu WIB');
 }
 const previousSelectCow=selectCow;
 selectCow=function(id){previousSelectCow(id);const c=cattle.find(c=>c.id===id);if(!c)return;

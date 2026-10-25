@@ -14,10 +14,10 @@
     const active=r.data.find(s=>s.device_id===d.id&&s.effective_state==='waiting');
     const latest=r.data.find(s=>s.device_id===d.id);
     d.active=active?.id||null;controls(d,!!active||d.starting);
-    if(active){$(d.message).textContent='Menunggu hasil stabil · '+(active.cow_id||({kering:'Pakan Kering',combor:'Combor',basah:'Pakan Basah'})[active.feed_type]);}
+    if(active){$(d.message).textContent='Menunggu hasil stabil · '+(window.scCowLabel(active.cow_id)||({kering:'Pakan Kering',combor:'Combor',basah:'Pakan Basah'})[active.feed_type]);}
     else if(latest){
      if(latest.effective_state==='completed'){
-      $(d.message).textContent='Berhasil disimpan: '+Number(latest.result_kg).toLocaleString('id-ID')+' kg'+(d.field==='feed_type'?' · '+(Number(latest.result_kg)/10).toLocaleString('id-ID',{maximumFractionDigits:3})+' kg per sapi.': ' · '+latest.cow_id+'.');
+      $(d.message).textContent='Berhasil disimpan: '+Number(latest.result_kg).toLocaleString('id-ID')+' kg'+(d.field==='feed_type'?' · '+(Number(latest.result_kg)/10).toLocaleString('id-ID',{maximumFractionDigits:3})+' kg per sapi.': ' · '+window.scCowLabel(latest.cow_id)+'.');
       if(!known.has(latest.id)){known.add(latest.id);window.dispatchEvent(new Event('sc-records-updated'));}
      }else $(d.message).textContent=latest.effective_state==='expired'?'Sesi kedaluwarsa. Pilih kembali untuk menimbang.':'Sesi dibatalkan. Silakan pilih kembali.';
     }else $(d.message).textContent='Belum ada sesi penimbangan.';
