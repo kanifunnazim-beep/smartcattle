@@ -85,6 +85,7 @@ try {
         if(!$row)fail('Tabel pengaturan belum disiapkan.',503);
         reply(['status'=>'success','data'=>json_decode($row['settings_json'],true),'revision'=>(int)$row['revision']]);
     }
+    if($action==='running_hours') require __DIR__.'/backend/running-hours.php';
     require __DIR__.'/backend/entries.php';
     // Every mutation below must authenticate, even when invoked outside the UI.
     if(!$user)fail('Silakan login petugas.',401);
