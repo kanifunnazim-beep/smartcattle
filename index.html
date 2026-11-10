@@ -6,6 +6,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>SmartCattle Monitoring</title>
 <link href="style.css?v=20261026-rh-v6" rel="stylesheet"/>
+<link href="environment-history.css?v=20261110-env-v8" rel="stylesheet"/>
 </head>
 <body>
 <div class="app">
@@ -633,20 +634,19 @@
             </small>
 </article>
 </div>
-<!-- ===================================================
-             HISTORY
-             MASIH PLACEHOLDER UNTUK SEKARANG
-        ==================================================== -->
-<article class="panel environment-history">
-<div class="panel-title">
-<div>
-<span class="title-icon blue-soft"><svg aria-hidden="true" class="ui-icon icon-chart" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M3 3v18h18M6 15l4-5 4 3 6-8"></path></svg></span>
-
-              Tren Lingkungan 24 Jam
-
-            </div>
-</div>
-<div class="environment-empty"><b>Belum ada riwayat lingkungan</b><p>Riwayat ditampilkan setelah data sensor tersedia.</p></div>
+<!-- Environmental history: read-only, independently loaded. -->
+<article class="panel eh-panel" id="environmentHistory">
+<h2>Tren Lingkungan</h2>
+<form class="eh-filter" id="ehFilter">
+<button class="secondary-btn" id="eh24h" type="button">24 jam terakhir</button>
+<label>Dari tanggal (WIB)<input id="ehFrom" type="date" min="2020-01-01" required></label>
+<label>Sampai tanggal (WIB)<input id="ehTo" type="date" min="2020-01-01" required></label>
+<button class="primary" type="submit">Tampilkan tanggal</button>
+<button class="secondary-btn" id="ehLatest" type="button" disabled>Tanggal data terakhir</button>
+</form>
+<p class="eh-note">Pilih rentang maksimal 31 hari. Grafik menampilkan rata-rata per interval; jeda tanpa data tidak dianggap nol. Sumbu mendatar menunjukkan waktu WIB, sumbu tegak menunjukkan nilai sensor.</p>
+<p class="eh-message" id="ehMessage" role="status" aria-live="polite">Riwayat dimuat saat halaman ini dibuka.</p>
+<div id="ehCharts" hidden></div>
 </article>
 </div><div class="page" id="page-feed"><div class="heading"><div><h1>Pakan &amp; Kenaikan Bobot</h1><p>Pemberian pakan dan hasil penimbangan yang dicatat petugas.</p></div><button class="primary" id="feedInput" type="button">Input catatan</button></div><article class="panel"><form class="sc-filters" id="feedFilter"><label>Sapi<select id="feedCow"><option value="all">Semua sapi</option><option value="C001">1437</option><option value="C002">2915</option><option value="C003">2762</option><option value="C004">2778</option><option value="C005">2764</option><option value="C006">2359</option><option value="C007">2885</option><option value="C008">2894</option><option value="C009">2803</option><option value="C010">2881</option></select></label><label>Dari<input id="feedFrom" required="" type="date"/></label><label>Sampai<input id="feedTo" required="" type="date"/></label><button class="secondary-btn" type="submit">Tampilkan</button></form><p class="sc-message" id="feedMessage" role="status"></p><div class="feed-metrics"><div><small>Rata-rata pakan / minggu tercatat</small><b id="feedAverage">— kg</b></div><div><small>Bobot terkini</small><b id="feedWeight">— kg</b></div><div><small>Perubahan bobot dalam periode</small><b id="feedGain">— kg</b></div></div><p class="sc-muted" id="feedMetricNote"></p><div class="sc-feed-legend" aria-label="Legenda grafik"><span><i class="sc-feed-key sc-feed-dry"></i>Kering</span><span><i class="sc-feed-key sc-feed-combor"></i>Combor</span><span><i class="sc-feed-key sc-feed-wet"></i>Basah</span><span><i class="sc-feed-key sc-feed-unknown"></i>Belum dikategorikan</span><span><i class="sc-feed-key sc-feed-weight"></i>Bobot</span></div><svg aria-label="Pakan dan bobot per minggu" class="sc-chart" id="feedChart" role="img" viewbox="0 0 760 300"></svg><p class="sc-muted">Sumbu kiri: pakan (kg/minggu). Batang bertumpuk: biru = kering, hijau = combor, kuning = basah, abu-abu = belum dikategorikan; tinggi seluruh batang adalah total pakan. Sumbu kanan: garis ungu menunjukkan bobot terakhir tiap sapi dalam minggu tersebut, dirata-ratakan jika memilih semua sapi. Minggu dihitung Senin–Minggu; minggu parsial dan catatan yang tidak lengkap tetap ditampilkan sebagai data tercatat.</p><p class="sc-muted sc-feed-detail" id="feedChartDetail" role="status"></p><div class="sc-table-wrap"><table class="sc-record-table"><thead><tr><th>Tanggal</th><th>Sapi</th><th>Jenis pakan</th><th>Sumber</th><th>Pakan (kg)</th><th>Bobot (kg)</th><th>Aksi petugas</th></tr></thead><tbody id="feedRows"></tbody></table></div></article></div>
 <!-- =====================================================
@@ -787,5 +787,5 @@
      JAVASCRIPT
 ====================================================== -->
 <script src="cow-labels.js?v=20261025-tags-v4"></script><script src="app.js?v=20261025-tags-v4"></script>
-<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas / PLN</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Petugas dapat mengelola catatan dan laporan. Akun PLN dapat mengunduh laporan.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261025-lock-v5"></script><script src="reports.js?v=20261025-tags-v4"></script><script src="scales.js?v=20261025-tags-v4"></script><script src="running-hours.js?v=20261026-rh-v6"></script></body>
+<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas / PLN</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Petugas dapat mengelola catatan dan laporan. Akun PLN dapat mengunduh laporan.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261025-lock-v5"></script><script src="reports.js?v=20261025-tags-v4"></script><script src="scales.js?v=20261025-tags-v4"></script><script src="running-hours.js?v=20261026-rh-v6"></script><script src="environment-history.js?v=20261110-env-v8"></script></body>
 </html>
