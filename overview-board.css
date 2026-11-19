@@ -19,3 +19,7 @@
 #herdBoard dd{font-size:clamp(22px,2.3vw,40px);font-weight:750;margin:0}
 @media(min-width:761px) and (max-height:740px){#herdBoard header small{display:none}#hbRows button{min-height:clamp(25px,5vh,36px)}}
 @media(max-width:760px){#herdBoard .hb-grid{grid-template-columns:1fr}#hbRows button{min-height:44px}}
+#hbRows button{display:grid;grid-template-columns:minmax(3em,.7fr) minmax(0,1.45fr) minmax(max-content,1fr);gap:6px;text-align:left}
+#hbRows small{font-size:clamp(12px,1.05vw,20px);color:#445b70;text-align:center}
+#hbRows span{justify-self:end;text-align:center}
+@media(max-width:390px){#hbRows button{grid-template-columns:auto 1fr auto;gap:3px;padding-inline:0}#hbRows span{padding-inline:4px}}
