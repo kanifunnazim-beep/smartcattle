@@ -1,0 +1,21 @@
+#herdBoard{color:#162d42}
+#herdBoard header small{font-weight:750;letter-spacing:.15em;color:#47667e}
+#herdBoard h1{font-size:clamp(22px,2.3vw,38px);margin:0 0 .35em;line-height:1.15}
+#herdBoard .hb-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
+#herdBoard article{background:white;border:1px solid #dbe4ec;border-radius:14px;padding:clamp(12px,1.3vw,24px)}
+#herdBoard h2{font-size:clamp(18px,1.5vw,28px);margin:0;line-height:1.15}
+#herdBoard p{font-size:14px;color:#50677b;margin:4px 0 10px}
+#hbRows button{border:0;border-top:1px solid #e0e8ec;background:white;color:inherit;font:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;min-height:clamp(32px,5.5vh,66px);padding:2px 6px}
+#hbRows button:hover,#hbRows button:focus-visible{background:#edf6ff}
+#hbRows strong{font-size:clamp(17px,1.55vw,32px);letter-spacing:.04em}
+#hbRows span{font-weight:650;font-size:clamp(13px,1.2vw,23px);border-radius:6px;padding:1px 9px}
+#hbRows .ok{color:#12643e;background:#e3f5e9}
+#hbRows .warn{color:#824706;background:#fff1d7}
+#hbRows .urgent{color:#982c2c;background:#fde8e8}
+#hbRows .muted{color:#516173;background:#edf1f5}
+#herdBoard dl{margin:0 0 12px}
+#herdBoard dl div{padding:clamp(8px,2vh,22px) 0;border-top:1px solid #e0e8ec}
+#herdBoard dt{color:#405e72}
+#herdBoard dd{font-size:clamp(22px,2.3vw,40px);font-weight:750;margin:0}
+@media(min-width:761px) and (max-height:740px){#herdBoard header small{display:none}#hbRows button{min-height:clamp(25px,5vh,36px)}}
+@media(max-width:760px){#herdBoard .hb-grid{grid-template-columns:1fr}#hbRows button{min-height:44px}}
