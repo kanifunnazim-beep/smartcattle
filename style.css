@@ -2866,13 +2866,17 @@ th{font-size:13px}.kpi b{font-size:32px}.detail b{font-size:25px}.alert b,.subpa
 /* Running Hour */
 .rh-panel{margin-bottom:24px}.rh-total{display:block;font-size:clamp(24px,4vw,40px);margin:12px 0}.rh-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}.rh-panel fieldset{border:0;padding:0}.rh-panel button{margin:4px 4px 4px 0}
 
-/* Header home link. Frame transparent artwork without stretching the logos. */
-.topbar .sc-brand-home{--mark:clamp(40px,3.6vw,56px);display:inline-flex;align-items:center;gap:clamp(10px,1.2vw,20px);border:0;background:transparent;padding:5px;margin:0;cursor:pointer;border-radius:5px;flex:none}
-.sc-brand-home:focus-visible{outline:2px solid #2464ce;outline-offset:2px}
-.sc-brand-home span{display:grid;place-content:center;overflow:hidden;height:var(--mark)}
-.sc-brand-services{width:calc(var(--mark)*2.96)}
-.sc-brand-peduli{width:calc(var(--mark)*1.34)}
-.sc-brand-home img{display:block;height:auto;max-width:none}
-.sc-brand-services img{width:calc(var(--mark)*3.45)}
-.sc-brand-peduli img{width:calc(var(--mark)*1.46)}
-@media(max-width:650px){.topbar .sc-brand-home{--mark:clamp(28px,7vw,40px);gap:8px;padding:3px}}
+/* Program banner: retain the original artwork and feather its edges. */
+.topbar .sc-banner-home{position:relative;display:block;flex:0 1 248px;min-width:0;max-width:248px;padding:0;border:0;margin:0;background:white;cursor:pointer}
+.sc-banner-home img{display:block;width:100%;height:auto}
+.sc-banner-home::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,white,transparent 5%,transparent 95%,white),linear-gradient(to bottom,white,transparent 10%)}
+.sc-banner-home:focus-visible{outline:2px solid #245ac5;outline-offset:2px}
+@media(max-width:650px){.topbar .sc-banner-home{flex-basis:clamp(135px,43vw,207px);max-width:207px}}
+
+.topbar .sc-banner-home{display:flex;align-items:center;flex:0 1 650px;max-width:650px;gap:clamp(8px,1vw,18px);text-align:left;color:#115b3b}
+.sc-banner-home::after{display:none}
+.program-mark{flex:0 0 65px;height:64px;background:url(banner-smartcattle.jpg) -41px -16px / 525px auto no-repeat}
+.program-type{line-height:1.16}.program-type b,.program-type small{display:block}.program-type b{font-size:clamp(16px,1.6vw,27px)}.program-type small{margin-top:3px;font-size:clamp(11px,.95vw,16px);color:#356b51}
+.program-scene{flex:1 1 115px;max-width:225px;height:76px;background:linear-gradient(to right,white,transparent 15%,transparent 73%,white),linear-gradient(to bottom,white,transparent 22%,transparent 82%,white),url(banner-smartcattle.jpg) 60% bottom / auto 140px no-repeat}
+@media(max-width:900px){.program-scene{display:none}}
+@media(max-width:650px){.topbar .sc-banner-home{flex:1 1 160px;max-width:235px;gap:5px}.program-mark{flex-basis:40px;height:42px;background-size:325px auto;background-position:-25px -10px}.program-type b{font-size:13px}.program-type small{font-size:10px}}
