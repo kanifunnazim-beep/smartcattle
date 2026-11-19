@@ -2865,3 +2865,14 @@ th{font-size:13px}.kpi b{font-size:32px}.detail b{font-size:25px}.alert b,.subpa
 
 /* Running Hour */
 .rh-panel{margin-bottom:24px}.rh-total{display:block;font-size:clamp(24px,4vw,40px);margin:12px 0}.rh-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}.rh-panel fieldset{border:0;padding:0}.rh-panel button{margin:4px 4px 4px 0}
+
+/* Header home link. Frame transparent artwork without stretching the logos. */
+.topbar .sc-brand-home{--mark:clamp(40px,3.6vw,56px);display:inline-flex;align-items:center;gap:clamp(10px,1.2vw,20px);border:0;background:transparent;padding:5px;margin:0;cursor:pointer;border-radius:5px;flex:none}
+.sc-brand-home:focus-visible{outline:2px solid #2464ce;outline-offset:2px}
+.sc-brand-home span{display:grid;place-content:center;overflow:hidden;height:var(--mark)}
+.sc-brand-services{width:calc(var(--mark)*2.96)}
+.sc-brand-peduli{width:calc(var(--mark)*1.34)}
+.sc-brand-home img{display:block;height:auto;max-width:none}
+.sc-brand-services img{width:calc(var(--mark)*3.45)}
+.sc-brand-peduli img{width:calc(var(--mark)*1.46)}
+@media(max-width:650px){.topbar .sc-brand-home{--mark:clamp(28px,7vw,40px);gap:8px;padding:3px}}
