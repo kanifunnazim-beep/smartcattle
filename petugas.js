@@ -96,7 +96,7 @@
  window.addEventListener('sc-records-updated',()=>loadFeed());
  async function loadFeed(){
   const request=++state.recordsRequest;state.recordsBusy=true;const from=$('feedFrom').value,to=$('feedTo').value;
-  try{const r=await api('records',{params:{from,to}});if(request!==state.recordsRequest)return;state.records=r.data;state.latest=r.latest_weights;state.range={from:r.from,to:r.to};renderFeed();message('feedMessage','Periode '+r.from+' sampai '+r.to+' · Catatan petugas');}
+  try{const r=await api('records',{params:{from,to}});if(request!==state.recordsRequest)return;state.records=r.data;state.latest=r.latest_weights;setMonitoringWeights(state.latest);state.range={from:r.from,to:r.to};renderFeed();message('feedMessage','Periode '+r.from+' sampai '+r.to+' · Catatan petugas');}
   catch(e){if(request!==state.recordsRequest)return;message('feedMessage',e.message+' Data yang masih terlihat adalah hasil pemuatan sebelumnya.',true);}finally{if(request===state.recordsRequest)state.recordsBusy=false;}
  }
  $('feedFilter').onsubmit=e=>{e.preventDefault();loadFeed();};$('feedCow').onchange=renderFeed;
