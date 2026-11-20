@@ -149,6 +149,7 @@
   });flush();weeks.forEach((w,i)=>{if(w.weight!==null){const dot=add('circle',{cx:left+step*(i+.5),cy:bottom-(w.weight-lo)/(hi-lo)*(bottom-top),r:4,fill:'#7c3aed'});const t=document.createElementNS(svg.namespaceURI,'title');t.textContent=w.date+' · Bobot '+format(w.weight)+' kg';dot.append(t);}});
  }
  syncSession().catch(e=>message('loginMessage',e.message,true));loadSettings();loadFeed();
+ setInterval(()=>{if(!document.hidden && !state.recordsBusy && $('page-overview').classList.contains('active'))loadFeed();},300000);
  setInterval(()=>loadSettings(false),30000);
  setInterval(()=>{if(document.visibilityState!=='hidden')syncSession().catch(()=>{});},60000);
 })();

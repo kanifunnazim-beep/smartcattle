@@ -27,7 +27,7 @@ function cachedReport(string $path,int $ttl): ?array {
 }
 function deviceState(?string $time,int $freshSeconds,int $now): string {
  if(!$time)return 'Belum ada data';$t=strtotime($time);
- if($t===false||$t>$now+60)return 'Waktu perlu diperiksa';return $now-$t<=$freshSeconds?'Online':'Offline';
+ if($t===false||$t>$now+60)return 'Waktu perlu diperiksa';return $now-$t<$freshSeconds?'Online':'Offline';
 }
 try {
  if($_SERVER['REQUEST_METHOD']!=='GET')reportFail('Gunakan GET.',405);
@@ -42,7 +42,7 @@ try {
  $params=['type'=>$type,'cow'=>$cow,'from'=>$from->format('Y-m-d'),'to'=>$to->format('Y-m-d')];
  $ttl=$type==='devices'?30:120;
  // Normalize the key: device snapshot is independent of selected dates.
- $key=hash('sha256',json_encode($type==='devices'?['v'=>2,'type'=>$type]:['v'=>2]+$params));
+ $key=hash('sha256',json_encode($type==='devices'?['v'=>3,'type'=>$type]:['v'=>2]+$params));
  if(!is_dir(REPORT_CACHE)||!is_writable(REPORT_CACHE))reportFail('Laporan belum disiapkan. Pengelola perlu menyiapkan folder cache.',503);
  $path=REPORT_CACHE.'/'.$key.'.json';
  $hit=cachedReport($path,$ttl);if($hit){$hit['cache_hit']=true;reportReply($hit);}
@@ -105,10 +105,10 @@ try {
  }else{
   $now=time();
   foreach($cows as $id){$last=reportQuery($db,'SELECT /*+ MAX_EXECUTION_TIME(2000) */ recorded_at FROM kesehatan_sapi WHERE device_id=? AND recorded_at IS NOT NULL ORDER BY recorded_at DESC LIMIT 1',[$id]);$t=$last[0]['recorded_at']??null;
-   $rows[]=['name'=>'Sensor Kesehatan '.$id,'last_seen'=>$t,'state'=>deviceState($t,360,$now)];}
+   $rows[]=['name'=>'Sensor Kesehatan '.$id,'last_seen'=>$t,'state'=>deviceState($t,18*3600,$now)];}
   $last=reportQuery($db,'SELECT /*+ MAX_EXECUTION_TIME(2000) */ recorded_at FROM lingkungan_kandang WHERE recorded_at IS NOT NULL ORDER BY recorded_at DESC LIMIT 1');$t=$last[0]['recorded_at']??null;
-  $rows[]=['name'=>'Sensor Lingkungan','last_seen'=>$t,'state'=>deviceState($t,120,$now)];
-  $notes=['Status merupakan snapshot berdasarkan waktu pembacaan terakhir di database saat ringkasan disiapkan, bukan riwayat koneksi atau bukti alat terhubung langsung.','Batas kesegaran: kesehatan 6 menit, lingkungan 2 menit. Baterai dan uptime tidak dilaporkan karena belum tersedia.'];
+  $rows[]=['name'=>'Sensor Lingkungan','last_seen'=>$t,'state'=>deviceState($t,18*3600,$now)];
+  $notes=['Status merupakan snapshot berdasarkan waktu pembacaan terakhir di database saat ringkasan disiapkan, bukan riwayat koneksi atau bukti alat terhubung langsung.','Batas kesegaran: perangkat dilabeli Offline sejak 18 jam tanpa pembacaan baru. Baterai dan uptime tidak dilaporkan karena belum tersedia.'];
  }
  $db->close();
  $payload=['status'=>'success','type'=>$type,'cow'=>$cow,'from'=>$type==='devices'?null:$params['from'],'to'=>$type==='devices'?null:$params['to'],

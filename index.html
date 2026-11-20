@@ -7,7 +7,7 @@
 <title>SmartCattle Monitoring</title>
 <link href="style.css?v=20261119-header-B" rel="stylesheet"/>
 <link href="environment-history.css?v=20261110-env-v8" rel="stylesheet"/>
-<link rel="stylesheet" href="overview-board.css">
+<link rel="stylesheet" href="overview-board.css?v=20261120-r2">
 </head>
 <body>
 <div class="app">
@@ -141,7 +141,7 @@
 <section id="herdBoard">
 <header><h1>Smart Cattle Monitoring Dashboard</h1><p>Ringkasan kondisi ternak dan kandang</p></header>
 <div class="hb-grid">
-<article><h2>Kesehatan sapi</h2><p>Pilih nomor tag untuk melihat suhu dan detak jantung.</p><div id="hbRows"></div></article>
+<article><h2>Kesehatan sapi</h2><p>Indikator berdasarkan pembacaan terakhir. Pilih tag untuk melihat detail.</p><div class="hb-columns"><b>Tag sapi</b><b>Bobot</b><b>Indikator</b></div><div id="hbRows"></div></article>
 <article><h2>Lingkungan kandang</h2><p id="hbTime">Menunggu data sensor</p><dl>
 <div><dt>Suhu kandang</dt><dd id="hbTemp">—</dd></div>
 <div><dt>Kelembapan</dt><dd id="hbHumidity">—</dd></div>
@@ -521,7 +521,7 @@
 <div class="subpanel-title">
 <div>
 <h3>
-                      Heart Rate Trend
+                      Tren detak jantung
                     </h3>
 <small>
                       24 jam terakhir
@@ -531,8 +531,12 @@
                     —
                   </strong>
 </div>
-<svg class="chart big" id="detailHrPlot" preserveaspectratio="none" viewbox="0 0 600 220"></svg><p class="demo-note" id="detailHrNote"></p>
+<svg class="chart big" id="detailHrPlot" role="img" aria-label="Grafik garis detak jantung sapi dalam bpm" preserveaspectratio="none" viewbox="0 0 600 220"></svg><p class="demo-note" id="detailHrNote"></p>
 </div>
+<div class="subpanel subpanel-chart">
+<div class="subpanel-title"><div><h3>Tren suhu sensor</h3><small>24 jam terakhir</small></div></div>
+<svg class="chart big" id="detailTempPlot" role="img" aria-label="Grafik garis suhu sensor sapi dalam derajat Celsius"></svg>
+<p class="demo-note" id="detailTempNote"></p></div>
 <!-- DEVICE INFORMATION -->
 <div class="subpanel">
 <div class="subpanel-title">
@@ -794,6 +798,6 @@
 <!-- =====================================================
      JAVASCRIPT
 ====================================================== -->
-<script src="cow-labels.js?v=20261025-tags-v4"></script><script src="app.js?v=20261119-bobot"></script>
-<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas / PLN</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Petugas dapat mengelola catatan dan laporan. Akun PLN dapat mengunduh laporan.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261119-bobot"></script><script src="reports.js?v=20261025-tags-v4"></script><script src="scales.js?v=20261025-tags-v4"></script><script src="running-hours.js?v=20261026-rh-v6"></script><script src="environment-history.js?v=20261110-env-v8"></script><script src="overview-board.js"></script></body>
+<script src="cow-labels.js?v=20261025-tags-v4"></script><script src="app.js?v=20261120-r2"></script>
+<dialog aria-labelledby="loginTitle" id="loginDialog"><form id="loginForm"><div class="sc-dialog-title"><h2 id="loginTitle">Login Petugas / PLN</h2><button aria-label="Tutup login" class="secondary-btn" id="closeLogin" type="button">×</button></div><p>Petugas dapat mengelola catatan dan laporan. Akun PLN dapat mengunduh laporan.</p><label class="sc-label">Username<input autocomplete="username" maxlength="64" minlength="3" name="username" required=""/></label><label class="sc-label">Password<input autocomplete="current-password" maxlength="72" name="password" required="" type="password"/></label><p class="sc-message" id="loginMessage" role="status"></p><button class="primary full-btn" type="submit">Masuk</button></form></dialog><script src="petugas.js?v=20261120-r2"></script><script src="reports.js?v=20261025-tags-v4"></script><script src="scales.js?v=20261025-tags-v4"></script><script src="running-hours.js?v=20261026-rh-v6"></script><script src="environment-history.js?v=20261110-env-v8"></script><script src="overview-board.js?v=20261120-r2"></script></body>
 </html>

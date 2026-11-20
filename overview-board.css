@@ -29,3 +29,11 @@
 #hbGas .hb-nh3-badge[data-state="normal"]{color:#12643e;background:#e3f5e9}
 #hbGas .hb-nh3-badge[data-state="high"]{color:#982c2c;background:#fde8e8}
 #hbGas .hb-nh3-badge[hidden]{display:none}
+
+#herdBoard .hb-columns,#hbRows button{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(max-content,1.2fr);gap:6px;padding-inline:6px;align-items:center}
+#herdBoard .hb-columns{color:#405e72;font-size:clamp(12px,.95vw,18px);padding-block:4px}
+.hb-columns b:nth-child(2){text-align:center}.hb-columns b:last-child{text-align:right}
+#hbRows .warn{background:#fff0cf;color:#77430a}
+@media(min-width:761px) and (max-height:780px){#hbRows button{min-height:clamp(24px,4.4vh,34px)}}
+#detailTempPlot{width:100%;height:auto;min-height:180px;display:block;margin-top:20px;overflow:visible}
+#detailTempNote{background:transparent;border:0;padding:8px 0;margin:0;color:#62768c;font-size:12px}
